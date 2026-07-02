@@ -1,0 +1,227 @@
+<div class="cabecalho">
+  <div>
+    <h1>Gastos da obra</h1>
+    <p>Controle de despesas e parcelas</p>
+  </div>
+  <button type="button" (click)="toggleForm()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
+      <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    Novo gasto
+  </button>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">Total gasto</div>
+    <div class="valor">R$ {{ resumo.totalGasto | number:'1.2-2' }}</div>
+  </div>
+  <div class="card pago">
+    <div class="label">Total pago</div>
+    <div class="valor">R$ {{ resumo.totalPago | number:'1.2-2' }}</div>
+  </div>
+  <div class="card pendente">
+    <div class="label">Pendente</div>
+    <div class="valor">R$ {{ resumo.totalPendente | number:'1.2-2' }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Parcelas pagas</div>
+    <div class="valor">{{ resumo.parcelasPagas }} <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ resumo.parcelasPendentes }}</span></div>
+  </div>
+</div>
+
+<div class="painel" *ngIf="mostrarForm">
+  <h2>Novo gasto</h2>
+  <form class="form-gasto" (ngSubmit)="salvar()">
+    <div class="campo largo">
+      <label for="descricao">Descrição</label>
+      <input type="text" id="descricao" name="descricao" [(ngModel)]="form.descricao" required>
+    </div>
+
+    <div class="campo">
+      <label for="categoria">Categoria</label>
+      <select id="categoria" name="categoria" [(ngModel)]="form.categoria">
+        <option *ngFor="let cat of categorias" [value]="cat">{{ categoriaLabel(cat) }}</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="quantidade">Quantidade</label>
+      <input type="number" min="1" id="quantidade" name="quantidade" [(ngModel)]="form.quantidade" required>
+    </div>
+
+    <div class="campo">
+      <label for="valorTotal">Valor total (R$)</label>
+      <input type="number" step="0.01" id="valorTotal" name="valorTotal" [(ngModel)]="form.valorTotal" required>
+    </div>
+
+    <div class="campo campo-checkbox">
+      <input type="checkbox" id="parcelado" name="parcelado" [(ngModel)]="form.parcelado">
+      <label for="parcelado">Parcelado</label>
+    </div>
+
+    <div class="campo" *ngIf="form.parcelado">
+      <label for="numeroParcelas">Nº de parcelas</label>
+      <input type="number" min="1" id="numeroParcelas" name="numeroParcelas" [(ngModel)]="form.numeroParcelas">
+    </div>
+
+    <div class="campo" *ngIf="form.parcelado">
+      <label for="diaVencimento">Dia de vencimento</label>
+      <input type="number" min="1" max="31" id="diaVencimento" name="diaVencimento" [(ngModel)]="form.diaVencimento">
+    </div>
+
+    <div class="campo">
+      <label for="dataCompra">Data da compra</label>
+      <input type="date" id="dataCompra" name="dataCompra" [(ngModel)]="form.dataCompra" required>
+    </div>
+
+    <div class="campo largo">
+      <label for="fornecedor">Fornecedor</label>
+      <input type="text" id="fornecedor" name="fornecedor" [(ngModel)]="form.fornecedor">
+    </div>
+
+    <div class="form-rodape">
+      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="submit">Adicionar</button>
+    </div>
+  </form>
+</div>
+
+<div class="filtro-status">
+  <button type="button" class="chip" [class.ativo]="filtroStatus === 'todos'" (click)="setFiltro('todos')">Todos</button>
+  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pago'" (click)="setFiltro('pago')">Pago</button>
+  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendente'" (click)="setFiltro('pendente')">Pendente</button>
+</div>
+
+<div class="painel" style="padding:0; overflow:hidden;">
+  <table class="tabela-gastos">
+    <colgroup>
+      <col style="width:26%;"><col style="width:13%;"><col style="width:7%;">
+      <col style="width:12%;"><col style="width:10%;"><col style="width:14%;">
+      <col style="width:10%;"><col style="width:8%;">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="col-descricao">Descrição</th>
+      <th>Categoria</th>
+      <th>Qtd</th>
+      <th>Valor</th>
+      <th>Data</th>
+      <th>Fornecedor</th>
+      <th>Status</th>
+      <th class="col-acoes"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let gasto of gastosFiltrados">
+      <td class="col-descricao">
+        <div style="font-weight:600;">{{ gasto.descricao }}</div>
+        <details>
+          <summary>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas</summary>
+          <ul class="parcelas-lista">
+            <li *ngFor="let parcela of gasto.parcelas">
+              <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+              <span *ngIf="parcela.pago" class="tag pago">pago</span>
+              <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
+            </li>
+          </ul>
+        </details>
+      </td>
+      <td>
+        <span class="tag" [ngClass]="categoriaClasse(gasto.categoria)">{{ categoriaLabel(gasto.categoria) }}</span>
+      </td>
+      <td>{{ gasto.quantidade }}</td>
+      <td style="font-weight:700;">R$ {{ gasto.valorTotal | number:'1.2-2' }}</td>
+      <td style="color:var(--muted);">{{ gasto.dataCompra + 'T00:00:00' | date:'dd/MM/yyyy' }}</td>
+      <td style="color:var(--muted);">{{ gasto.fornecedor }}</td>
+      <td>
+        <span class="tag" [class.pago]="gastoPago(gasto)" [class.pendente]="!gastoPago(gasto)">{{ gastoPago(gasto) ? 'Pago' : 'Pendente' }}</span>
+      </td>
+      <td class="col-acoes">
+        <div class="linha-acoes">
+          <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(gasto)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+            </svg>
+          </button>
+          <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="excluir(gasto.id)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+            </svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+    <tr *ngIf="gastos.length === 0">
+      <td colspan="8" class="col-descricao">Nenhum gasto lançado ainda.</td>
+    </tr>
+    <tr *ngIf="gastos.length > 0 && gastosFiltrados.length === 0">
+      <td colspan="8" class="col-descricao">Nenhum gasto com esse status.</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Editar gasto</h2>
+    <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
+      <div class="campo largo">
+        <label for="edit-descricao">Descrição</label>
+        <input type="text" id="edit-descricao" name="descricao" [(ngModel)]="editForm.descricao" required>
+      </div>
+
+      <div class="campo">
+        <label for="edit-categoria">Categoria</label>
+        <select id="edit-categoria" name="categoria" [(ngModel)]="editForm.categoria">
+          <option *ngFor="let cat of categorias" [value]="cat">{{ categoriaLabel(cat) }}</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="edit-quantidade">Quantidade</label>
+        <input type="number" min="1" id="edit-quantidade" name="quantidade" [(ngModel)]="editForm.quantidade" required>
+      </div>
+
+      <div class="campo">
+        <label for="edit-valorTotal">Valor total (R$)</label>
+        <input type="number" step="0.01" id="edit-valorTotal" name="valorTotal" [(ngModel)]="editForm.valorTotal" required>
+      </div>
+
+      <div class="campo campo-checkbox">
+        <input type="checkbox" id="edit-parcelado" name="parcelado" [(ngModel)]="editForm.parcelado">
+        <label for="edit-parcelado">Parcelado</label>
+      </div>
+
+      <div class="campo" *ngIf="editForm.parcelado">
+        <label for="edit-numeroParcelas">Nº de parcelas</label>
+        <input type="number" min="1" id="edit-numeroParcelas" name="numeroParcelas" [(ngModel)]="editForm.numeroParcelas">
+      </div>
+
+      <div class="campo" *ngIf="editForm.parcelado">
+        <label for="edit-diaVencimento">Dia de vencimento</label>
+        <input type="number" min="1" max="31" id="edit-diaVencimento" name="diaVencimento" [(ngModel)]="editForm.diaVencimento">
+      </div>
+
+      <div class="campo">
+        <label for="edit-dataCompra">Data da compra</label>
+        <input type="date" id="edit-dataCompra" name="dataCompra" [(ngModel)]="editForm.dataCompra" required>
+      </div>
+
+      <div class="campo largo">
+        <label for="edit-fornecedor">Fornecedor</label>
+        <input type="text" id="edit-fornecedor" name="fornecedor" [(ngModel)]="editForm.fornecedor">
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="secundario" (click)="fecharModal()">Cancelar</button>
+        <button type="submit">Salvar edição</button>
+      </div>
+    </form>
+  </div>
+</div>
