@@ -1,0 +1,52 @@
+.card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.label {
+    font-size: 0.66rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.valor {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.valor.grande {
+    font-size: 2.2rem;
+}
+
+.card.pago .valor { color: var(--success); }
+.card.pendente .valor { color: var(--warning); }
+
+.sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.card-barra {
+    margin-top: 12px;
+    height: 3px;
+    background: #f3f4f6;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.card-barra div {
+    height: 100%;
+    background: var(--ink);
+    border-radius: 99px;
+}
+
+.card.pago .card-barra div { background: var(--success); }
+.card.pendente .card-barra div { background: var(--warning); }

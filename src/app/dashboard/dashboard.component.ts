@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GastoService } from '../core/gasto.service';
 import { Categoria, CategoriaGastoTotal, Dashboard, ResumoGastos } from '../core/models';
+import { CardComponent } from '../shared/ui/card/card.component';
+import { PainelComponent } from '../shared/ui/painel/painel.component';
 
 const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
@@ -32,7 +34,7 @@ const DONUT_C = 2 * Math.PI * DONUT_R;
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CardComponent, PainelComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

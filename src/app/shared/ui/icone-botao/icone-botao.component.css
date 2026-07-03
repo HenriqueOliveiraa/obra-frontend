@@ -1,0 +1,27 @@
+.icone {
+    background: #f9fafb;
+    color: var(--muted);
+    border: 1px solid #e5e7eb;
+    padding: 7px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.icone svg {
+    width: 15px;
+    height: 15px;
+}
+
+.icone:hover {
+    background: #f3f4f6;
+    color: var(--ink);
+}
+
+.icone.perigo:hover {
+    background: #fee2e2;
+    color: var(--danger);
+    border-color: #fecaca;
+}
