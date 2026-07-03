@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+.filtro-status {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+textarea {
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: #fafaf9;
+  color: var(--ink);
+  width: 100%;
+  resize: vertical;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.14);
+}
+
+.celula-classificacao {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.input-subcategoria-custom {
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: #fafaf9;
+  color: var(--ink);
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.input-subcategoria-custom:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.14);
+}
+
+.tag.cat-fundacao { background: #fef3c7; color: #b45309; }
+.tag.cat-estrutura { background: #e0e7ff; color: #4338ca; }
+.tag.cat-alvenaria { background: #ffedd5; color: #c2410c; }
+.tag.cat-cobertura { background: #fce7f3; color: #be185d; }
+.tag.cat-esquadrias { background: #dcfce7; color: #15803d; }
+.tag.cat-eletrica { background: #dbeafe; color: #1d4ed8; }
+.tag.cat-hidraulica { background: #cffafe; color: #0e7490; }
+.tag.cat-revestimentos { background: #f3e8ff; color: #7e22ce; }
+.tag.cat-acabamentos { background: #ede9fe; color: #6d28d9; }
+.tag.cat-loucas-metais { background: #e0f2fe; color: #0369a1; }
+.tag.cat-materiais-basicos { background: #fef9c3; color: #a16207; }
+.tag.cat-impermeabilizacao { background: #d1fae5; color: #047857; }
+.tag.cat-vidros { background: #e0f2fe; color: #0284c7; }
+.tag.cat-marcenaria { background: #fde68a; color: #92400e; }
+.tag.cat-gesso-drywall { background: #f1f5f9; color: #475569; }
+.tag.cat-paisagismo { background: #dcfce7; color: #166534; }
+.tag.cat-mao-de-obra { background: #fee2e2; color: #b91c1c; }
+.tag.cat-equipamentos { background: #e2e8f0; color: #334155; }
+.tag.cat-frete { background: #fed7aa; color: #c2410c; }
+.tag.cat-servicos-terceirizados { background: #ddd6fe; color: #5b21b6; }
+.tag.categoria-indefinida { background: #f3f4f6; color: #6b7280; }
+.tag.prioridade-alta { background: #fee2e2; color: #dc2626; }
+.tag.prioridade-media { background: #fef3c7; color: #b45309; }
+.tag.prioridade-baixa { background: #d1fae5; color: #047857; }

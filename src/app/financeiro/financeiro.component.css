@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+
+.barra-col {
+  width: 100% !important;
+  height: 6px;
+  border-radius: 999px;
+  background: #eef0f2;
+  overflow: hidden;
+}
+
+.barra-col .barra {
+  height: 100%;
+  min-width: 0;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}

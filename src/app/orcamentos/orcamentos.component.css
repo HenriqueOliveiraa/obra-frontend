@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.filtro-status {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+textarea {
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: #fafaf9;
+  color: var(--ink);
+  width: 100%;
+  resize: vertical;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.14);
+}
+
+.tag.cat-alvenaria { background: #ffedd5; color: #c2410c; }
+.tag.cat-esquadrias { background: #dbeafe; color: #1d4ed8; }
+.tag.cat-eletrica { background: #fef9c3; color: #a16207; }
+.tag.cat-hidraulica { background: #cffafe; color: #0e7490; }
+.tag.cat-revestimentos { background: #e7e5e4; color: #57534e; }
+.tag.cat-acabamentos { background: #fce7f3; color: #be185d; }
+.tag.cat-loucas-metais { background: #e0f2fe; color: #0369a1; }
+.tag.cat-materiais-basicos { background: #fef3c7; color: #b45309; }
+.tag.cat-impermeabilizacao { background: #ccfbf1; color: #0f766e; }
+.tag.cat-vidros { background: #e0e7ff; color: #4338ca; }
+.tag.cat-marcenaria { background: #f5d0c5; color: #9a3412; }
+.tag.cat-gesso-drywall { background: #ede9fe; color: #6d28d9; }
+.tag.cat-mao-de-obra { background: #d1fae5; color: #047857; }

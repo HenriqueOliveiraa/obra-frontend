@@ -14,15 +14,15 @@
 <div class="cards">
   <div class="card">
     <div class="label">Total gasto</div>
-    <div class="valor">R$ {{ resumo.totalGasto | number:'1.2-2' }}</div>
+    <div class="valor">R$ {{ resumo.totalGasto | number:'1.2-2':'pt-BR' }}</div>
   </div>
   <div class="card pago">
     <div class="label">Total pago</div>
-    <div class="valor">R$ {{ resumo.totalPago | number:'1.2-2' }}</div>
+    <div class="valor">R$ {{ resumo.totalPago | number:'1.2-2':'pt-BR' }}</div>
   </div>
   <div class="card pendente">
     <div class="label">Pendente</div>
-    <div class="valor">R$ {{ resumo.totalPendente | number:'1.2-2' }}</div>
+    <div class="valor">R$ {{ resumo.totalPendente | number:'1.2-2':'pt-BR' }}</div>
   </div>
   <div class="card">
     <div class="label">Parcelas pagas</div>
@@ -40,9 +40,12 @@
 
     <div class="campo">
       <label for="categoria">Categoria</label>
-      <select id="categoria" name="categoria" [(ngModel)]="form.categoria">
-        <option *ngFor="let cat of categorias" [value]="cat">{{ categoriaLabel(cat) }}</option>
-      </select>
+      <app-dropdown-select
+        id="categoria"
+        name="categoria"
+        [(ngModel)]="form.categoria"
+        [options]="categoriaOptions">
+      </app-dropdown-select>
     </div>
 
     <div class="campo">
@@ -78,6 +81,21 @@
     <div class="campo largo">
       <label for="fornecedor">Fornecedor</label>
       <input type="text" id="fornecedor" name="fornecedor" [(ngModel)]="form.fornecedor">
+    </div>
+
+    <div class="campo" *ngIf="form.categoria === 'MATERIAL'">
+      <label for="statusMaterial">Status de entrega</label>
+      <app-dropdown-select
+        id="statusMaterial"
+        name="statusMaterial"
+        [(ngModel)]="form.statusMaterial"
+        [options]="statusMaterialOptions">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo" *ngIf="form.categoria === 'MATERIAL' && form.statusMaterial === 'ENTREGUE'">
+      <label for="responsavelRecebimento">Quem recebeu</label>
+      <input type="text" id="responsavelRecebimento" name="responsavelRecebimento" [(ngModel)]="form.responsavelRecebimento" placeholder="Ex: mestre de obra, você...">
     </div>
 
     <div class="form-rodape">
@@ -120,7 +138,7 @@
           <summary>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas</summary>
           <ul class="parcelas-lista">
             <li *ngFor="let parcela of gasto.parcelas">
-              <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+              <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2':'pt-BR' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
               <span *ngIf="parcela.pago" class="tag pago">pago</span>
               <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
             </li>
@@ -129,9 +147,18 @@
       </td>
       <td>
         <span class="tag" [ngClass]="categoriaClasse(gasto.categoria)">{{ categoriaLabel(gasto.categoria) }}</span>
+        <button
+          *ngIf="gasto.categoria === 'MATERIAL'"
+          type="button"
+          class="tag status-material"
+          [ngClass]="statusMaterialClasse(gasto.statusMaterial)"
+          (click)="avancarStatusMaterial(gasto)"
+          [title]="gasto.responsavelRecebimento ? 'Recebido por ' + gasto.responsavelRecebimento : 'Clique para avançar o status'">
+          {{ statusMaterialLabel(gasto.statusMaterial) }}
+        </button>
       </td>
       <td>{{ gasto.quantidade }}</td>
-      <td style="font-weight:700;">R$ {{ gasto.valorTotal | number:'1.2-2' }}</td>
+      <td style="font-weight:700;">R$ {{ gasto.valorTotal | number:'1.2-2':'pt-BR' }}</td>
       <td style="color:var(--muted);">{{ gasto.dataCompra + 'T00:00:00' | date:'dd/MM/yyyy' }}</td>
       <td style="color:var(--muted);">{{ gasto.fornecedor }}</td>
       <td>
@@ -178,9 +205,12 @@
 
       <div class="campo">
         <label for="edit-categoria">Categoria</label>
-        <select id="edit-categoria" name="categoria" [(ngModel)]="editForm.categoria">
-          <option *ngFor="let cat of categorias" [value]="cat">{{ categoriaLabel(cat) }}</option>
-        </select>
+        <app-dropdown-select
+          id="edit-categoria"
+          name="categoria"
+          [(ngModel)]="editForm.categoria"
+          [options]="categoriaOptions">
+        </app-dropdown-select>
       </div>
 
       <div class="campo">
@@ -216,6 +246,21 @@
       <div class="campo largo">
         <label for="edit-fornecedor">Fornecedor</label>
         <input type="text" id="edit-fornecedor" name="fornecedor" [(ngModel)]="editForm.fornecedor">
+      </div>
+
+      <div class="campo" *ngIf="editForm.categoria === 'MATERIAL'">
+        <label for="edit-statusMaterial">Status de entrega</label>
+        <app-dropdown-select
+          id="edit-statusMaterial"
+          name="statusMaterial"
+          [(ngModel)]="editForm.statusMaterial"
+          [options]="statusMaterialOptions">
+        </app-dropdown-select>
+      </div>
+
+      <div class="campo" *ngIf="editForm.categoria === 'MATERIAL' && editForm.statusMaterial === 'ENTREGUE'">
+        <label for="edit-responsavelRecebimento">Quem recebeu</label>
+        <input type="text" id="edit-responsavelRecebimento" name="responsavelRecebimento" [(ngModel)]="editForm.responsavelRecebimento" placeholder="Ex: mestre de obra, você...">
       </div>
 
       <div class="modal-acoes">
