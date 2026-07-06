@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListaComprasService } from '../core/lista-compras.service';
 import { Categoria, ItemCompra, PrioridadeCompra } from '../core/models';
-import { CATEGORIAS, CATEGORIA_CLASSE, CATEGORIA_LABEL, DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { CATEGORIAS, CATEGORIA_CLASSE, CATEGORIA_LABEL } from '../gastos/gastos.component';
+import { DropdownOpcao, DropdownSelectComponent } from '../shared/ui/dropdown-select/dropdown-select.component';
 
 const PRIORIDADES: PrioridadeCompra[] = ['ALTA', 'MEDIA', 'BAIXA'];
 

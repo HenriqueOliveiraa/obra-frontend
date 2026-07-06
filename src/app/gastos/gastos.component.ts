@@ -8,17 +8,18 @@ import { PainelComponent } from '../shared/ui/painel/painel.component';
 import { TagComponent, TagVariante } from '../shared/ui/tag/tag.component';
 import { ModalComponent } from '../shared/ui/modal/modal.component';
 import { IconeBotaoComponent } from '../shared/ui/icone-botao/icone-botao.component';
+import { DropdownSelectComponent } from '../shared/ui/dropdown-select/dropdown-select.component';
 
-const CATEGORIAS: Categoria[] = ['MATERIAL', 'MAO_DE_OBRA', 'TRANSPORTE', 'OUTROS'];
+export const CATEGORIAS: Categoria[] = ['MATERIAL', 'MAO_DE_OBRA', 'TRANSPORTE', 'OUTROS'];
 
-const CATEGORIA_LABEL: Record<Categoria, string> = {
+export const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
   MAO_DE_OBRA: 'Mão de obra',
   TRANSPORTE: 'Transporte',
   OUTROS: 'Outros'
 };
 
-const CATEGORIA_CLASSE: Record<Categoria, TagVariante> = {
+export const CATEGORIA_CLASSE: Record<Categoria, TagVariante> = {
   MATERIAL: 'cat-material',
   MAO_DE_OBRA: 'cat-mao-de-obra',
   TRANSPORTE: 'cat-transporte',
@@ -30,7 +31,7 @@ type FiltroStatus = 'todos' | 'pago' | 'pendente';
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardComponent, PainelComponent, TagComponent, ModalComponent, IconeBotaoComponent],
+  imports: [CommonModule, FormsModule, CardComponent, PainelComponent, TagComponent, ModalComponent, IconeBotaoComponent, DropdownSelectComponent],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
