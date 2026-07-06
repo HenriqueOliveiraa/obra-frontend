@@ -660,8 +660,22 @@ table tbody tr:last-child td {
 .tabela-gastos th,
 .tabela-gastos td {
     text-align: center;
+    vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.celula-categoria {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: normal;
+}
+
+.celula-categoria .tag {
     white-space: nowrap;
 }
 
@@ -798,6 +812,110 @@ details summary:hover {
     color: var(--ink);
 }
 
+/* ── Tabela paginada (altura fixa + paginador) ── */
+
+.tabela-wrap {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 610px;
+}
+
+.tabela-wrap .tabela-scroll {
+    flex: 1;
+    overflow: auto;
+}
+
+.paginador {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+}
+
+.paginador-info {
+    margin-right: auto;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.paginador-seta,
+.paginador-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.paginador-seta {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: var(--muted);
+}
+
+.paginador-seta:hover:not(:disabled) {
+    background: #f9fafb;
+    color: var(--ink);
+}
+
+.paginador-seta:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.paginador-numero:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.paginador-numero:disabled:hover {
+    background: transparent;
+    color: var(--muted);
+}
+
+.paginador-numero.ativo:disabled {
+    opacity: 1;
+    background: var(--accent);
+    color: #fff;
+}
+
+.paginador-numero {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+}
+
+.paginador-numero:hover {
+    background: #f9fafb;
+    color: var(--ink);
+}
+
+.paginador-numero.ativo {
+    background: var(--accent);
+    color: #fff;
+}
+
+.paginador-reticencias {
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 0 4px;
+    min-width: 16px;
+    text-align: center;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
@@ -814,5 +932,20 @@ details summary:hover {
 
     .painel-duplo {
         grid-template-columns: 1fr;
+    }
+
+    .tabela-wrap {
+        height: auto;
+    }
+
+    .paginador {
+        justify-content: center;
+    }
+
+    .paginador-info {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 6px;
     }
 }

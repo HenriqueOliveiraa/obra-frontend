@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { GastoService } from '../core/gasto.service';
 import { OrcamentoService } from '../core/orcamento.service';
 import { Categoria, Dashboard, Gasto, OrcamentoConfig, ResumoGastos } from '../core/models';
+import { PdfRelatorioService, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 
 const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
@@ -52,6 +53,7 @@ interface LinhaCategoria {
 export class FinanceiroComponent implements OnInit {
   private gastoService = inject(GastoService);
   private orcamentoService = inject(OrcamentoService);
+  private pdfService = inject(PdfRelatorioService);
 
   config: OrcamentoConfig = {
     orcamentoTotal: 0,
@@ -149,6 +151,71 @@ export class FinanceiroComponent implements OnInit {
     this.orcamentoService.salvarConfig(this.form);
     this.config = this.clonarConfig(this.form);
     this.mostrarForm = false;
+  }
+
+  exportarPdf(): void {
+    this.pdfService.carregarLogo().then(logo => {
+      const pdf = this.pdfService.iniciar('Relatório Financeiro', logo);
+
+      const saldoExibido = this.orcamentoTotalEstourado ? -this.saldoOrcamentoTotal : this.saldoOrcamentoTotal;
+
+      pdf.resumoCards([
+        { label: 'Orçamento total', valor: formatarMoedaPdf(this.config.orcamentoTotal) },
+        { label: 'Já gasto', valor: formatarMoedaPdf(this.resumo.totalGasto) },
+        {
+          label: this.orcamentoTotalEstourado ? 'Estourou em' : 'Saldo disponível',
+          valor: formatarMoedaPdf(saldoExibido),
+          corValor: this.orcamentoTotalEstourado ? '#dc2626' : '#16a34a'
+        },
+        { label: '% do orçamento utilizado', valor: `${this.pctOrcamentoTotal}%` }
+      ]);
+
+      pdf.tituloSecao('Resumo por categoria');
+
+      const linhasCategoria = this.linhasCategoria.map(linha => ({
+        categoria: linha.label,
+        gasto: linha.gasto,
+        teto: linha.teto,
+        pct: `${linha.pct}%`,
+        status: linha.estourado ? 'Estourado' : 'Dentro do teto'
+      }));
+
+      pdf.tabela({
+        colunas: [
+          { chave: 'categoria', titulo: 'Categoria', largura: 40 },
+          { chave: 'gasto', titulo: 'Gasto', largura: 35, monetario: true },
+          { chave: 'teto', titulo: 'Teto', largura: 35, monetario: true },
+          { chave: 'pct', titulo: '% utilizado', largura: 28, alinhamento: 'center' },
+          { chave: 'status', titulo: 'Status', largura: 30 }
+        ],
+        linhas: linhasCategoria,
+        destacarLinha: linha => linha['status'] === 'Estourado'
+          ? { cor: '#fee2e2', corTexto: '#991b1b' }
+          : null
+      });
+
+      pdf.tituloSecao('Gastos por mês (últimos 6 meses)');
+
+      const linhasMeses = this.gastosPorMes.map(mes => ({
+        mes: mes.label,
+        total: mes.total
+      }));
+
+      if (linhasMeses.length === 0) {
+        pdf.textoDestaque('Nenhum gasto registrado ainda para compor o histórico mensal.');
+      } else {
+        pdf.tabela({
+          colunas: [
+            { chave: 'mes', titulo: 'Mês', largura: 60 },
+            { chave: 'total', titulo: 'Total gasto', largura: 60, monetario: true }
+          ],
+          linhas: linhasMeses
+        });
+      }
+
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      pdf.salvar(`relatorio-financeiro-${dataArquivo}.pdf`);
+    });
   }
 
   private clonarConfig(config: OrcamentoConfig): OrcamentoConfig {

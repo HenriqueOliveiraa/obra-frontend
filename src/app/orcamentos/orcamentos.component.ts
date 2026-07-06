@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CotacaoService } from '../core/cotacao.service';
 import { Cotacao, CategoriaOrcamento } from '../core/models';
 import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/pdf/pdf-relatorio.service';
 import {
   CATEGORIAS_ORCAMENTO,
   CATEGORIA_ORCAMENTO_LABEL,
@@ -38,6 +39,7 @@ interface GrupoCategoria {
 })
 export class OrcamentosComponent implements OnInit {
   private service = inject(CotacaoService);
+  private pdfService = inject(PdfRelatorioService);
 
   categorias = CATEGORIAS_ORCAMENTO;
   categoriaOptions: DropdownOpcao[] = CATEGORIAS_ORCAMENTO.map(cat => ({ value: cat, label: CATEGORIA_ORCAMENTO_LABEL[cat] }));
@@ -46,6 +48,8 @@ export class OrcamentosComponent implements OnInit {
   cotacoes: Cotacao[] = [];
 
   filtroCategoria: FiltroCategoria = TODAS;
+
+  categoriasColapsadas = new Set<CategoriaOrcamento>();
 
   mostrarForm = false;
   form: Cotacao = this.formVazio();
@@ -98,6 +102,18 @@ export class OrcamentosComponent implements OnInit {
 
   setFiltro(valor: string): void {
     this.filtroCategoria = valor as FiltroCategoria;
+  }
+
+  toggleCategoria(categoria: CategoriaOrcamento): void {
+    if (this.categoriasColapsadas.has(categoria)) {
+      this.categoriasColapsadas.delete(categoria);
+    } else {
+      this.categoriasColapsadas.add(categoria);
+    }
+  }
+
+  estaColapsada(categoria: CategoriaOrcamento): boolean {
+    return this.categoriasColapsadas.has(categoria);
   }
 
   get totalCotacoes(): number {
@@ -155,6 +171,69 @@ export class OrcamentosComponent implements OnInit {
     if (!this.mostrarForm) {
       this.form = this.formVazio();
     }
+  }
+
+  exportarPdf(): void {
+    this.pdfService.carregarLogo().then(logo => {
+      const pdf = this.pdfService.iniciar('Relatório de Orçamentos', logo);
+
+      pdf.resumoCards([
+        { label: 'Cotações registradas', valor: String(this.totalCotacoes) },
+        { label: 'Valor total escolhido', valor: formatarMoedaPdf(this.valorTotalEscolhido), corValor: '#16a34a' },
+        { label: 'Fornecedores cadastrados', valor: String(this.fornecedoresUnicos) },
+        { label: 'Categorias com cotação', valor: `${this.categoriasComCotacao} / ${this.categorias.length}` }
+      ]);
+
+      const gruposVisiveis = this.gruposFiltrados.filter(grupo => !this.estaColapsada(grupo.categoria));
+      const existemCategoriasOcultas = gruposVisiveis.length < this.gruposFiltrados.length;
+
+      if (existemCategoriasOcultas) {
+        pdf.textoDestaque('Categorias recolhidas na tela não foram incluídas neste relatório.');
+      }
+
+      if (gruposVisiveis.length === 0) {
+        pdf.textoDestaque('Nenhuma categoria expandida para exportar. Expanda ao menos uma categoria na tela e exporte novamente.');
+      }
+
+      gruposVisiveis.forEach(grupo => {
+        pdf.tituloSecao(grupo.label);
+
+        grupo.subgrupos.forEach(sub => {
+          pdf.subtitulo(sub.subcategoria);
+
+          const linhas = sub.cotacoes.map(cotacao => ({
+            fornecedor: cotacao.fornecedor,
+            item: cotacao.item,
+            valor: cotacao.valor,
+            data: formatarDataPdf(cotacao.data),
+            observacao: cotacao.observacao || '—',
+            status: cotacao.escolhido
+              ? 'Escolhida'
+              : (cotacao.valor === sub.menorValor ? 'Mais barata' : '—')
+          }));
+
+          pdf.tabela({
+            colunas: [
+              { chave: 'fornecedor', titulo: 'Fornecedor', largura: 32 },
+              { chave: 'item', titulo: 'Item', largura: 28 },
+              { chave: 'valor', titulo: 'Valor', largura: 22, monetario: true },
+              { chave: 'data', titulo: 'Data', largura: 20 },
+              { chave: 'observacao', titulo: 'Observação', largura: 34 },
+              { chave: 'status', titulo: 'Status', largura: 26 }
+            ],
+            linhas,
+            destacarLinha: linha => {
+              if (linha['status'] === 'Escolhida') { return { cor: '#d1fae5', corTexto: '#047857' }; }
+              if (linha['status'] === 'Mais barata') { return { cor: '#fef3c7', corTexto: '#b45309' }; }
+              return null;
+            }
+          });
+        });
+      });
+
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      pdf.salvar(`relatorio-orcamentos-${dataArquivo}.pdf`);
+    });
   }
 
   salvar(): void {

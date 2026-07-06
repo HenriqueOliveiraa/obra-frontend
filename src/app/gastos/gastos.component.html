@@ -3,12 +3,23 @@
     <h1>Gastos da obra</h1>
     <p>Controle de despesas e parcelas</p>
   </div>
-  <button type="button" (click)="toggleForm()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
-      <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-    </svg>
-    Novo gasto
-  </button>
+  <div class="cabecalho-acoes">
+    <button type="button" class="secundario" (click)="exportarPdf()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:6px;">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="12" y1="18" x2="12" y2="12"></line>
+        <polyline points="9 15 12 18 15 15"></polyline>
+      </svg>
+      Exportar PDF
+    </button>
+    <button type="button" (click)="toggleForm()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Novo gasto
+    </button>
+  </div>
 </div>
 
 <div class="cards">
@@ -111,12 +122,13 @@
   <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendente'" (click)="setFiltro('pendente')">Pendente</button>
 </div>
 
-<div class="painel" style="padding:0; overflow:hidden;">
+<div class="painel tabela-wrap">
+  <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:26%;"><col style="width:13%;"><col style="width:7%;">
-      <col style="width:12%;"><col style="width:10%;"><col style="width:14%;">
-      <col style="width:10%;"><col style="width:8%;">
+      <col style="width:23%;"><col style="width:12%;"><col style="width:6%;">
+      <col style="width:11%;"><col style="width:9%;"><col style="width:12%;">
+      <col style="width:9%;"><col style="width:10%;"><col style="width:8%;">
     </colgroup>
     <thead>
     <tr>
@@ -127,11 +139,12 @@
       <th>Data</th>
       <th>Fornecedor</th>
       <th>Status</th>
-      <th class="col-acoes"></th>
+      <th>Comprovante</th>
+      <th class="col-acoes">Ações</th>
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let gasto of gastosFiltrados">
+    <tr *ngFor="let gasto of gastosPaginados">
       <td class="col-descricao">
         <div style="font-weight:600;">{{ gasto.descricao }}</div>
         <details>
@@ -146,16 +159,18 @@
         </details>
       </td>
       <td>
-        <span class="tag" [ngClass]="categoriaClasse(gasto.categoria)">{{ categoriaLabel(gasto.categoria) }}</span>
-        <button
-          *ngIf="gasto.categoria === 'MATERIAL'"
-          type="button"
-          class="tag status-material"
-          [ngClass]="statusMaterialClasse(gasto.statusMaterial)"
-          (click)="avancarStatusMaterial(gasto)"
-          [title]="gasto.responsavelRecebimento ? 'Recebido por ' + gasto.responsavelRecebimento : 'Clique para avançar o status'">
-          {{ statusMaterialLabel(gasto.statusMaterial) }}
-        </button>
+        <div class="celula-categoria">
+          <span class="tag" [ngClass]="categoriaClasse(gasto.categoria)">{{ categoriaLabel(gasto.categoria) }}</span>
+          <button
+            *ngIf="gasto.categoria === 'MATERIAL'"
+            type="button"
+            class="tag status-material"
+            [ngClass]="statusMaterialClasse(gasto.statusMaterial)"
+            (click)="avancarStatusMaterial(gasto)"
+            [title]="gasto.responsavelRecebimento ? 'Recebido por ' + gasto.responsavelRecebimento : 'Clique para avançar o status'">
+            {{ statusMaterialLabel(gasto.statusMaterial) }}
+          </button>
+        </div>
       </td>
       <td>{{ gasto.quantidade }}</td>
       <td style="font-weight:700;">R$ {{ gasto.valorTotal | number:'1.2-2':'pt-BR' }}</td>
@@ -163,6 +178,19 @@
       <td style="color:var(--muted);">{{ gasto.fornecedor }}</td>
       <td>
         <span class="tag" [class.pago]="gastoPago(gasto)" [class.pendente]="!gastoPago(gasto)">{{ gastoPago(gasto) ? 'Pago' : 'Pendente' }}</span>
+      </td>
+      <td>
+        <button
+          type="button"
+          class="botao-comprovante"
+          [class.anexado]="temComprovante(gasto.id)"
+          (click)="abrirAnexo(gasto.id)"
+          [title]="temComprovante(gasto.id) ? 'Ver ou trocar comprovante' : 'Anexar comprovante'"
+          [attr.aria-label]="temComprovante(gasto.id) ? 'Comprovante anexado' : 'Anexar comprovante'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path>
+          </svg>
+        </button>
       </td>
       <td class="col-acoes">
         <div class="linha-acoes">
@@ -185,13 +213,24 @@
       </td>
     </tr>
     <tr *ngIf="gastos.length === 0">
-      <td colspan="8" class="col-descricao">Nenhum gasto lançado ainda.</td>
+      <td colspan="9" class="col-descricao">Nenhum gasto lançado ainda.</td>
     </tr>
     <tr *ngIf="gastos.length > 0 && gastosFiltrados.length === 0">
-      <td colspan="8" class="col-descricao">Nenhum gasto com esse status.</td>
+      <td colspan="9" class="col-descricao">Nenhum gasto com esse status.</td>
     </tr>
     </tbody>
   </table>
+  </div>
+
+  <div class="paginador">
+    <span class="paginador-info">Página {{ paginaAtualGastos }} de {{ totalPaginasGastos }} · {{ gastosFiltrados.length }} gasto(s)</span>
+    <button type="button" class="paginador-seta" [disabled]="paginaAtualGastos === 1" (click)="irParaPaginaGastos(paginaAtualGastos - 1)" aria-label="Página anterior">‹</button>
+    <ng-container *ngFor="let p of paginasVisiveisGastos">
+      <span *ngIf="p === '...'" class="paginador-reticencias">…</span>
+      <button *ngIf="p !== '...'" type="button" class="paginador-numero" [class.ativo]="p === paginaAtualGastos" [disabled]="totalPaginasGastos <= 1" (click)="irParaPaginaGastos(p)">{{ p }}</button>
+    </ng-container>
+    <button type="button" class="paginador-seta" [disabled]="paginaAtualGastos === totalPaginasGastos" (click)="irParaPaginaGastos(paginaAtualGastos + 1)" aria-label="Próxima página">›</button>
+  </div>
 </div>
 
 <div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
@@ -268,5 +307,39 @@
         <button type="submit">Salvar edição</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="anexoGastoId" (click)="fecharAnexo()">
+  <div class="modal modal-comprovante" (click)="$event.stopPropagation()">
+    <h2>Comprovante do gasto</h2>
+
+    <div class="comprovante-atual" *ngIf="comprovanteDoGasto(anexoGastoId) as comprovante">
+      <div class="comprovante-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        <div>
+          <strong>{{ comprovante.nomeArquivo }}</strong>
+          <span>Enviado em {{ comprovante.dataUpload | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+      <img *ngIf="comprovante.tipoArquivo.startsWith('image/')" [src]="comprovante.dataUrl" alt="Prévia do comprovante" class="comprovante-preview">
+      <a *ngIf="!comprovante.tipoArquivo.startsWith('image/')" [href]="comprovante.dataUrl" [download]="comprovante.nomeArquivo" class="comprovante-abrir">Abrir arquivo</a>
+      <button type="button" class="secundario" (click)="removerComprovante(anexoGastoId)">Remover comprovante</button>
+    </div>
+
+    <div class="campo largo" style="margin-top: 14px;">
+      <label for="arquivo-comprovante">{{ comprovanteDoGasto(anexoGastoId) ? 'Substituir por outro arquivo' : 'Selecionar arquivo (nota, foto ou recibo)' }}</label>
+      <input type="file" id="arquivo-comprovante" name="arquivo" accept="image/*,application/pdf" (change)="onArquivoSelecionado($event)">
+    </div>
+
+    <p class="erro" *ngIf="anexoErro">{{ anexoErro }}</p>
+    <p *ngIf="anexoCarregando" style="color: var(--muted); font-size: 0.82rem;">Enviando arquivo...</p>
+
+    <div class="modal-acoes">
+      <button type="button" class="secundario" (click)="fecharAnexo()">Fechar</button>
+    </div>
   </div>
 </div>

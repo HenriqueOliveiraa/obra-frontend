@@ -2,7 +2,9 @@ import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, forwardR
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GastoService } from '../core/gasto.service';
-import { Categoria, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
+import { ComprovanteService } from '../core/comprovante.service';
+import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
+import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 
 export interface DropdownOpcao {
   value: string;
@@ -369,17 +371,16 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     this.disabled = isDisabled;
   }
 }
+export const CATEGORIAS: Categoria[] = ['MATERIAL', 'MAO_DE_OBRA', 'TRANSPORTE', 'OUTROS'];
 
-const CATEGORIAS: Categoria[] = ['MATERIAL', 'MAO_DE_OBRA', 'TRANSPORTE', 'OUTROS'];
-
-const CATEGORIA_LABEL: Record<Categoria, string> = {
+export const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
   MAO_DE_OBRA: 'Mão de obra',
   TRANSPORTE: 'Transporte',
   OUTROS: 'Outros'
 };
 
-const CATEGORIA_CLASSE: Record<Categoria, string> = {
+export const CATEGORIA_CLASSE: Record<Categoria, string> = {
   MATERIAL: 'cat-material',
   MAO_DE_OBRA: 'cat-mao-de-obra',
   TRANSPORTE: 'cat-transporte',
@@ -400,6 +401,8 @@ const STATUS_MATERIAL_CLASSE: Record<StatusMaterial, string> = {
   ENTREGUE: 'status-entregue'
 };
 
+const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024; // 5MB, limite razoável para dataUrl em localStorage
+
 type FiltroStatus = 'todos' | 'pago' | 'pendente';
 
 @Component({
@@ -411,6 +414,8 @@ type FiltroStatus = 'todos' | 'pago' | 'pendente';
 })
 export class GastosComponent implements OnInit {
   private service = inject(GastoService);
+  private comprovanteService = inject(ComprovanteService);
+  private pdfService = inject(PdfRelatorioService);
 
   categorias = CATEGORIAS;
   categoriaOptions: DropdownOpcao[] = CATEGORIAS.map(cat => ({ value: cat, label: CATEGORIA_LABEL[cat] }));
@@ -421,19 +426,43 @@ export class GastosComponent implements OnInit {
 
   filtroStatus: FiltroStatus = 'todos';
 
+  itensPorPagina = 10;
+  paginaAtualGastos = 1;
+
   mostrarForm = false;
   form: Gasto = this.formVazio();
 
   editandoId: number | null = null;
   editForm: Gasto = this.formVazio();
 
+  // Comprovantes: indexados por gastoId para consulta rápida no template
+  comprovantesPorGasto: Record<number, Comprovante> = {};
+  anexoGastoId: number | null = null;
+  anexoErro = '';
+  anexoCarregando = false;
+
   ngOnInit(): void {
     this.carregar();
   }
 
   carregar(): void {
-    this.service.listar().subscribe(pagina => this.gastos = pagina.content);
+    this.service.listar().subscribe(pagina => {
+      this.gastos = pagina.content;
+      if (this.paginaAtualGastos > this.totalPaginasGastos) {
+        this.paginaAtualGastos = this.totalPaginasGastos;
+      }
+    });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
+    this.carregarComprovantes();
+  }
+
+  carregarComprovantes(): void {
+    this.comprovanteService.listar().subscribe(comprovantes => {
+      this.comprovantesPorGasto = {};
+      for (const comprovante of comprovantes) {
+        this.comprovantesPorGasto[comprovante.gastoId] = comprovante;
+      }
+    });
   }
 
   toggleForm(): void {
@@ -483,8 +512,93 @@ export class GastosComponent implements OnInit {
     return this.gastos.filter(g => this.gastoPago(g) === querPago);
   }
 
+  get totalPaginasGastos(): number {
+    return Math.max(1, Math.ceil(this.gastosFiltrados.length / this.itensPorPagina));
+  }
+
+  get gastosPaginados(): Gasto[] {
+    const inicio = (this.paginaAtualGastos - 1) * this.itensPorPagina;
+    return this.gastosFiltrados.slice(inicio, inicio + this.itensPorPagina);
+  }
+
+  get paginasVisiveisGastos(): (number | string)[] {
+    return this.calcularPaginasVisiveis(this.paginaAtualGastos, this.totalPaginasGastos);
+  }
+
+  irParaPaginaGastos(pagina: number | string): void {
+    if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasGastos) { return; }
+    this.paginaAtualGastos = pagina;
+  }
+
+  private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const paginas: (number | string)[] = [1];
+    if (atual > 3) { paginas.push('...'); }
+    const inicio = Math.max(2, atual - 1);
+    const fim = Math.min(total - 1, atual + 1);
+    for (let i = inicio; i <= fim; i++) { paginas.push(i); }
+    if (atual < total - 2) { paginas.push('...'); }
+    paginas.push(total);
+    return paginas;
+  }
+
   setFiltro(filtro: FiltroStatus): void {
     this.filtroStatus = filtro;
+    this.paginaAtualGastos = 1;
+  }
+
+  exportarPdf(): void {
+    this.pdfService.carregarLogo().then(logo => {
+      const totalParcelas = this.resumo.parcelasPagas + this.resumo.parcelasPendentes;
+
+      const pdf = this.pdfService.iniciar('Relatório de Gastos', logo);
+
+      pdf.resumoCards([
+        { label: 'Total gasto', valor: formatarMoedaPdf(this.resumo.totalGasto) },
+        { label: 'Total pago', valor: formatarMoedaPdf(this.resumo.totalPago), corValor: '#16a34a' },
+        { label: 'Total pendente', valor: formatarMoedaPdf(this.resumo.totalPendente), corValor: '#b45309' },
+        { label: 'Qtd. de gastos', valor: String(this.gastosFiltrados.length) },
+        { label: 'Parcelas pagas', valor: String(this.resumo.parcelasPagas), corValor: '#16a34a' },
+        { label: 'Parcelas pendentes', valor: String(this.resumo.parcelasPendentes), corValor: totalParcelas > 0 && this.resumo.parcelasPendentes > 0 ? '#b45309' : undefined }
+      ]);
+
+      pdf.tituloSecao('Gastos lançados');
+
+      const linhas = this.gastosFiltrados.map(gasto => ({
+        descricao: gasto.descricao,
+        categoria: this.categoriaLabel(gasto.categoria),
+        quantidade: gasto.quantidade,
+        valor: gasto.valorTotal,
+        data: formatarDataPdf(gasto.dataCompra),
+        fornecedor: gasto.fornecedor || '—',
+        status: this.gastoPago(gasto) ? 'Pago' : 'Pendente'
+      }));
+
+      pdf.tabela({
+        colunas: [
+          { chave: 'descricao', titulo: 'Descrição', largura: 42 },
+          { chave: 'categoria', titulo: 'Categoria', largura: 24 },
+          { chave: 'quantidade', titulo: 'Qtd', largura: 12, alinhamento: 'center' },
+          { chave: 'valor', titulo: 'Valor', largura: 24, monetario: true },
+          { chave: 'data', titulo: 'Data', largura: 20 },
+          { chave: 'fornecedor', titulo: 'Fornecedor', largura: 30 },
+          { chave: 'status', titulo: 'Status', largura: 20 }
+        ],
+        linhas,
+        destacarLinha: linha => linha['status'] === 'Pendente'
+          ? { cor: '#fef3c7', corTexto: '#b45309' }
+          : null
+      });
+
+      if (linhas.length === 0) {
+        pdf.textoDestaque('Nenhum gasto encontrado para o filtro selecionado.');
+      }
+
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      pdf.salvar(`relatorio-gastos-${dataArquivo}.pdf`);
+    });
   }
 
   salvar(): void {
@@ -533,6 +647,76 @@ export class GastosComponent implements OnInit {
   excluir(id: number | undefined): void {
     if (!id) { return; }
     this.service.excluir(id).subscribe(() => this.carregar());
+  }
+
+  // --- Comprovantes ---
+
+  temComprovante(gastoId: number | undefined): boolean {
+    return !!gastoId && !!this.comprovantesPorGasto[gastoId];
+  }
+
+  comprovanteDoGasto(gastoId: number | undefined): Comprovante | null {
+    if (!gastoId) { return null; }
+    return this.comprovantesPorGasto[gastoId] ?? null;
+  }
+
+  abrirAnexo(gastoId: number | undefined): void {
+    if (!gastoId) { return; }
+    this.anexoGastoId = gastoId;
+    this.anexoErro = '';
+  }
+
+  fecharAnexo(): void {
+    this.anexoGastoId = null;
+    this.anexoErro = '';
+    this.anexoCarregando = false;
+  }
+
+  onArquivoSelecionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const arquivo = input.files?.[0];
+    if (!arquivo || !this.anexoGastoId) { return; }
+
+    if (arquivo.size > TAMANHO_MAXIMO_ARQUIVO) {
+      this.anexoErro = 'Arquivo muito grande. Envie um arquivo de até 5MB.';
+      input.value = '';
+      return;
+    }
+
+    this.anexoErro = '';
+    this.anexoCarregando = true;
+    const gastoId = this.anexoGastoId;
+
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const comprovante: Comprovante = {
+        gastoId,
+        nomeArquivo: arquivo.name,
+        tipoArquivo: arquivo.type,
+        dataUrl: leitor.result as string,
+        dataUpload: new Date().toISOString()
+      };
+
+      this.comprovanteService.salvar(comprovante).subscribe(() => {
+        this.comprovantesPorGasto[gastoId] = comprovante;
+        this.anexoCarregando = false;
+        this.fecharAnexo();
+      });
+    };
+    leitor.onerror = () => {
+      this.anexoErro = 'Não foi possível ler o arquivo. Tente novamente.';
+      this.anexoCarregando = false;
+    };
+    leitor.readAsDataURL(arquivo);
+
+    input.value = '';
+  }
+
+  removerComprovante(gastoId: number | undefined): void {
+    if (!gastoId) { return; }
+    this.comprovanteService.remover(gastoId).subscribe(() => {
+      delete this.comprovantesPorGasto[gastoId];
+    });
   }
 
   private formVazio(): Gasto {
