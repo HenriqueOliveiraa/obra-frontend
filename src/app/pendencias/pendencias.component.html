@@ -1,0 +1,148 @@
+﻿<div class="cabecalho">
+  <div>
+    <h1>Pendências</h1>
+    <p>Central operacional do que ainda precisa de atenção na obra</p>
+  </div>
+  <button type="button" class="secundario" (click)="carregarPendencias()">Atualizar</button>
+</div>
+
+<div class="erro" *ngIf="erro">{{ erro }}</div>
+
+<div class="painel painel-atencao" [class.critico]="temPendenciasCriticas">
+  <div class="atencao-topo">
+    <div>
+      <h2>Hoje exige sua atenção</h2>
+      <p *ngIf="!carregando && totalPendencias > 0">Resolva primeiro o que aparece em destaque e use os botões para abrir a tela certa já filtrada.</p>
+      <p *ngIf="!carregando && totalPendencias === 0">Nada crítico encontrado agora. Sua obra está sem pendências registradas nestes controles.</p>
+      <p *ngIf="carregando">Carregando dados da obra...</p>
+    </div>
+    <div class="valor-comprometido">
+      <span>Valor comprometido</span>
+      <strong>R$ {{ valorComprometido | number:'1.2-2':'pt-BR' }}</strong>
+    </div>
+  </div>
+
+  <div class="cards cards-atencao">
+    <button
+      type="button"
+      class="card card-acao"
+      *ngFor="let card of cardsAtencao"
+      [class.critica]="card.severidade === 'critica'"
+      [class.alerta]="card.severidade === 'alerta'"
+      [class.info]="card.severidade === 'info'"
+      [class.ok]="card.severidade === 'ok'"
+      (click)="abrirPendencia(card.rota, card.pendencia)">
+      <div class="status-dot"></div>
+      <div class="label">{{ card.titulo }}</div>
+      <div class="valor">{{ card.valor }}</div>
+      <div class="sub">{{ card.detalhe }}</div>
+    </button>
+  </div>
+</div>
+
+<div class="painel" *ngIf="!carregando && secoesComPendencia.length > 0">
+  <h2>Pendências para resolver</h2>
+  <table class="tabela-gastos tabela-pendencias">
+    <colgroup>
+      <col style="width:30%;"><col style="width:42%;"><col style="width:12%;"><col style="width:16%;">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="col-descricao">Pendência</th>
+      <th>O que significa</th>
+      <th>Qtd.</th>
+      <th class="col-acoes"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let secao of secoesComPendencia">
+      <td class="col-descricao">
+        <span class="tag" [ngClass]="{
+          'tag-critica': secao.severidade === 'critica',
+          'pendente': secao.severidade === 'alerta',
+          'tag-info': secao.severidade === 'info'
+        }">{{ secao.titulo }}</span>
+      </td>
+      <td>{{ secao.descricao }}</td>
+      <td style="font-weight:800;">{{ secao.quantidade }}</td>
+      <td class="col-acoes">
+        <button type="button" class="secundario" (click)="abrirPendencia(secao.rota, secao.pendencia)">Resolver</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="painel-duplo" *ngIf="!carregando">
+  <div class="painel" *ngIf="parcelasVencidas.length > 0 || parcelasVencendo7Dias.length > 0">
+    <h2>Financeiro urgente</h2>
+    <div class="lista-resumo" *ngIf="parcelasVencidas.length > 0">
+      <div class="item-resumo" *ngFor="let item of parcelasVencidas | slice:0:4">
+        <div>
+          <strong>{{ item.gasto.descricao }}</strong>
+          <span>Parcela #{{ item.parcela.numero }} vencida em {{ item.parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <b>R$ {{ item.parcela.valor | number:'1.2-2':'pt-BR' }}</b>
+      </div>
+    </div>
+    <div class="lista-resumo" *ngIf="parcelasVencendo7Dias.length > 0">
+      <div class="item-resumo" *ngFor="let item of parcelasVencendo7Dias | slice:0:4">
+        <div>
+          <strong>{{ item.gasto.descricao }}</strong>
+          <span>Vence em {{ item.diasAteVencimento }} dia(s)</span>
+        </div>
+        <b>R$ {{ item.parcela.valor | number:'1.2-2':'pt-BR' }}</b>
+      </div>
+    </div>
+    <button type="button" (click)="abrirPendencia('/financeiro', parcelasVencidas.length > 0 ? 'parcelas-vencidas' : 'parcelas-7-dias')">Abrir financeiro</button>
+  </div>
+
+  <div class="painel" *ngIf="materiaisAguardandoEntrega.length > 0">
+    <h2>Materiais aguardando entrega</h2>
+    <div class="lista-resumo">
+      <div class="item-resumo" *ngFor="let gasto of materiaisAguardandoEntrega | slice:0:5">
+        <div>
+          <strong>{{ gasto.descricao }}</strong>
+          <span>{{ gasto.fornecedor || 'Sem fornecedor informado' }} · {{ gasto.dataCompra + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <b>R$ {{ gasto.valorTotal | number:'1.2-2':'pt-BR' }}</b>
+      </div>
+    </div>
+    <button type="button" (click)="abrirPendencia('/gastos', 'materiais-aguardando')">Abrir gastos</button>
+  </div>
+
+  <div class="painel" *ngIf="gastosSemComprovante.length > 0">
+    <h2>Gastos sem comprovante</h2>
+    <div class="lista-resumo">
+      <div class="item-resumo" *ngFor="let gasto of gastosSemComprovante | slice:0:5">
+        <div>
+          <strong>{{ gasto.descricao }}</strong>
+          <span>{{ gasto.fornecedor || 'Sem fornecedor informado' }}</span>
+        </div>
+        <b>R$ {{ gasto.valorTotal | number:'1.2-2':'pt-BR' }}</b>
+      </div>
+    </div>
+    <button type="button" (click)="abrirPendencia('/gastos', 'sem-comprovante')">Regularizar comprovantes</button>
+  </div>
+
+  <div class="painel" *ngIf="comprasPendentes.length > 0 || cotacoesEscolhidas.length > 0">
+    <h2>Compras e cotações</h2>
+    <div class="lista-resumo" *ngIf="comprasPendentes.length > 0">
+      <div class="item-resumo" *ngFor="let item of comprasPendentes | slice:0:5">
+        <div>
+          <strong>{{ item.descricao }}</strong>
+          <span>Prioridade {{ item.prioridade }}{{ item.quantidadeDesejada ? ' · qtd. ' + item.quantidadeDesejada : '' }}</span>
+        </div>
+      </div>
+      <button type="button" (click)="abrirPendencia('/lista-compras', 'pendentes')">Abrir lista de compras</button>
+    </div>
+    <div class="aviso-confianca" *ngIf="cotacoesEscolhidas.length > 0">
+      Existem {{ cotacoesEscolhidas.length }} cotação(ões) escolhida(s). Como ainda não há vínculo confiável com gastos, a tela apenas direciona para conferência.
+      <button type="button" (click)="abrirPendencia('/orcamentos', 'cotacoes-escolhidas')">Abrir orçamentos</button>
+    </div>
+  </div>
+
+<div class="painel estado-vazio" *ngIf="!carregando && secoesComPendencia.length === 0">
+  <h2>Nenhuma pendência encontrada</h2>
+  <p>Não há parcelas vencidas, materiais aguardando entrega, gastos sem comprovante, gastos sem classificação ou compras pendentes nos dados atuais.</p>
+</div>

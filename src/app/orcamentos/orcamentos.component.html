@@ -1,0 +1,282 @@
+<div class="cabecalho">
+  <div>
+    <h1>Orçamentos</h1>
+    <p>Registre cotações de fornecedores e compare antes de decidir</p>
+  </div>
+  <div class="cabecalho-acoes">
+    <button type="button" class="secundario" (click)="exportarPdf()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:6px;">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="12" y1="18" x2="12" y2="12"></line>
+        <polyline points="9 15 12 18 15 15"></polyline>
+      </svg>
+      Exportar PDF
+    </button>
+    <button type="button" (click)="toggleForm()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nova cotação
+    </button>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">Cotações registradas</div>
+    <div class="valor">{{ totalCotacoes }}</div>
+  </div>
+  <div class="card pago">
+    <div class="label">Valor total escolhido</div>
+    <div class="valor">R$ {{ valorTotalEscolhido | number:'1.2-2':'pt-BR' }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Fornecedores cadastrados</div>
+    <div class="valor">{{ fornecedoresUnicos }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Categorias com cotação</div>
+    <div class="valor">{{ categoriasComCotacao }} <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ categorias.length }}</span></div>
+  </div>
+</div>
+
+<div class="painel" *ngIf="mostrarForm">
+  <h2>Nova cotação</h2>
+  <form class="form-gasto" (ngSubmit)="salvar()">
+    <div class="campo">
+      <label for="categoria">Categoria</label>
+      <app-dropdown-select
+        id="categoria"
+        name="categoria"
+        [ngModel]="form.categoria"
+        (ngModelChange)="onCategoriaChangeForm($event)"
+        [options]="categoriaOptions">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo">
+      <label for="subcategoria">Subcategoria</label>
+      <app-dropdown-select
+        id="subcategoria"
+        name="subcategoria"
+        [(ngModel)]="form.subcategoria"
+        [options]="subcategoriaOptions(form.categoria)">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo" *ngIf="ehSubcategoriaOutro">
+      <label for="subcategoriaCustom">Especifique a subcategoria</label>
+      <input type="text" id="subcategoriaCustom" name="subcategoriaCustom" [(ngModel)]="form.subcategoriaCustom" placeholder="Ex: Batente de alumínio">
+    </div>
+
+    <div class="campo largo">
+      <label for="item">Item / descrição</label>
+      <input type="text" id="item" name="item" [(ngModel)]="form.item" placeholder="Ex: Torneira gourmet para cozinha" required>
+    </div>
+
+    <div class="campo largo">
+      <label for="fornecedor">Fornecedor</label>
+      <input type="text" id="fornecedor" name="fornecedor" [(ngModel)]="form.fornecedor" placeholder="Ex: Leroy Merlin, loja do seu Zé..." required>
+    </div>
+
+    <div class="campo">
+      <label for="valor">Valor (R$)</label>
+      <input type="number" step="0.01" min="0" id="valor" name="valor" [(ngModel)]="form.valor" required>
+    </div>
+
+    <div class="campo">
+      <label for="quantidade">Quantidade</label>
+      <input type="number" step="0.01" min="0" id="quantidade" name="quantidade" [(ngModel)]="form.quantidade">
+    </div>
+
+    <div class="campo">
+      <label for="unidade">Unidade</label>
+      <input type="text" id="unidade" name="unidade" [(ngModel)]="form.unidade" placeholder="Ex: m², un, saco, kg">
+    </div>
+
+    <div class="campo">
+      <label for="data">Data da cotação</label>
+      <input type="date" id="data" name="data" [(ngModel)]="form.data" required>
+    </div>
+
+    <div class="campo largo">
+      <label for="observacao">Observação</label>
+      <textarea id="observacao" name="observacao" rows="2" [(ngModel)]="form.observacao" placeholder="Prazo de entrega, condição de pagamento, garantia..."></textarea>
+    </div>
+
+    <div class="form-rodape">
+      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="submit">Salvar cotação</button>
+    </div>
+  </form>
+</div>
+
+<div class="campo" style="max-width:230px; margin-bottom:20px;">
+  <label for="filtroCategoria">Filtrar por categoria</label>
+  <app-dropdown-select
+    id="filtroCategoria"
+    name="filtroCategoria"
+    [ngModel]="filtroCategoria"
+    (ngModelChange)="setFiltro($event)"
+    [options]="filtroCategoriaOptions">
+  </app-dropdown-select>
+</div>
+
+<div class="painel" *ngFor="let grupo of gruposFiltrados">
+  <h2 class="painel-categoria-cabecalho" (click)="toggleCategoria(grupo.categoria)">
+    <span class="tag" [ngClass]="grupo.classe" style="margin-right:8px;">{{ grupo.label }}</span>
+    <button
+      type="button"
+      class="categoria-seta"
+      [class.colapsada]="estaColapsada(grupo.categoria)"
+      (click)="$event.stopPropagation(); toggleCategoria(grupo.categoria)"
+      [attr.aria-label]="estaColapsada(grupo.categoria) ? 'Expandir categoria' : 'Recolher categoria'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  </h2>
+
+  <ng-container *ngIf="!estaColapsada(grupo.categoria)">
+  <div *ngFor="let sub of grupo.subgrupos" style="margin-bottom:22px;">
+    <div style="font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:10px;">{{ sub.subcategoria }}</div>
+
+    <table class="tabela-gastos">
+      <colgroup>
+        <col style="width:26%;"><col style="width:22%;"><col style="width:13%;">
+        <col style="width:11%;"><col style="width:14%;"><col style="width:14%;">
+      </colgroup>
+      <thead>
+      <tr>
+        <th class="col-descricao">Fornecedor</th>
+        <th>Item</th>
+        <th>Valor</th>
+        <th>Data</th>
+        <th>Escolha</th>
+        <th class="col-acoes"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let cotacao of sub.cotacoes">
+        <td class="col-descricao">
+          <div style="font-weight:600;">{{ cotacao.fornecedor }}</div>
+          <div *ngIf="cotacao.observacao" style="font-size:0.7rem; color:var(--muted); margin-top:2px;">{{ cotacao.observacao }}</div>
+        </td>
+        <td>{{ cotacao.item }}</td>
+        <td>
+          <span style="font-weight:700;">R$ {{ cotacao.valor | number:'1.2-2':'pt-BR' }}</span>
+          <span *ngIf="cotacao.valor === sub.menorValor" class="tag pago" style="margin-left:6px;">Mais barata</span>
+        </td>
+        <td style="color:var(--muted);">{{ cotacao.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</td>
+        <td>
+          <button
+            type="button"
+            class="tag"
+            [ngClass]="cotacao.escolhido ? 'pago' : 'pendente'"
+            (click)="marcarEscolhido(cotacao.id)">
+            {{ cotacao.escolhido ? 'Escolhida ✓' : 'Escolher' }}
+          </button>
+        </td>
+        <td class="col-acoes">
+          <div class="linha-acoes">
+            <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(cotacao)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+              </svg>
+            </button>
+            <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="excluir(cotacao.id)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+              </svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  </ng-container>
+</div>
+
+<div class="painel" *ngIf="cotacoes.length === 0" style="text-align:center; color:var(--muted); font-size:0.85rem;">
+  Nenhuma cotação registrada ainda. Clique em "Nova cotação" para começar a comparar preços.
+</div>
+
+<div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Editar cotação</h2>
+    <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
+      <div class="campo">
+        <label for="edit-categoria">Categoria</label>
+        <app-dropdown-select
+          id="edit-categoria"
+          name="categoria"
+          [ngModel]="editForm.categoria"
+          (ngModelChange)="onCategoriaChangeEdit($event)"
+          [options]="categoriaOptions">
+        </app-dropdown-select>
+      </div>
+
+      <div class="campo">
+        <label for="edit-subcategoria">Subcategoria</label>
+        <app-dropdown-select
+          id="edit-subcategoria"
+          name="subcategoria"
+          [(ngModel)]="editForm.subcategoria"
+          [options]="subcategoriaOptions(editForm.categoria)">
+        </app-dropdown-select>
+      </div>
+
+      <div class="campo" *ngIf="ehSubcategoriaOutroEdit">
+        <label for="edit-subcategoriaCustom">Especifique a subcategoria</label>
+        <input type="text" id="edit-subcategoriaCustom" name="subcategoriaCustom" [(ngModel)]="editForm.subcategoriaCustom">
+      </div>
+
+      <div class="campo largo">
+        <label for="edit-item">Item / descrição</label>
+        <input type="text" id="edit-item" name="item" [(ngModel)]="editForm.item" required>
+      </div>
+
+      <div class="campo largo">
+        <label for="edit-fornecedor">Fornecedor</label>
+        <input type="text" id="edit-fornecedor" name="fornecedor" [(ngModel)]="editForm.fornecedor" required>
+      </div>
+
+      <div class="campo">
+        <label for="edit-valor">Valor (R$)</label>
+        <input type="number" step="0.01" min="0" id="edit-valor" name="valor" [(ngModel)]="editForm.valor" required>
+      </div>
+
+      <div class="campo">
+        <label for="edit-quantidade">Quantidade</label>
+        <input type="number" step="0.01" min="0" id="edit-quantidade" name="quantidade" [(ngModel)]="editForm.quantidade">
+      </div>
+
+      <div class="campo">
+        <label for="edit-unidade">Unidade</label>
+        <input type="text" id="edit-unidade" name="unidade" [(ngModel)]="editForm.unidade">
+      </div>
+
+      <div class="campo">
+        <label for="edit-data">Data da cotação</label>
+        <input type="date" id="edit-data" name="data" [(ngModel)]="editForm.data" required>
+      </div>
+
+      <div class="campo largo">
+        <label for="edit-observacao">Observação</label>
+        <textarea id="edit-observacao" name="observacao" rows="2" [(ngModel)]="editForm.observacao"></textarea>
+      </div>
+
+      <div class="modal-acoes">
+        <button type="button" class="secundario" (click)="fecharModal()">Cancelar</button>
+        <button type="submit">Salvar edição</button>
+      </div>
+    </form>
+  </div>
+</div>
