@@ -1,3 +1,81 @@
 :host {
   display: block;
 }
+
+.botao-comprovante {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fafaf9;
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.botao-comprovante:hover {
+  background: #fff;
+  border-color: #d1d5db;
+}
+
+.botao-comprovante.anexado {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+.modal-comprovante .comprovante-atual {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #eef0f3;
+  border-radius: 10px;
+  background: #f9fafb;
+  margin-bottom: 4px;
+}
+
+.comprovante-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #374151;
+}
+
+.comprovante-info strong {
+  display: block;
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+
+.comprovante-info span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-top: 2px;
+}
+
+.comprovante-preview {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  object-fit: contain;
+  align-self: flex-start;
+}
+
+.comprovante-abrir {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.comprovante-abrir:hover {
+  text-decoration: underline;
+}
