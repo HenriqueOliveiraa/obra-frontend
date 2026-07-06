@@ -123,7 +123,7 @@
   </app-dropdown-select>
 </div>
 
-<div class="painel" *ngFor="let grupo of gruposFiltrados">
+<div class="painel" [class.colapsado]="estaColapsada(grupo.categoria)" *ngFor="let grupo of gruposFiltrados">
   <h2 class="painel-categoria-cabecalho" (click)="toggleCategoria(grupo.categoria)">
     <span class="tag" [ngClass]="grupo.classe" style="margin-right:8px;">{{ grupo.label }}</span>
     <button

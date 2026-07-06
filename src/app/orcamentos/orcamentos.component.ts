@@ -49,7 +49,9 @@ export class OrcamentosComponent implements OnInit {
 
   filtroCategoria: FiltroCategoria = TODAS;
 
-  categoriasColapsadas = new Set<CategoriaOrcamento>();
+  // Começa com TODAS as categorias colapsadas: o card só abre se a
+  // pessoa clicar na seta.
+  categoriasColapsadas = new Set<CategoriaOrcamento>(CATEGORIAS_ORCAMENTO);
 
   mostrarForm = false;
   form: Cotacao = this.formVazio();

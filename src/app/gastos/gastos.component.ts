@@ -405,6 +405,14 @@ const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024; // 5MB, limite razoável para da
 
 type FiltroStatus = 'todos' | 'pago' | 'pendente';
 
+const FILTRO_STATUS_LABEL: Record<FiltroStatus, string> = {
+  todos: 'Todos',
+  pago: 'Pago',
+  pendente: 'Pendente'
+};
+
+const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
+
 @Component({
   selector: 'app-gastos',
   standalone: true,
@@ -421,6 +429,7 @@ export class GastosComponent implements OnInit {
   categoriaOptions: DropdownOpcao[] = CATEGORIAS.map(cat => ({ value: cat, label: CATEGORIA_LABEL[cat] }));
   statusMateriais = STATUS_MATERIAL_ORDEM;
   statusMaterialOptions: DropdownOpcao[] = STATUS_MATERIAL_ORDEM.map(status => ({ value: status, label: STATUS_MATERIAL_LABEL[status] }));
+  filtroStatusOptions: DropdownOpcao[] = FILTRO_STATUS_ORDEM.map(status => ({ value: status, label: FILTRO_STATUS_LABEL[status] }));
   gastos: Gasto[] = [];
   resumo: ResumoGastos = { totalGasto: 0, totalPago: 0, totalPendente: 0, parcelasPagas: 0, parcelasPendentes: 0 };
 
@@ -544,8 +553,8 @@ export class GastosComponent implements OnInit {
     return paginas;
   }
 
-  setFiltro(filtro: FiltroStatus): void {
-    this.filtroStatus = filtro;
+  setFiltro(filtro: string): void {
+    this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualGastos = 1;
   }
 

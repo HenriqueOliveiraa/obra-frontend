@@ -11,9 +11,13 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class AppComponent {
   title = 'Obra da Casa';
-  sidebarCollapsed = signal(false);
+  sidebarCollapsed = signal(true);
 
-  toggleSidebar(): void {
-    this.sidebarCollapsed.update(v => !v);
+  expandirSidebar(): void {
+    this.sidebarCollapsed.set(false);
+  }
+
+  recolherSidebar(): void {
+    this.sidebarCollapsed.set(true);
   }
 }

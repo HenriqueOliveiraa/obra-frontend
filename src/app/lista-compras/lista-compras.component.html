@@ -75,10 +75,15 @@
   </form>
 </div>
 
-<div class="filtro-status">
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'todos'" (click)="setFiltro('todos')">Todos</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendentes'" (click)="setFiltro('pendentes')">Pendentes</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'comprados'" (click)="setFiltro('comprados')">Comprados</button>
+<div class="campo" style="max-width:230px; margin-bottom:20px;">
+  <label for="filtroStatus">Filtrar por status</label>
+  <app-dropdown-select
+    id="filtroStatus"
+    name="filtroStatus"
+    [ngModel]="filtroStatus"
+    (ngModelChange)="setFiltro($event)"
+    [options]="filtroStatusOptions">
+  </app-dropdown-select>
 </div>
 
 <div class="painel tabela-wrap">

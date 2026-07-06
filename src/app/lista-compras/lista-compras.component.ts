@@ -21,6 +21,14 @@ const PRIORIDADE_CLASSE: Record<PrioridadeCompra, string> = {
 
 type FiltroStatus = 'todos' | 'pendentes' | 'comprados';
 
+const FILTRO_STATUS_LABEL: Record<FiltroStatus, string> = {
+  todos: 'Todos',
+  pendentes: 'Pendentes',
+  comprados: 'Comprados'
+};
+
+const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pendentes', 'comprados'];
+
 @Component({
   selector: 'app-lista-compras',
   standalone: true,
@@ -36,6 +44,7 @@ export class ListaComprasComponent implements OnInit {
 
   prioridades = PRIORIDADES;
   prioridadeOptions: DropdownOpcao[] = PRIORIDADES.map(p => ({ value: p, label: PRIORIDADE_LABEL[p] }));
+  filtroStatusOptions: DropdownOpcao[] = FILTRO_STATUS_ORDEM.map(status => ({ value: status, label: FILTRO_STATUS_LABEL[status] }));
 
   itens: ItemCompra[] = [];
   filtroStatus: FiltroStatus = 'todos';
@@ -128,8 +137,8 @@ export class ListaComprasComponent implements OnInit {
     return paginas;
   }
 
-  setFiltro(filtro: FiltroStatus): void {
-    this.filtroStatus = filtro;
+  setFiltro(filtro: string): void {
+    this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualItens = 1;
   }
 

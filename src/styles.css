@@ -50,19 +50,6 @@ body {
     overflow: hidden;
 }
 
-.sidebar {
-    width: var(--sidebar-width);
-    min-height: 100vh;
-    background: var(--sidebar-bg);
-    display: flex;
-    flex-direction: column;
-    transition: width 0.22s cubic-bezier(.4,0,.2,1);
-    overflow: hidden;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-}
 
 .sidebar.colapsada {
     width: var(--sidebar-width-collapsed);
@@ -78,17 +65,6 @@ body {
     overflow: hidden;
 }
 
-.sidebar-brand .logo {
-    width: 34px;
-    height: 34px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-    border-radius: 9px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-}
 
 .sidebar-brand .titulo {
     color: #fff;
@@ -376,6 +352,7 @@ h2 {
     line-height: 1.25;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;
@@ -811,8 +788,6 @@ details summary {
 details summary:hover {
     color: var(--ink);
 }
-
-/* ── Tabela paginada (altura fixa + paginador) ── */
 
 .tabela-wrap {
     padding: 0;
