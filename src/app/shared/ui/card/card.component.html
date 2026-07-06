@@ -1,0 +1,9 @@
+<div class="card" [class.pago]="variante === 'pago'" [class.pendente]="variante === 'pendente'">
+  <div class="label">{{ label }}</div>
+  <div class="valor" [class.grande]="tamanho === 'grande'">{{ valor }}</div>
+  <div class="sub" *ngIf="sub">{{ sub }}</div>
+  <div class="card-barra" *ngIf="barraPercent !== undefined">
+    <div [style.width.%]="barraPercent" [style.background]="barraCor"></div>
+  </div>
+  <ng-content></ng-content>
+</div>

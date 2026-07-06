@@ -4,31 +4,17 @@
 </div>
 
 <div class="cards">
-  <div class="card">
-    <div class="label">Total gasto</div>
-    <div class="valor">R$ {{ resumo.totalGasto | number:'1.2-2':'pt-BR' }}</div>
-    <div class="card-barra"><div style="width:100%;"></div></div>
-  </div>
-  <div class="card pago">
-    <div class="label">Total pago</div>
-    <div class="valor">R$ {{ resumo.totalPago | number:'1.2-2':'pt-BR' }}</div>
-    <div class="card-barra"><div [style.width.%]="resumo.totalGasto ? (resumo.totalPago / resumo.totalGasto) * 100 : 0"></div></div>
-  </div>
-  <div class="card pendente">
-    <div class="label">A pagar</div>
-    <div class="valor">R$ {{ resumo.totalPendente | number:'1.2-2':'pt-BR' }}</div>
-    <div class="card-barra"><div [style.width.%]="resumo.totalGasto ? (resumo.totalPendente / resumo.totalGasto) * 100 : 0"></div></div>
-  </div>
-  <div class="card">
-    <div class="label">Parcelas</div>
-    <div class="valor">{{ resumo.parcelasPagas }} <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ resumo.parcelasPendentes }}</span></div>
-    <div class="card-barra"><div style="width:44%; background:#6366f1;"></div></div>
-  </div>
+  <app-card label="Total gasto" [valor]="'R$ ' + (resumo.totalGasto | number:'1.2-2')" [barraPercent]="100"></app-card>
+  <app-card label="Total pago" [valor]="'R$ ' + (resumo.totalPago | number:'1.2-2')" variante="pago"
+             [barraPercent]="resumo.totalGasto ? (resumo.totalPago / resumo.totalGasto) * 100 : 0"></app-card>
+  <app-card label="A pagar" [valor]="'R$ ' + (resumo.totalPendente | number:'1.2-2')" variante="pendente"
+             [barraPercent]="resumo.totalGasto ? (resumo.totalPendente / resumo.totalGasto) * 100 : 0"></app-card>
+  <app-card label="Parcelas" [valor]="resumo.parcelasPagas + ' / ' + resumo.parcelasPendentes"
+             [barraPercent]="44" barraCor="#6366f1"></app-card>
 </div>
 
 <div class="painel-duplo">
-  <div class="painel">
-    <h2>Materiais mais comprados</h2>
+  <app-painel titulo="Materiais mais comprados">
     <div style="display:flex; flex-direction:column; gap:16px;">
       <div *ngFor="let mat of dashboard.materiaisMaisComprados">
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
@@ -38,16 +24,15 @@
         <div class="barra-col" style="width:100%;">
           <div class="barra" [style.width.%]="(mat.quantidadeTotal / maiorQuantidade()) * 100"></div>
         </div>
-        <div style="font-size:0.7rem; color:var(--muted); margin-top:4px; font-weight:500;">R$ {{ mat.valorTotalGasto | number:'1.2-2':'pt-BR' }}</div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:4px; font-weight:500;">R$ {{ mat.valorTotalGasto | number:'1.2-2' }}</div>
       </div>
       <div *ngIf="dashboard.materiaisMaisComprados.length === 0" style="font-size:0.82rem; color:var(--muted);">
         Nenhum gasto lançado ainda.
       </div>
     </div>
-  </div>
+  </app-painel>
 
-  <div class="painel">
-    <h2>Gasto por categoria</h2>
+  <app-painel titulo="Gasto por categoria">
     <div style="display:flex; align-items:center; gap:24px;" *ngIf="segmentos.length > 0; else semDados">
       <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;">
         <circle cx="60" cy="60" r="42" fill="none" stroke="#f3f4f6" stroke-width="15"></circle>
@@ -55,14 +40,14 @@
                 [attr.stroke]="seg.cor" stroke-width="15"
                 [attr.stroke-dasharray]="seg.dasharray" [attr.stroke-dashoffset]="seg.dashoffset"></circle>
         <text x="60" y="56" text-anchor="middle" font-size="8" fill="#9ca3af" font-weight="600">TOTAL</text>
-        <text x="60" y="69" text-anchor="middle" font-size="10" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0':'pt-BR' }}</text>
+        <text x="60" y="69" text-anchor="middle" font-size="10" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0' }}</text>
       </svg>
       <div style="flex:1; display:flex; flex-direction:column; gap:11px; min-width:0;">
         <div *ngFor="let seg of segmentos" style="display:flex; align-items:center; gap:9px;">
           <div style="width:9px; height:9px; border-radius:3px; flex-shrink:0;" [style.background]="seg.cor"></div>
           <div style="flex:1; min-width:0;">
             <div style="font-size:0.78rem; font-weight:600; color:#374151;">{{ seg.categoria }}</div>
-            <div style="font-size:0.7rem; color:var(--muted); margin-top:1px;">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2':'pt-BR' }}</div>
+            <div style="font-size:0.7rem; color:var(--muted); margin-top:1px;">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2' }}</div>
           </div>
         </div>
       </div>
@@ -70,5 +55,5 @@
     <ng-template #semDados>
       <div style="font-size:0.82rem; color:var(--muted);">Nenhum gasto lançado ainda.</div>
     </ng-template>
-  </div>
+  </app-painel>
 </div>

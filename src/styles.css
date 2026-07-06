@@ -233,55 +233,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-.card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 20px;
-}
-
-.card .label {
-    font-size: 0.66rem;
-    color: var(--muted);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 700;
-}
-
-.card .valor {
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1;
-}
-
-.card.pendente .valor { color: var(--warning); }
-.card.pago .valor { color: var(--success); }
-
-.card .sub {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 5px;
-}
-
-.card .card-barra {
-    margin-top: 12px;
-    height: 3px;
-    background: #f3f4f6;
-    border-radius: 99px;
-    overflow: hidden;
-}
-
-.card .card-barra div {
-    height: 100%;
-    background: var(--ink);
-    border-radius: 99px;
-}
-
-.card.pago .card-barra div { background: var(--success); }
-.card.pendente .card-barra div { background: var(--warning); }
-
 .barra-col {
     width: 30%;
 }
@@ -295,20 +246,6 @@ h2 {
 
 .barra.pendente {
     background: var(--warning);
-}
-
-.painel {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 26px;
-    margin-bottom: 18px;
-}
-
-.painel h2 {
-    margin: 0 0 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #f3f4f6;
 }
 
 .painel-duplo {
@@ -405,6 +342,10 @@ h2 {
 }
 
 .legenda {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
     gap: 24px;
@@ -573,34 +514,6 @@ button.secundario:hover {
     align-items: center;
 }
 
-button.icone {
-    background: #f9fafb;
-    color: var(--muted);
-    border: 1px solid #e5e7eb;
-    padding: 7px;
-    border-radius: 7px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-button.icone svg {
-    width: 15px;
-    height: 15px;
-}
-
-button.icone:hover {
-    background: #f3f4f6;
-    color: var(--ink);
-}
-
-button.icone.perigo:hover {
-    background: #fee2e2;
-    color: var(--danger);
-    border-color: #fecaca;
-}
-
 button.link {
     background: none;
     color: var(--danger);
@@ -700,22 +613,6 @@ table tbody tr:last-child td {
     justify-content: center;
 }
 
-.tag {
-    display: inline-block;
-    padding: 3px 9px;
-    border-radius: 999px;
-    font-size: 0.68rem;
-    font-weight: 700;
-}
-
-.tag.pago { background: #d1fae5; color: #047857; }
-.tag.pendente { background: #fef3c7; color: #b45309; }
-
-.tag.cat-material { background: #fef3c7; color: #b45309; }
-.tag.cat-mao-de-obra { background: #dbeafe; color: #1d4ed8; }
-.tag.cat-transporte { background: #d1fae5; color: #047857; }
-.tag.cat-outros { background: #ede9fe; color: #6d28d9; }
-
 .filtro-status {
     display: flex;
     gap: 8px;
@@ -760,35 +657,6 @@ table tbody tr:last-child td {
     border-bottom: 1px dashed #eef0f3;
     font-size: 0.82rem;
     gap: 12px;
-}
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 18, 25, 0.55);
-    backdrop-filter: blur(2px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 100;
-}
-
-.modal {
-    background: #fff;
-    border-radius: 14px;
-    padding: 26px 28px;
-    max-width: 680px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-
-.modal h2 {
-    margin: 0 0 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #f3f4f6;
 }
 
 .modal-acoes {

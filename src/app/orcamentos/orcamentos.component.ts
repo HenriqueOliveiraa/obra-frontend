@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotacaoService } from '../core/cotacao.service';
 import { Cotacao, CategoriaOrcamento } from '../core/models';
-import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { DropdownOpcao, DropdownSelectComponent } from '../shared/ui/dropdown-select/dropdown-select.component';
 import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/pdf/pdf-relatorio.service';
 import {
   CATEGORIAS_ORCAMENTO,
