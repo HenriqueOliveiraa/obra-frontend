@@ -6,6 +6,7 @@ import { FinanceiroComponent } from './financeiro/financeiro.component';
 import { OrcamentosComponent } from './orcamentos/orcamentos.component';
 import { PendenciasComponent } from './pendencias/pendencias.component';
 import { ListaComprasComponent } from './lista-compras/lista-compras.component';
+import { TimelineComponent } from './timeline/timeline.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'pendencias', pathMatch: 'full' },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'orcamentos', component: OrcamentosComponent },
   { path: 'lista-compras', component: ListaComprasComponent },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'financeiro', component: FinanceiroComponent }
+  { path: 'financeiro', component: FinanceiroComponent },
+  { path: 'timeline', component: TimelineComponent }
 ];

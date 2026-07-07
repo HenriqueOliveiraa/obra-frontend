@@ -1,3 +1,80 @@
 :host {
   display: block;
 }
+
+/* ── Painéis lado a lado com a mesma altura ── */
+
+.painel-duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.painel-duplo .painel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Lista de materiais: altura fixa equivalente a 8 linhas,
+   pra manter o card do mesmo tamanho mesmo com menos itens
+   e o paginador sempre na mesma posição (rodapé do card) */
+.materiais-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 456px;
+}
+
+.painel-duplo .paginador {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+/* Conteúdo do painel da direita: ocupa o espaço todo
+   e centraliza o gráfico + legenda verticalmente */
+.gasto-categoria-conteudo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gasto-categoria-grid {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+.gasto-categoria-legenda {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+}
+
+.gasto-categoria-legenda-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gasto-categoria-legenda-bolinha {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.gasto-categoria-legenda-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.gasto-categoria-legenda-valor {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 3px;
+}

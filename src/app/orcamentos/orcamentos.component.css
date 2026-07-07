@@ -47,27 +47,32 @@ textarea:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 14px;
+    margin: 0;
     cursor: pointer;
     user-select: none;
 }
 
 .categoria-seta {
-    background: transparent;
+    background: #f9fafb;
     border: none;
     padding: 4px;
     margin: 0;
+    width: 32px;
+    height: 32px;
     color: var(--muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
     transition: transform 0.18s ease, color 0.15s, background 0.15s;
 }
 
 .categoria-seta:hover {
     color: var(--ink);
-    background: #f9fafb;
+    background: #f3f4f6;
 }
 
 .categoria-seta.colapsada {
@@ -83,4 +88,170 @@ textarea:focus {
     margin: 0;
     padding-bottom: 0;
     border-bottom: none;
+}
+
+/* ── Cards de categoria: visual mais rico (ícone, faixa de cor, resumo) ── */
+
+.painel-orcamento-categoria {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 20px 20px 24px;
+    transition: box-shadow 0.15s ease;
+}
+
+/* Mesmo padding em todos os lados aberto ou fechado — nada se move quando expande/recolhe */
+.painel-orcamento-categoria.colapsado {
+    padding: 20px 20px 20px 24px;
+}
+
+.painel-orcamento-categoria::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--border);
+}
+
+.painel-orcamento-categoria:hover {
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+}
+
+.painel-orcamento-categoria.cat-alvenaria::before { background: #f97316; }
+.painel-orcamento-categoria.cat-esquadrias::before { background: #3b82f6; }
+.painel-orcamento-categoria.cat-eletrica::before { background: #eab308; }
+.painel-orcamento-categoria.cat-hidraulica::before { background: #06b6d4; }
+.painel-orcamento-categoria.cat-revestimentos::before { background: #78716c; }
+.painel-orcamento-categoria.cat-acabamentos::before { background: #ec4899; }
+.painel-orcamento-categoria.cat-loucas-metais::before { background: #0ea5e9; }
+.painel-orcamento-categoria.cat-materiais-basicos::before { background: #f59e0b; }
+.painel-orcamento-categoria.cat-impermeabilizacao::before { background: #14b8a6; }
+.painel-orcamento-categoria.cat-vidros::before { background: #6366f1; }
+.painel-orcamento-categoria.cat-marcenaria::before { background: #ea580c; }
+.painel-orcamento-categoria.cat-gesso-drywall::before { background: #8b5cf6; }
+.painel-orcamento-categoria.cat-mao-de-obra::before { background: #10b981; }
+
+.categoria-cabecalho-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.categoria-icone {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.categoria-icone svg {
+    width: 19px;
+    height: 19px;
+}
+
+.categoria-icone.cat-alvenaria { background: #ffedd5; color: #c2410c; }
+.categoria-icone.cat-esquadrias { background: #dbeafe; color: #1d4ed8; }
+.categoria-icone.cat-eletrica { background: #fef9c3; color: #a16207; }
+.categoria-icone.cat-hidraulica { background: #cffafe; color: #0e7490; }
+.categoria-icone.cat-revestimentos { background: #e7e5e4; color: #57534e; }
+.categoria-icone.cat-acabamentos { background: #fce7f3; color: #be185d; }
+.categoria-icone.cat-loucas-metais { background: #e0f2fe; color: #0369a1; }
+.categoria-icone.cat-materiais-basicos { background: #fef3c7; color: #b45309; }
+.categoria-icone.cat-impermeabilizacao { background: #ccfbf1; color: #0f766e; }
+.categoria-icone.cat-vidros { background: #e0e7ff; color: #4338ca; }
+.categoria-icone.cat-marcenaria { background: #f5d0c5; color: #9a3412; }
+.categoria-icone.cat-gesso-drywall { background: #ede9fe; color: #6d28d9; }
+.categoria-icone.cat-mao-de-obra { background: #d1fae5; color: #047857; }
+
+.categoria-cabecalho-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.painel-categoria-cabecalho .tag {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 13px;
+    width: fit-content;
+    margin-right: 0 !important;
+}
+
+.categoria-resumo {
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.categoria-resumo strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* ── Correção: coluna Fornecedor menor + Valor sempre inteiro ── */
+
+.tabela-gastos {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.tabela-gastos .col-descricao {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabela-gastos .col-descricao div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabela-gastos .col-valor {
+    white-space: nowrap;
+    overflow: visible;
+}
+.valor-com-selo {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.valor-com-selo.menor-valor {
+    color: #16a34a;
+}
+
+.selo-menor-valor {
+    color: #16a34a;
+    flex-shrink: 0;
+}
+.subcategoria-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.legenda-menor-valor {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.legenda-menor-valor svg {
+    flex-shrink: 0;
 }

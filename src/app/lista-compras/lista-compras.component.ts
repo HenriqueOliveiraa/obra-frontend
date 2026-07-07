@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ListaComprasService } from '../core/lista-compras.service';
 import { Categoria, ItemCompra, PrioridadeCompra } from '../core/models';
 import { CATEGORIAS, CATEGORIA_CLASSE, CATEGORIA_LABEL, DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { CampoDetalhe, DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 
 const PRIORIDADES: PrioridadeCompra[] = ['ALTA', 'MEDIA', 'BAIXA'];
 
@@ -32,7 +33,7 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pendentes', 'comprados'];
 @Component({
   selector: 'app-lista-compras',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './lista-compras.component.html',
   styleUrl: './lista-compras.component.css'
 })
@@ -57,6 +58,42 @@ export class ListaComprasComponent implements OnInit {
 
   editandoId: number | null = null;
   editForm: ItemCompra = this.formVazio();
+
+  // --- Detalhes (modal reutilizável) ---
+
+  detalhesId: number | null = null;
+
+  abrirDetalhes(item: ItemCompra): void {
+    this.detalhesId = item.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get itemDetalhes(): ItemCompra | undefined {
+    return this.itens.find(item => item.id === this.detalhesId);
+  }
+
+  get gruposDetalhesItem(): GrupoDetalhe[] {
+    const item = this.itemDetalhes;
+    if (!item) { return []; }
+
+    const campos: CampoDetalhe[] = [
+      { label: 'Categoria', valor: this.categoriaLabel(item.categoria), tag: true, classeTag: this.categoriaClasse(item.categoria) },
+      { label: 'Quantidade desejada', valor: item.quantidadeDesejada !== undefined && item.quantidadeDesejada !== null ? String(item.quantidadeDesejada) : '—' },
+      { label: 'Prioridade', valor: this.prioridadeLabel(item.prioridade), tag: true, classeTag: this.prioridadeClasse(item.prioridade) },
+      { label: 'Observação', valor: item.observacao || '—' },
+      { label: 'Status', valor: item.comprado ? 'Comprado' : 'Pendente', tag: true, classeTag: item.comprado ? 'pago' : 'pendente' }
+    ];
+
+    return [
+      {
+        titulo: 'Informações do item',
+        campos
+      }
+    ];
+  }
 
   ngOnInit(): void {
     this.carregar();

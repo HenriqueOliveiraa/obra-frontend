@@ -30,7 +30,7 @@ ARQUIVO: src/app/app.component.css
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  z-index: 1000;
+  z-index: 5000;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, var(--sidebar-bg-top) 0%, var(--sidebar-bg-bottom) 100%);
@@ -92,7 +92,6 @@ ARQUIVO: src/app/app.component.css
   white-space: nowrap;
 }
 
-/* Nav */
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -147,7 +146,6 @@ ARQUIVO: src/app/app.component.css
   padding: 11px;
 }
 
-/* Acessibilidade */
 .sidebar-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -160,7 +158,6 @@ ARQUIVO: src/app/app.component.css
   }
 }
 
-/* Conteúdo principal: margem fixa = largura recolhida, nunca muda */
 main {
   margin-left: var(--sidebar-width-collapsed);
   min-height: 100vh;
@@ -172,10 +169,7 @@ main {
 ARQUIVO: src/app/app.component.html
 ==================================================
 <div class="app-shell">
-  <aside
-    class="sidebar"
-    [class.colapsada]="sidebarCollapsed()"
-    (mouseenter)="expandirSidebar()"
+  <aside class="sidebar" [class.colapsada]="sidebarCollapsed()" (mouseenter)="expandirSidebar()"
     (mouseleave)="recolherSidebar()">
     <div class="sidebar-brand">
       <div class="logo">
@@ -188,38 +182,40 @@ ARQUIVO: src/app/app.component.html
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/pendencias" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Pendências</span>
-      </a>
-
       <a routerLink="/dashboard" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
         </svg>
         <span *ngIf="!sidebarCollapsed()">Dashboard</span>
       </a>
 
       <a routerLink="/gastos" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
         </svg>
         <span *ngIf="!sidebarCollapsed()">Gastos</span>
       </a>
 
       <a routerLink="/orcamentos" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="3" width="16" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+          <line x1="8" y1="8" x2="16" y2="8"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+          <line x1="8" y1="16" x2="12" y2="16"></line>
         </svg>
         <span *ngIf="!sidebarCollapsed()">Orçamentos</span>
       </a>
 
       <a routerLink="/lista-compras" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <circle cx="9" cy="21" r="1"></circle>
           <circle cx="20" cy="21" r="1"></circle>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -228,17 +224,41 @@ ARQUIVO: src/app/app.component.html
       </a>
 
       <a routerLink="/financeiro" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v10"></path><path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5"></path>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 7v10"></path>
+          <path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5">
+          </path>
         </svg>
         <span *ngIf="!sidebarCollapsed()">Financeiro</span>
       </a>
 
       <a routerLink="/calendario" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
         <span *ngIf="!sidebarCollapsed()">Calendário</span>
+      </a>
+      <a routerLink="/pendencias" routerLinkActive="ativo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span *ngIf="!sidebarCollapsed()">Pendências</span>
+      </a>
+      <a routerLink="/timeline" routerLinkActive="ativo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        <span *ngIf="!sidebarCollapsed()">Linha do tempo</span>
       </a>
     </nav>
   </aside>
@@ -338,6 +358,7 @@ import { FinanceiroComponent } from './financeiro/financeiro.component';
 import { OrcamentosComponent } from './orcamentos/orcamentos.component';
 import { PendenciasComponent } from './pendencias/pendencias.component';
 import { ListaComprasComponent } from './lista-compras/lista-compras.component';
+import { TimelineComponent } from './timeline/timeline.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'pendencias', pathMatch: 'full' },
@@ -347,7 +368,8 @@ export const routes: Routes = [
   { path: 'orcamentos', component: OrcamentosComponent },
   { path: 'lista-compras', component: ListaComprasComponent },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'financeiro', component: FinanceiroComponent }
+  { path: 'financeiro', component: FinanceiroComponent },
+  { path: 'timeline', component: TimelineComponent }
 ];
 
 
@@ -1792,10 +1814,254 @@ export class PdfRelatorioService {
 
 
 ==================================================
+ARQUIVO: src/app/core/timeline.service.ts
+==================================================
+import { Injectable, inject } from '@angular/core';
+import { Observable, forkJoin, map } from 'rxjs';
+import { GastoService } from './gasto.service';
+import { CotacaoService } from './cotacao.service';
+import { ComprovanteService } from './comprovante.service';
+import { Comprovante, Cotacao, Gasto } from './models';
+import { CATEGORIA_CLASSE, CATEGORIA_LABEL } from '../gastos/gastos.component';
+import { CATEGORIA_ORCAMENTO_LABEL } from './categorias-orcamento';
+
+export type TimelineTipo =
+  | 'COMPRA'
+  | 'PAGAMENTO'
+  | 'PARCELA_VENCIDA'
+  | 'ENTREGA'
+  | 'COTACAO_ESCOLHIDA'
+  | 'COMPROVANTE';
+
+export const TIMELINE_TIPO_LABEL: Record<TimelineTipo, string> = {
+  COMPRA: 'Compra',
+  PAGAMENTO: 'Pagamento',
+  PARCELA_VENCIDA: 'Parcela vencida',
+  ENTREGA: 'Entrega',
+  COTACAO_ESCOLHIDA: 'Cotação escolhida',
+  COMPROVANTE: 'Comprovante'
+};
+
+export const TIMELINE_TIPO_ORDEM: TimelineTipo[] = [
+  'COMPRA', 'PAGAMENTO', 'PARCELA_VENCIDA', 'ENTREGA', 'COTACAO_ESCOLHIDA', 'COMPROVANTE'
+];
+
+export interface TimelineEvento {
+  id: string;
+  tipo: TimelineTipo;
+  data: string;
+  titulo: string;
+  descricao?: string;
+  fornecedor?: string;
+  valor?: number;
+  categoriaLabel?: string;
+  categoriaClasse?: string;
+  status?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class TimelineService {
+  private gastoService = inject(GastoService);
+  private cotacaoService = inject(CotacaoService);
+  private comprovanteService = inject(ComprovanteService);
+
+  obterEventos(): Observable<TimelineEvento[]> {
+    return forkJoin({
+      paginaGastos: this.gastoService.listar(),
+      cotacoes: this.cotacaoService.listar(),
+      comprovantes: this.comprovanteService.listar()
+    }).pipe(
+      map(({ paginaGastos, cotacoes, comprovantes }) =>
+        this.montarEventos(paginaGastos.content, cotacoes, comprovantes))
+    );
+  }
+
+  private montarEventos(gastos: Gasto[], cotacoes: Cotacao[], comprovantes: Comprovante[]): TimelineEvento[] {
+    const eventos: TimelineEvento[] = [];
+    const hoje = this.inicioDoDia(new Date());
+
+    gastos.forEach(gasto => {
+      eventos.push({
+        id: `compra-${gasto.id}`,
+        tipo: 'COMPRA',
+        data: gasto.dataCompra,
+        titulo: gasto.descricao,
+        fornecedor: gasto.fornecedor,
+        valor: gasto.valorTotal,
+        categoriaLabel: CATEGORIA_LABEL[gasto.categoria],
+        categoriaClasse: CATEGORIA_CLASSE[gasto.categoria]
+      });
+
+      if (gasto.categoria === 'MATERIAL' && gasto.statusMaterial === 'ENTREGUE') {
+        eventos.push({
+          id: `entrega-${gasto.id}`,
+          tipo: 'ENTREGA',
+          data: gasto.dataCompra,
+          titulo: `Material entregue: ${gasto.descricao}`,
+          fornecedor: gasto.fornecedor,
+          categoriaLabel: CATEGORIA_LABEL[gasto.categoria],
+          categoriaClasse: CATEGORIA_CLASSE[gasto.categoria],
+          status: gasto.responsavelRecebimento ? `Recebido por ${gasto.responsavelRecebimento}` : undefined
+        });
+      }
+
+      (gasto.parcelas ?? []).forEach(parcela => {
+        if (parcela.pago && parcela.dataPagamento) {
+          eventos.push({
+            id: `pagamento-${gasto.id}-${parcela.id}`,
+            tipo: 'PAGAMENTO',
+            data: parcela.dataPagamento,
+            titulo: `Pagamento: ${gasto.descricao}`,
+            descricao: `Parcela #${parcela.numero}`,
+            valor: parcela.valor,
+            fornecedor: gasto.fornecedor,
+            categoriaLabel: CATEGORIA_LABEL[gasto.categoria],
+            categoriaClasse: CATEGORIA_CLASSE[gasto.categoria]
+          });
+        } else if (!parcela.pago && this.diferencaEmDias(parcela.vencimento, hoje) < 0) {
+          eventos.push({
+            id: `vencida-${gasto.id}-${parcela.id}`,
+            tipo: 'PARCELA_VENCIDA',
+            data: parcela.vencimento,
+            titulo: `Parcela vencida: ${gasto.descricao}`,
+            descricao: `Parcela #${parcela.numero}`,
+            valor: parcela.valor,
+            fornecedor: gasto.fornecedor,
+            categoriaLabel: CATEGORIA_LABEL[gasto.categoria],
+            categoriaClasse: CATEGORIA_CLASSE[gasto.categoria]
+          });
+        }
+      });
+    });
+
+    cotacoes.filter(cotacao => cotacao.escolhido).forEach(cotacao => {
+      eventos.push({
+        id: `cotacao-${cotacao.id}`,
+        tipo: 'COTACAO_ESCOLHIDA',
+        data: cotacao.data,
+        titulo: `Cotação escolhida: ${cotacao.item}`,
+        descricao: cotacao.observacao,
+        fornecedor: cotacao.fornecedor,
+        valor: cotacao.valor,
+        categoriaLabel: CATEGORIA_ORCAMENTO_LABEL[cotacao.categoria]
+      });
+    });
+
+    comprovantes.forEach(comprovante => {
+      const gasto = gastos.find(g => g.id === comprovante.gastoId);
+      eventos.push({
+        id: `comprovante-${comprovante.gastoId}`,
+        tipo: 'COMPROVANTE',
+        data: comprovante.dataUpload.slice(0, 10),
+        titulo: gasto ? `Comprovante anexado: ${gasto.descricao}` : 'Comprovante anexado',
+        fornecedor: gasto?.fornecedor,
+        categoriaLabel: gasto ? CATEGORIA_LABEL[gasto.categoria] : undefined,
+        categoriaClasse: gasto ? CATEGORIA_CLASSE[gasto.categoria] : undefined
+      });
+    });
+
+    return eventos.sort((a, b) => b.data.localeCompare(a.data));
+  }
+
+  private diferencaEmDias(dataIso: string, hoje: Date): number {
+    const alvo = this.inicioDoDia(this.criarDataLocal(dataIso));
+    const umDia = 24 * 60 * 60 * 1000;
+    return Math.round((alvo.getTime() - hoje.getTime()) / umDia);
+  }
+
+  private criarDataLocal(dataIso: string): Date {
+    const [ano, mes, dia] = dataIso.split('-').map(Number);
+    return new Date(ano, mes - 1, dia);
+  }
+
+  private inicioDoDia(data: Date): Date {
+    return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+  }
+}
+
+
+==================================================
 ARQUIVO: src/app/dashboard/dashboard.component.css
 ==================================================
 :host {
   display: block;
+}
+
+/* ── Painéis lado a lado com a mesma altura ── */
+
+.painel-duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 20px;
+}
+
+.painel-duplo .painel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Lista de materiais: altura fixa equivalente a 8 linhas,
+   pra manter o card do mesmo tamanho mesmo com menos itens
+   e o paginador sempre na mesma posição (rodapé do card) */
+.materiais-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 456px;
+}
+
+.painel-duplo .paginador {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+/* Conteúdo do painel da direita: ocupa o espaço todo
+   e centraliza o gráfico + legenda verticalmente */
+.gasto-categoria-conteudo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gasto-categoria-grid {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+.gasto-categoria-legenda {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+}
+
+.gasto-categoria-legenda-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gasto-categoria-legenda-bolinha {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.gasto-categoria-legenda-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.gasto-categoria-legenda-valor {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 3px;
 }
 
 
@@ -1833,8 +2099,8 @@ ARQUIVO: src/app/dashboard/dashboard.component.html
 <div class="painel-duplo">
   <div class="painel">
     <h2>Materiais mais comprados</h2>
-    <div style="display:flex; flex-direction:column; gap:16px;">
-      <div *ngFor="let mat of dashboard.materiaisMaisComprados">
+    <div class="materiais-lista">
+      <div *ngFor="let mat of materiaisPaginados">
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
           <span style="font-size:0.82rem; font-weight:600; color:#374151;">{{ mat.descricao }}</span>
           <span style="font-size:0.72rem; color:var(--muted); font-weight:500;">{{ mat.quantidadeTotal }} un.</span>
@@ -1848,31 +2114,45 @@ ARQUIVO: src/app/dashboard/dashboard.component.html
         Nenhum gasto lançado ainda.
       </div>
     </div>
+
+    <div class="paginador" *ngIf="dashboard.materiaisMaisComprados.length > 0">
+      <span class="paginador-info">Página {{ paginaAtualMateriais }} de {{ totalPaginasMateriais }} · {{ dashboard.materiaisMaisComprados.length }} item(ns)</span>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualMateriais === 1" (click)="irParaPaginaMateriais(paginaAtualMateriais - 1)" aria-label="Página anterior">‹</button>
+      <ng-container *ngFor="let p of paginasVisiveisMateriais">
+        <span *ngIf="p === '...'" class="paginador-reticencias">…</span>
+        <button *ngIf="p !== '...'" type="button" class="paginador-numero" [class.ativo]="p === paginaAtualMateriais" [disabled]="totalPaginasMateriais <= 1" (click)="irParaPaginaMateriais(p)">{{ p }}</button>
+      </ng-container>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualMateriais === totalPaginasMateriais" (click)="irParaPaginaMateriais(paginaAtualMateriais + 1)" aria-label="Próxima página">›</button>
+    </div>
   </div>
 
   <div class="painel">
     <h2>Gasto por categoria</h2>
-    <div style="display:flex; align-items:center; gap:24px;" *ngIf="segmentos.length > 0; else semDados">
-      <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;">
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#f3f4f6" stroke-width="15"></circle>
-        <circle *ngFor="let seg of segmentos" cx="60" cy="60" r="42" fill="none"
-                [attr.stroke]="seg.cor" stroke-width="15"
-                [attr.stroke-dasharray]="seg.dasharray" [attr.stroke-dashoffset]="seg.dashoffset"></circle>
-        <text x="60" y="56" text-anchor="middle" font-size="8" fill="#9ca3af" font-weight="600">TOTAL</text>
-        <text x="60" y="69" text-anchor="middle" font-size="10" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0':'pt-BR' }}</text>
-      </svg>
-      <div style="flex:1; display:flex; flex-direction:column; gap:11px; min-width:0;">
-        <div *ngFor="let seg of segmentos" style="display:flex; align-items:center; gap:9px;">
-          <div style="width:9px; height:9px; border-radius:3px; flex-shrink:0;" [style.background]="seg.cor"></div>
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:0.78rem; font-weight:600; color:#374151;">{{ seg.categoria }}</div>
-            <div style="font-size:0.7rem; color:var(--muted); margin-top:1px;">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2':'pt-BR' }}</div>
+    <div class="gasto-categoria-conteudo" *ngIf="segmentos.length > 0; else semDados">
+      <div class="gasto-categoria-grid">
+        <svg width="230" height="230" viewBox="0 0 230 230" style="flex-shrink:0;">
+          <circle cx="115" cy="115" r="80" fill="none" stroke="#f3f4f6" stroke-width="26"></circle>
+          <circle *ngFor="let seg of segmentos" cx="115" cy="115" r="80" fill="none"
+                  [attr.stroke]="seg.cor" stroke-width="26"
+                  [attr.stroke-dasharray]="seg.dasharray" [attr.stroke-dashoffset]="seg.dashoffset"></circle>
+          <text x="115" y="108" text-anchor="middle" font-size="13" fill="#9ca3af" font-weight="600">TOTAL</text>
+          <text x="115" y="130" text-anchor="middle" font-size="18" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0':'pt-BR' }}</text>
+        </svg>
+        <div class="gasto-categoria-legenda">
+          <div *ngFor="let seg of segmentos" class="gasto-categoria-legenda-item">
+            <div class="gasto-categoria-legenda-bolinha" [style.background]="seg.cor"></div>
+            <div style="flex:1; min-width:0;">
+              <div class="gasto-categoria-legenda-titulo">{{ seg.categoria }}</div>
+              <div class="gasto-categoria-legenda-valor">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2':'pt-BR' }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <ng-template #semDados>
-      <div style="font-size:0.82rem; color:var(--muted);">Nenhum gasto lançado ainda.</div>
+      <div class="gasto-categoria-conteudo">
+        <div style="font-size:0.82rem; color:var(--muted);">Nenhum gasto lançado ainda.</div>
+      </div>
     </ng-template>
   </div>
 </div>
@@ -1909,7 +2189,7 @@ interface SegmentoDonut {
   dashoffset: string;
 }
 
-const DONUT_R = 42;
+const DONUT_R = 80;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 
 @Component({
@@ -1926,10 +2206,16 @@ export class DashboardComponent implements OnInit {
   resumo: ResumoGastos = { totalGasto: 0, totalPago: 0, totalPendente: 0, parcelasPagas: 0, parcelasPendentes: 0 };
   segmentos: SegmentoDonut[] = [];
 
+  materiaisPorPagina = 8;
+  paginaAtualMateriais = 1;
+
   ngOnInit(): void {
     this.service.dashboard().subscribe(dashboard => {
       this.dashboard = dashboard;
       this.segmentos = this.calcularSegmentos(dashboard.gastoPorCategoria);
+      if (this.paginaAtualMateriais > this.totalPaginasMateriais) {
+        this.paginaAtualMateriais = this.totalPaginasMateriais;
+      }
     });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
   }
@@ -1948,6 +2234,38 @@ export class DashboardComponent implements OnInit {
 
   maiorQuantidade(): number {
     return this.dashboard.materiaisMaisComprados[0]?.quantidadeTotal ?? 1;
+  }
+
+  get totalPaginasMateriais(): number {
+    return Math.max(1, Math.ceil(this.dashboard.materiaisMaisComprados.length / this.materiaisPorPagina));
+  }
+
+  get materiaisPaginados() {
+    const inicio = (this.paginaAtualMateriais - 1) * this.materiaisPorPagina;
+    return this.dashboard.materiaisMaisComprados.slice(inicio, inicio + this.materiaisPorPagina);
+  }
+
+  get paginasVisiveisMateriais(): (number | string)[] {
+    return this.calcularPaginasVisiveis(this.paginaAtualMateriais, this.totalPaginasMateriais);
+  }
+
+  irParaPaginaMateriais(pagina: number | string): void {
+    if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasMateriais) { return; }
+    this.paginaAtualMateriais = pagina;
+  }
+
+  private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const paginas: (number | string)[] = [1];
+    if (atual > 3) { paginas.push('...'); }
+    const inicio = Math.max(2, atual - 1);
+    const fim = Math.min(total - 1, atual + 1);
+    for (let i = inicio; i <= fim; i++) { paginas.push(i); }
+    if (atual < total - 2) { paginas.push('...'); }
+    paginas.push(total);
+    return paginas;
   }
 
   private calcularSegmentos(categorias: CategoriaGastoTotal[]): SegmentoDonut[] {
@@ -2439,6 +2757,41 @@ ARQUIVO: src/app/gastos/gastos.component.css
   text-decoration: underline;
 }
 
+/* Ajustes do status de entrega dentro da tabela de gastos:
+   cor neutra (cinza), tamanho reduzido, e alinhado ao lado da
+   categoria em uma única linha, sem quebrar. */
+
+.tabela-gastos .celula-categoria {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tabela-gastos .tag.status-material {
+  background: #e5e7eb;
+  color: #4b5563;
+  border: none;
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.tabela-gastos .tag.status-material:hover {
+  background: #d1d5db;
+  color: #1f2937;
+}
+
+/* Sobrescreve as cores por estado (retirado/a caminho/entregue)
+   apenas dentro da tabela, mantendo todas no mesmo cinza neutro. */
+.tabela-gastos .tag.status-material.status-retirado,
+.tabela-gastos .tag.status-material.status-caminho,
+.tabela-gastos .tag.status-material.status-entregue {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
 
 ==================================================
 ARQUIVO: src/app/gastos/gastos.component.html
@@ -2561,17 +2914,22 @@ ARQUIVO: src/app/gastos/gastos.component.html
   </form>
 </div>
 
-<div class="filtro-status">
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'todos'" (click)="setFiltro('todos')">Todos</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pago'" (click)="setFiltro('pago')">Pago</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendente'" (click)="setFiltro('pendente')">Pendente</button>
+<div class="campo" style="max-width:230px; margin-bottom:20px;">
+  <label for="filtroStatus">Filtrar por status</label>
+  <app-dropdown-select
+    id="filtroStatus"
+    name="filtroStatus"
+    [ngModel]="filtroStatus"
+    (ngModelChange)="setFiltro($event)"
+    [options]="filtroStatusOptions">
+  </app-dropdown-select>
 </div>
 
 <div class="painel tabela-wrap">
   <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:23%;"><col style="width:12%;"><col style="width:6%;">
+      <col style="width:18%;"><col style="width:17%;"><col style="width:6%;">
       <col style="width:11%;"><col style="width:9%;"><col style="width:12%;">
       <col style="width:9%;"><col style="width:10%;"><col style="width:8%;">
     </colgroup>
@@ -2639,6 +2997,12 @@ ARQUIVO: src/app/gastos/gastos.component.html
       </td>
       <td class="col-acoes">
         <div class="linha-acoes">
+          <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(gasto)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
           <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(gasto)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 20h9"></path>
@@ -2789,6 +3153,14 @@ ARQUIVO: src/app/gastos/gastos.component.html
   </div>
 </div>
 
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do gasto"
+  [subtitulo]="gastoDetalhes?.descricao || ''"
+  [grupos]="gruposDetalhesGasto"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>
+
 
 ==================================================
 ARQUIVO: src/app/gastos/gastos.component.ts
@@ -2800,6 +3172,7 @@ import { GastoService } from '../core/gasto.service';
 import { ComprovanteService } from '../core/comprovante.service';
 import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
 import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
+import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 
 export interface DropdownOpcao {
   value: string;
@@ -2965,9 +3338,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
   posicao: { top: number; left: number; width: number; maxHeight: number } =
     { top: 0, left: 0, width: 0, maxHeight: 220 };
 
-  // Registro global: cada dropdown aberto que precisou de espaço extra
-  // entra aqui, junto com QUAL container ele expandiu (pode ser a página
-  // inteira ou um painel interno com scroll próprio).
   private static expansaoAtiva: {
     container: HTMLElement | Window;
     paddingOriginal: string;
@@ -3012,7 +3382,7 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
   private prepararAbertura(): void {
     const alturaDesejada = 220;
     const margem = 6;
-    const folga = 24; // margem de segurança extra
+    const folga = 24;
     const botao = this.elementRef.nativeElement.querySelector('.dropdown-trigger') as HTMLElement | null;
     if (!botao) { return; }
 
@@ -3020,10 +3390,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     const espacoAbaixo = window.innerHeight - rect.bottom - margem;
 
     if (espacoAbaixo < alturaDesejada) {
-      // Não cabe: descobre QUEM realmente rola (a página ou um painel
-      // interno) e aumenta a altura dele de verdade, criando espaço real
-      // para rolar — em vez de tentar rolar a window, que pode não ser
-      // quem controla o scroll nesse layout.
       const deficit = Math.ceil(alturaDesejada - espacoAbaixo);
       const container = this.encontrarContainerRolavel(botao);
       this.aplicarEspacoExtra(container, deficit + folga);
@@ -3043,9 +3409,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     }
   }
 
-  // Sobe pela árvore de elementos a partir do botão até achar um ancestral
-  // que realmente tem scroll próprio (overflow-y auto/scroll com conteúdo
-  // maior que a área visível). Se não achar nenhum, assume que é a window.
   private encontrarContainerRolavel(elemento: HTMLElement): HTMLElement | Window {
     let node: HTMLElement | null = elemento.parentElement;
 
@@ -3081,14 +3444,11 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     };
   }
 
-  // Aumenta a altura "de verdade" do container que rola (padding-bottom),
-  // criando espaço real para o scroll ir até lá. Some sozinho ao fechar.
   private aplicarEspacoExtra(container: HTMLElement | Window, altura: number): void {
     const alvo: HTMLElement = container === window ? document.body : (container as HTMLElement);
     const expansaoAtual = DropdownSelectComponent.expansaoAtiva;
 
     if (!expansaoAtual || expansaoAtual.container !== container) {
-      // Havia expansão em outro container (outro dropdown)? Desfaz ela antes.
       if (expansaoAtual) {
         const alvoAntigo: HTMLElement = expansaoAtual.container === window ? document.body : (expansaoAtual.container as HTMLElement);
         alvoAntigo.style.paddingBottom = expansaoAtual.paddingOriginal;
@@ -3196,14 +3556,22 @@ const STATUS_MATERIAL_CLASSE: Record<StatusMaterial, string> = {
   ENTREGUE: 'status-entregue'
 };
 
-const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024; // 5MB, limite razoável para dataUrl em localStorage
+const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024;
 
 type FiltroStatus = 'todos' | 'pago' | 'pendente';
+
+const FILTRO_STATUS_LABEL: Record<FiltroStatus, string> = {
+  todos: 'Todos',
+  pago: 'Pago',
+  pendente: 'Pendente'
+};
+
+const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
 
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
@@ -3216,6 +3584,7 @@ export class GastosComponent implements OnInit {
   categoriaOptions: DropdownOpcao[] = CATEGORIAS.map(cat => ({ value: cat, label: CATEGORIA_LABEL[cat] }));
   statusMateriais = STATUS_MATERIAL_ORDEM;
   statusMaterialOptions: DropdownOpcao[] = STATUS_MATERIAL_ORDEM.map(status => ({ value: status, label: STATUS_MATERIAL_LABEL[status] }));
+  filtroStatusOptions: DropdownOpcao[] = FILTRO_STATUS_ORDEM.map(status => ({ value: status, label: FILTRO_STATUS_LABEL[status] }));
   gastos: Gasto[] = [];
   resumo: ResumoGastos = { totalGasto: 0, totalPago: 0, totalPendente: 0, parcelasPagas: 0, parcelasPendentes: 0 };
 
@@ -3230,11 +3599,13 @@ export class GastosComponent implements OnInit {
   editandoId: number | null = null;
   editForm: Gasto = this.formVazio();
 
-  // Comprovantes: indexados por gastoId para consulta rápida no template
   comprovantesPorGasto: Record<number, Comprovante> = {};
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
+
+  // --- Detalhes ---
+  detalhesId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -3339,8 +3710,8 @@ export class GastosComponent implements OnInit {
     return paginas;
   }
 
-  setFiltro(filtro: FiltroStatus): void {
-    this.filtroStatus = filtro;
+  setFiltro(filtro: string): void {
+    this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualGastos = 1;
   }
 
@@ -3514,6 +3885,78 @@ export class GastosComponent implements OnInit {
     });
   }
 
+  // --- Detalhes (modal reutilizável) ---
+
+  abrirDetalhes(gasto: Gasto): void {
+    this.detalhesId = gasto.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get gastoDetalhes(): Gasto | undefined {
+    return this.gastos.find(g => g.id === this.detalhesId);
+  }
+
+  get gruposDetalhesGasto(): GrupoDetalhe[] {
+    const gasto = this.gastoDetalhes;
+    if (!gasto) { return []; }
+
+    const grupos: GrupoDetalhe[] = [
+      {
+        titulo: 'Informações gerais',
+        campos: [
+          { label: 'Categoria', valor: this.categoriaLabel(gasto.categoria), tag: true, classeTag: this.categoriaClasse(gasto.categoria) },
+          { label: 'Quantidade', valor: String(gasto.quantidade) },
+          { label: 'Valor total', valor: this.formatarMoedaExibicao(gasto.valorTotal), destaque: true },
+          { label: 'Data da compra', valor: this.formatarDataExibicao(gasto.dataCompra) },
+          { label: 'Fornecedor', valor: gasto.fornecedor || '—' },
+          { label: 'Status de pagamento', valor: this.gastoPago(gasto) ? 'Pago' : 'Pendente', tag: true, classeTag: this.gastoPago(gasto) ? 'pago' : 'pendente' }
+        ]
+      }
+    ];
+
+    if (gasto.categoria === 'MATERIAL') {
+      grupos.push({
+        titulo: 'Entrega do material',
+        campos: [
+          { label: 'Status de entrega', valor: this.statusMaterialLabel(gasto.statusMaterial), tag: true, classeTag: this.statusMaterialClasse(gasto.statusMaterial) },
+          { label: 'Quem recebeu', valor: gasto.responsavelRecebimento || '—' }
+        ]
+      });
+    }
+
+    if (gasto.parcelas && gasto.parcelas.length > 0) {
+      grupos.push({
+        titulo: gasto.parcelado ? `Parcelas (${gasto.numeroParcelas}x)` : 'Pagamento à vista',
+        campos: gasto.parcelas.map(parcela => ({
+          label: `Parcela #${parcela.numero}`,
+          valor: `${this.formatarMoedaExibicao(parcela.valor)} · vence ${this.formatarDataExibicao(parcela.vencimento)}${parcela.pago ? ' · paga' : ' · pendente'}`
+        }))
+      });
+    }
+
+    const comprovante = this.comprovanteDoGasto(gasto.id);
+    grupos.push({
+      titulo: 'Comprovante',
+      campos: [
+        { label: 'Arquivo', valor: comprovante ? comprovante.nomeArquivo : 'Nenhum comprovante anexado' }
+      ]
+    });
+
+    return grupos;
+  }
+
+  private formatarDataExibicao(dataIso: string): string {
+    const [ano, mes, dia] = dataIso.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  private formatarMoedaExibicao(valor: number): string {
+    return `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
   private formVazio(): Gasto {
     return {
       descricao: '',
@@ -3624,10 +4067,15 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
   </form>
 </div>
 
-<div class="filtro-status">
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'todos'" (click)="setFiltro('todos')">Todos</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendentes'" (click)="setFiltro('pendentes')">Pendentes</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'comprados'" (click)="setFiltro('comprados')">Comprados</button>
+<div class="campo" style="max-width:230px; margin-bottom:20px;">
+  <label for="filtroStatus">Filtrar por status</label>
+  <app-dropdown-select
+    id="filtroStatus"
+    name="filtroStatus"
+    [ngModel]="filtroStatus"
+    (ngModelChange)="setFiltro($event)"
+    [options]="filtroStatusOptions">
+  </app-dropdown-select>
 </div>
 
 <div class="painel tabela-wrap">
@@ -3786,6 +4234,14 @@ const PRIORIDADE_CLASSE: Record<PrioridadeCompra, string> = {
 
 type FiltroStatus = 'todos' | 'pendentes' | 'comprados';
 
+const FILTRO_STATUS_LABEL: Record<FiltroStatus, string> = {
+  todos: 'Todos',
+  pendentes: 'Pendentes',
+  comprados: 'Comprados'
+};
+
+const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pendentes', 'comprados'];
+
 @Component({
   selector: 'app-lista-compras',
   standalone: true,
@@ -3801,6 +4257,7 @@ export class ListaComprasComponent implements OnInit {
 
   prioridades = PRIORIDADES;
   prioridadeOptions: DropdownOpcao[] = PRIORIDADES.map(p => ({ value: p, label: PRIORIDADE_LABEL[p] }));
+  filtroStatusOptions: DropdownOpcao[] = FILTRO_STATUS_ORDEM.map(status => ({ value: status, label: FILTRO_STATUS_LABEL[status] }));
 
   itens: ItemCompra[] = [];
   filtroStatus: FiltroStatus = 'todos';
@@ -3893,8 +4350,8 @@ export class ListaComprasComponent implements OnInit {
     return paginas;
   }
 
-  setFiltro(filtro: FiltroStatus): void {
-    this.filtroStatus = filtro;
+  setFiltro(filtro: string): void {
+    this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualItens = 1;
   }
 
@@ -4045,6 +4502,65 @@ textarea:focus {
     border-bottom: none;
 }
 
+/* ── Correção: coluna Fornecedor menor + Valor sempre inteiro ── */
+
+.tabela-gastos {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.tabela-gastos .col-descricao {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabela-gastos .col-descricao div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabela-gastos .col-valor {
+    white-space: nowrap;
+    overflow: visible;
+}
+.valor-com-selo {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.valor-com-selo.menor-valor {
+    color: #16a34a;
+}
+
+.selo-menor-valor {
+    color: #16a34a;
+    flex-shrink: 0;
+}
+.subcategoria-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.legenda-menor-valor {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.legenda-menor-valor svg {
+    flex-shrink: 0;
+}
+
 
 ==================================================
 ARQUIVO: src/app/orcamentos/orcamentos.component.html
@@ -4056,7 +4572,8 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   </div>
   <div class="cabecalho-acoes">
     <button type="button" class="secundario" (click)="exportarPdf()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:6px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:6px;">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
         <polyline points="14 2 14 8 20 8"></polyline>
         <line x1="12" y1="18" x2="12" y2="12"></line>
@@ -4065,8 +4582,10 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
       Exportar PDF
     </button>
     <button type="button" (click)="toggleForm()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
-        <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+        stroke-linecap="round" style="vertical-align:-1px; margin-right:6px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
       Nova cotação
     </button>
@@ -4088,7 +4607,8 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   </div>
   <div class="card">
     <div class="label">Categorias com cotação</div>
-    <div class="valor">{{ categoriasComCotacao }} <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ categorias.length }}</span></div>
+    <div class="valor">{{ categoriasComCotacao }} <span
+        style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ categorias.length }}</span></div>
   </div>
 </div>
 
@@ -4097,38 +4617,34 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   <form class="form-gasto" (ngSubmit)="salvar()">
     <div class="campo">
       <label for="categoria">Categoria</label>
-      <app-dropdown-select
-        id="categoria"
-        name="categoria"
-        [ngModel]="form.categoria"
-        (ngModelChange)="onCategoriaChangeForm($event)"
-        [options]="categoriaOptions">
+      <app-dropdown-select id="categoria" name="categoria" [ngModel]="form.categoria"
+        (ngModelChange)="onCategoriaChangeForm($event)" [options]="categoriaOptions">
       </app-dropdown-select>
     </div>
 
     <div class="campo">
       <label for="subcategoria">Subcategoria</label>
-      <app-dropdown-select
-        id="subcategoria"
-        name="subcategoria"
-        [(ngModel)]="form.subcategoria"
+      <app-dropdown-select id="subcategoria" name="subcategoria" [(ngModel)]="form.subcategoria"
         [options]="subcategoriaOptions(form.categoria)">
       </app-dropdown-select>
     </div>
 
     <div class="campo" *ngIf="ehSubcategoriaOutro">
       <label for="subcategoriaCustom">Especifique a subcategoria</label>
-      <input type="text" id="subcategoriaCustom" name="subcategoriaCustom" [(ngModel)]="form.subcategoriaCustom" placeholder="Ex: Batente de alumínio">
+      <input type="text" id="subcategoriaCustom" name="subcategoriaCustom" [(ngModel)]="form.subcategoriaCustom"
+        placeholder="Ex: Batente de alumínio">
     </div>
 
     <div class="campo largo">
       <label for="item">Item / descrição</label>
-      <input type="text" id="item" name="item" [(ngModel)]="form.item" placeholder="Ex: Torneira gourmet para cozinha" required>
+      <input type="text" id="item" name="item" [(ngModel)]="form.item" placeholder="Ex: Torneira gourmet para cozinha"
+        required>
     </div>
 
     <div class="campo largo">
       <label for="fornecedor">Fornecedor</label>
-      <input type="text" id="fornecedor" name="fornecedor" [(ngModel)]="form.fornecedor" placeholder="Ex: Leroy Merlin, loja do seu Zé..." required>
+      <input type="text" id="fornecedor" name="fornecedor" [(ngModel)]="form.fornecedor"
+        placeholder="Ex: Leroy Merlin, loja do seu Zé..." required>
     </div>
 
     <div class="campo">
@@ -4153,7 +4669,8 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
 
     <div class="campo largo">
       <label for="observacao">Observação</label>
-      <textarea id="observacao" name="observacao" rows="2" [(ngModel)]="form.observacao" placeholder="Prazo de entrega, condição de pagamento, garantia..."></textarea>
+      <textarea id="observacao" name="observacao" rows="2" [(ngModel)]="form.observacao"
+        placeholder="Prazo de entrega, condição de pagamento, garantia..."></textarea>
     </div>
 
     <div class="form-rodape">
@@ -4165,93 +4682,113 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
 
 <div class="campo" style="max-width:230px; margin-bottom:20px;">
   <label for="filtroCategoria">Filtrar por categoria</label>
-  <app-dropdown-select
-    id="filtroCategoria"
-    name="filtroCategoria"
-    [ngModel]="filtroCategoria"
-    (ngModelChange)="setFiltro($event)"
-    [options]="filtroCategoriaOptions">
+  <app-dropdown-select id="filtroCategoria" name="filtroCategoria" [ngModel]="filtroCategoria"
+    (ngModelChange)="setFiltro($event)" [options]="filtroCategoriaOptions">
   </app-dropdown-select>
 </div>
 
 <div class="painel" [class.colapsado]="estaColapsada(grupo.categoria)" *ngFor="let grupo of gruposFiltrados">
   <h2 class="painel-categoria-cabecalho" (click)="toggleCategoria(grupo.categoria)">
     <span class="tag" [ngClass]="grupo.classe" style="margin-right:8px;">{{ grupo.label }}</span>
-    <button
-      type="button"
-      class="categoria-seta"
-      [class.colapsada]="estaColapsada(grupo.categoria)"
+    <button type="button" class="categoria-seta" [class.colapsada]="estaColapsada(grupo.categoria)"
       (click)="$event.stopPropagation(); toggleCategoria(grupo.categoria)"
       [attr.aria-label]="estaColapsada(grupo.categoria) ? 'Expandir categoria' : 'Recolher categoria'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>
     </button>
   </h2>
 
   <ng-container *ngIf="!estaColapsada(grupo.categoria)">
-  <div *ngFor="let sub of grupo.subgrupos" style="margin-bottom:22px;">
-    <div style="font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:10px;">{{ sub.subcategoria }}</div>
+    <div *ngFor="let sub of grupo.subgrupos" style="margin-bottom:22px;">
+      <div class="subcategoria-cabecalho">
+        <span style="font-size:0.78rem; font-weight:700; color:#374151;">{{ sub.subcategoria }}</span>
+        <span class="legenda-menor-valor">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l2.9 6.26L21 9.27l-4.5 4.39L17.8 21 12 17.77 6.2 21l1.3-7.34L3 9.27l6.1-1.01L12 2z"></path>
+          </svg>
+          Menor preço
+        </span>
+      </div>
 
-    <table class="tabela-gastos">
-      <colgroup>
-        <col style="width:26%;"><col style="width:22%;"><col style="width:13%;">
-        <col style="width:11%;"><col style="width:14%;"><col style="width:14%;">
-      </colgroup>
-      <thead>
-      <tr>
-        <th class="col-descricao">Fornecedor</th>
-        <th>Item</th>
-        <th>Valor</th>
-        <th>Data</th>
-        <th>Escolha</th>
-        <th class="col-acoes"></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let cotacao of sub.cotacoes">
-        <td class="col-descricao">
-          <div style="font-weight:600;">{{ cotacao.fornecedor }}</div>
-          <div *ngIf="cotacao.observacao" style="font-size:0.7rem; color:var(--muted); margin-top:2px;">{{ cotacao.observacao }}</div>
-        </td>
-        <td>{{ cotacao.item }}</td>
-        <td>
-          <span style="font-weight:700;">R$ {{ cotacao.valor | number:'1.2-2':'pt-BR' }}</span>
-          <span *ngIf="cotacao.valor === sub.menorValor" class="tag pago" style="margin-left:6px;">Mais barata</span>
-        </td>
-        <td style="color:var(--muted);">{{ cotacao.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</td>
-        <td>
-          <button
-            type="button"
-            class="tag"
-            [ngClass]="cotacao.escolhido ? 'pago' : 'pendente'"
-            (click)="marcarEscolhido(cotacao.id)">
-            {{ cotacao.escolhido ? 'Escolhida ✓' : 'Escolher' }}
-          </button>
-        </td>
-        <td class="col-acoes">
-          <div class="linha-acoes">
-            <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(cotacao)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-              </svg>
-            </button>
-            <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="excluir(cotacao.id)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                <path d="M10 11v6"></path>
-                <path d="M14 11v6"></path>
-              </svg>
-            </button>
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+      <table class="tabela-gastos">
+        <colgroup>
+          <col style="width:18%;">
+          <col style="width:22%;">
+          <col style="width:14%;">
+          <col style="width:12%;">
+          <col style="width:13%;">
+          <col style="width:9%;">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-descricao">Fornecedor</th>
+            <th>Item</th>
+            <th class="col-valor">Valor</th>
+            <th>Data</th>
+            <th>Escolha</th>
+            <th class="col-acoes"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cotacao of sub.cotacoes">
+            <td class="col-descricao">
+              <div style="font-weight:600;">{{ cotacao.fornecedor }}</div>
+              <div *ngIf="cotacao.observacao" style="font-size:0.7rem; color:var(--muted); margin-top:2px;">{{
+                cotacao.observacao }}</div>
+            </td>
+            <td>{{ cotacao.item }}</td>
+            <td class="col-valor">
+              <span class="valor-com-selo" [class.menor-valor]="cotacao.valor === sub.menorValor">
+                R$ {{ cotacao.valor | number:'1.2-2':'pt-BR' }}
+                <svg *ngIf="cotacao.valor === sub.menorValor" class="selo-menor-valor" title="Menor preço" width="14"
+                  height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2l2.9 6.26L21 9.27l-4.5 4.39L17.8 21 12 17.77 6.2 21l1.3-7.34L3 9.27l6.1-1.01L12 2z">
+                  </path>
+                </svg>
+              </span>
+            </td>
+            <td style="color:var(--muted);">{{ cotacao.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <button type="button" class="tag" [ngClass]="cotacao.escolhido ? 'pago' : 'pendente'"
+                (click)="marcarEscolhido(cotacao.id)">
+                {{ cotacao.escolhido ? 'Escolhida ✓' : 'Escolher' }}
+              </button>
+            </td>
+            <td class="col-acoes">
+              <div class="linha-acoes">
+                <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(cotacao)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+                <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(cotacao)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                  </svg>
+                </button>
+                <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir"
+                  (click)="excluir(cotacao.id)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ng-container>
 </div>
 
@@ -4265,28 +4802,22 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
     <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
       <div class="campo">
         <label for="edit-categoria">Categoria</label>
-        <app-dropdown-select
-          id="edit-categoria"
-          name="categoria"
-          [ngModel]="editForm.categoria"
-          (ngModelChange)="onCategoriaChangeEdit($event)"
-          [options]="categoriaOptions">
+        <app-dropdown-select id="edit-categoria" name="categoria" [ngModel]="editForm.categoria"
+          (ngModelChange)="onCategoriaChangeEdit($event)" [options]="categoriaOptions">
         </app-dropdown-select>
       </div>
 
       <div class="campo">
         <label for="edit-subcategoria">Subcategoria</label>
-        <app-dropdown-select
-          id="edit-subcategoria"
-          name="subcategoria"
-          [(ngModel)]="editForm.subcategoria"
+        <app-dropdown-select id="edit-subcategoria" name="subcategoria" [(ngModel)]="editForm.subcategoria"
           [options]="subcategoriaOptions(editForm.categoria)">
         </app-dropdown-select>
       </div>
 
       <div class="campo" *ngIf="ehSubcategoriaOutroEdit">
         <label for="edit-subcategoriaCustom">Especifique a subcategoria</label>
-        <input type="text" id="edit-subcategoriaCustom" name="subcategoriaCustom" [(ngModel)]="editForm.subcategoriaCustom">
+        <input type="text" id="edit-subcategoriaCustom" name="subcategoriaCustom"
+          [(ngModel)]="editForm.subcategoriaCustom">
       </div>
 
       <div class="campo largo">
@@ -4306,7 +4837,8 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
 
       <div class="campo">
         <label for="edit-quantidade">Quantidade</label>
-        <input type="number" step="0.01" min="0" id="edit-quantidade" name="quantidade" [(ngModel)]="editForm.quantidade">
+        <input type="number" step="0.01" min="0" id="edit-quantidade" name="quantidade"
+          [(ngModel)]="editForm.quantidade">
       </div>
 
       <div class="campo">
@@ -4332,6 +4864,14 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   </div>
 </div>
 
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes da cotação"
+  [subtitulo]="cotacaoDetalhes?.item || ''"
+  [grupos]="gruposDetalhesCotacao"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>
+
 
 ==================================================
 ARQUIVO: src/app/orcamentos/orcamentos.component.ts
@@ -4343,6 +4883,7 @@ import { CotacaoService } from '../core/cotacao.service';
 import { Cotacao, CategoriaOrcamento } from '../core/models';
 import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
 import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/pdf/pdf-relatorio.service';
+import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 import {
   CATEGORIAS_ORCAMENTO,
   CATEGORIA_ORCAMENTO_LABEL,
@@ -4371,7 +4912,7 @@ interface GrupoCategoria {
 @Component({
   selector: 'app-orcamentos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './orcamentos.component.html',
   styleUrl: './orcamentos.component.css'
 })
@@ -4387,8 +4928,6 @@ export class OrcamentosComponent implements OnInit {
 
   filtroCategoria: FiltroCategoria = TODAS;
 
-  // Começa com TODAS as categorias colapsadas: o card só abre se a
-  // pessoa clicar na seta.
   categoriasColapsadas = new Set<CategoriaOrcamento>(CATEGORIAS_ORCAMENTO);
 
   mostrarForm = false;
@@ -4396,6 +4935,9 @@ export class OrcamentosComponent implements OnInit {
 
   editandoId: number | null = null;
   editForm: Cotacao = this.formVazio();
+
+  // --- Detalhes ---
+  detalhesId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -4612,6 +5154,52 @@ export class OrcamentosComponent implements OnInit {
   excluir(id: number | undefined): void {
     if (!id) { return; }
     this.service.excluir(id).subscribe(() => this.carregar());
+  }
+
+  // --- Detalhes (modal reutilizável) ---
+
+  abrirDetalhes(cotacao: Cotacao): void {
+    this.detalhesId = cotacao.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get cotacaoDetalhes(): Cotacao | undefined {
+    return this.cotacoes.find(c => c.id === this.detalhesId);
+  }
+
+  get gruposDetalhesCotacao(): GrupoDetalhe[] {
+    const cotacao = this.cotacaoDetalhes;
+    if (!cotacao) { return []; }
+
+    return [
+      {
+        titulo: 'Informações da cotação',
+        campos: [
+          { label: 'Categoria', valor: this.categoriaLabel(cotacao.categoria), tag: true, classeTag: this.categoriaClasse(cotacao.categoria) },
+          { label: 'Subcategoria', valor: cotacao.subcategoria },
+          { label: 'Item', valor: cotacao.item },
+          { label: 'Fornecedor', valor: cotacao.fornecedor },
+          { label: 'Valor', valor: this.formatarMoedaExibicao(cotacao.valor), destaque: true },
+          { label: 'Quantidade', valor: cotacao.quantidade ? String(cotacao.quantidade) : '—' },
+          { label: 'Unidade', valor: cotacao.unidade || '—' },
+          { label: 'Data da cotação', valor: this.formatarDataExibicao(cotacao.data) },
+          { label: 'Observação', valor: cotacao.observacao || '—' },
+          { label: 'Status', valor: cotacao.escolhido ? 'Escolhida' : 'Não escolhida', tag: true, classeTag: cotacao.escolhido ? 'pago' : 'pendente' }
+        ]
+      }
+    ];
+  }
+
+  private formatarDataExibicao(dataIso: string): string {
+    const [ano, mes, dia] = dataIso.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  private formatarMoedaExibicao(valor: number): string {
+    return `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   private prepararParaSalvar(origem: Cotacao): Cotacao {
@@ -5355,6 +5943,746 @@ export class PendenciasComponent implements OnInit {
 
   private inicioDoDia(data: Date): Date {
     return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.css
+==================================================
+:host {
+  display: block;
+}
+
+.detalhe-modal {
+  max-width: 560px;
+}
+
+.detalhe-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.detalhe-subtitulo {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.detalhe-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detalhe-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detalhe-grupo-titulo {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #eef0f3;
+}
+
+.detalhe-linha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 0.84rem;
+}
+
+.detalhe-label {
+  color: var(--muted);
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 130px;
+}
+
+.detalhe-valor {
+  color: var(--ink);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.detalhe-valor.destaque {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.detalhe-valor.tag {
+  font-weight: 700;
+}
+
+
+==================================================
+ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.html
+==================================================
+<div class="modal-overlay" *ngIf="aberto" (click)="fecharModal()">
+  <div class="modal detalhe-modal" (click)="$event.stopPropagation()">
+    <div class="detalhe-cabecalho">
+      <div>
+        <h2 style="margin:0; padding:0; border:none;">{{ titulo }}</h2>
+        <p *ngIf="subtitulo" class="detalhe-subtitulo">{{ subtitulo }}</p>
+      </div>
+      <button type="button" class="icone" title="Fechar" aria-label="Fechar" (click)="fecharModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="detalhe-corpo">
+      <div class="detalhe-grupo" *ngFor="let grupo of grupos">
+        <div class="detalhe-grupo-titulo" *ngIf="grupo.titulo">{{ grupo.titulo }}</div>
+        <div class="detalhe-linha" *ngFor="let campo of grupo.campos">
+          <span class="detalhe-label">{{ campo.label }}</span>
+          <span
+            class="detalhe-valor"
+            [class.tag]="campo.tag"
+            [ngClass]="campo.tag ? campo.classeTag : ''"
+            [class.destaque]="campo.destaque"
+            [style.color]="!campo.tag && campo.corValor ? campo.corValor : null">
+            {{ campo.valor }}
+          </span>
+        </div>
+      </div>
+
+      <ng-content></ng-content>
+    </div>
+
+    <div class="modal-acoes">
+      <button type="button" class="secundario" (click)="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+
+==================================================
+ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.ts
+==================================================
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+export interface CampoDetalhe {
+  label: string;
+  valor: string;
+  tag?: boolean;
+  classeTag?: string;
+  destaque?: boolean;
+  corValor?: string;
+}
+
+export interface GrupoDetalhe {
+  titulo?: string;
+  campos: CampoDetalhe[];
+}
+
+@Component({
+  selector: 'app-detalhe-modal',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './detalhe-modal.component.html',
+  styleUrl: './detalhe-modal.component.css'
+})
+export class DetalheModalComponent {
+  @Input() aberto = false;
+  @Input() titulo = 'Detalhes';
+  @Input() subtitulo = '';
+  @Input() grupos: GrupoDetalhe[] = [];
+
+  @Output() fechar = new EventEmitter<void>();
+
+  fecharModal(): void {
+    this.fechar.emit();
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/timeline/timeline.component.css
+==================================================
+:host {
+  display: block;
+}
+
+.card-destaque {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-destaque.muted {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Filtros ── */
+
+.timeline-filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timeline-campo-busca {
+  flex: 1;
+  min-width: 220px;
+}
+
+.timeline-btn-limpar {
+  height: 38px;
+}
+
+/* ── Container com altura fixa para caber 5 eventos por página ── */
+
+.timeline-painel-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-container {
+  min-height: 0;
+}
+
+.timeline-painel-wrap .paginador {
+  margin-top: 4px;
+}
+
+/* ── Estrutura da timeline ── */
+
+.timeline-grupo {
+  margin-bottom: 30px;
+}
+
+.timeline-mes {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding-left: 4px;
+}
+
+.timeline-linha {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+}
+
+.timeline-marcador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timeline-icone {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.timeline-trilho {
+  flex: 1;
+  width: 2px;
+  background: var(--border);
+  margin: 4px 0;
+  min-height: 24px;
+}
+
+.timeline-item:last-child .timeline-trilho {
+  display: none;
+}
+
+.timeline-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.timeline-grupo:last-child .timeline-item:last-child .timeline-card {
+  margin-bottom: 0;
+}
+
+.timeline-item:hover .timeline-card {
+  box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);
+  border-color: #e5e7eb;
+}
+
+.timeline-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.timeline-data {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.timeline-titulo {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.timeline-descricao {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.timeline-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.timeline-fornecedor,
+.timeline-status {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.timeline-valor {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin-left: auto;
+}
+
+/* ── Cores por tipo de evento ── */
+
+.timeline-icone.evento-compra { background: #fef3c7; color: #b45309; }
+.timeline-icone.evento-pagamento { background: #d1fae5; color: #047857; }
+.timeline-icone.evento-parcela-vencida { background: #fee2e2; color: #dc2626; }
+.timeline-icone.evento-entrega { background: #dbeafe; color: #1d4ed8; }
+.timeline-icone.evento-cotacao-escolhida { background: #ede9fe; color: #6d28d9; }
+.timeline-icone.evento-comprovante { background: #f3f4f6; color: #4b5563; }
+
+.timeline-tag-tipo.evento-compra { background: #fef3c7; color: #b45309; }
+.timeline-tag-tipo.evento-pagamento { background: #d1fae5; color: #047857; }
+.timeline-tag-tipo.evento-parcela-vencida { background: #fee2e2; color: #dc2626; }
+.timeline-tag-tipo.evento-entrega { background: #dbeafe; color: #1d4ed8; }
+.timeline-tag-tipo.evento-cotacao-escolhida { background: #ede9fe; color: #6d28d9; }
+.timeline-tag-tipo.evento-comprovante { background: #f3f4f6; color: #4b5563; }
+
+.tag.cat-material { background: #fef3c7; color: #b45309; }
+.tag.cat-mao-de-obra { background: #dbeafe; color: #1d4ed8; }
+.tag.cat-transporte { background: #d1fae5; color: #047857; }
+.tag.cat-outros { background: #ede9fe; color: #6d28d9; }
+
+@media (max-width: 768px) {
+  .timeline-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeline-campo-busca {
+    min-width: 0;
+  }
+
+  .timeline-valor {
+    margin-left: 0;
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/timeline/timeline.component.html
+==================================================
+<div class="cabecalho">
+  <div>
+    <h1>Linha do Tempo Financeira</h1>
+    <p>Histórico cronológico de tudo que já aconteceu financeiramente na obra</p>
+  </div>
+  <button type="button" class="secundario" (click)="carregar()">Atualizar</button>
+</div>
+
+<div class="erro" *ngIf="erro">{{ erro }}</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">Eventos</div>
+    <div class="valor">{{ totalEventos }}</div>
+  </div>
+  <div class="card pago">
+    <div class="label">Valor movimentado</div>
+    <div class="valor">R$ {{ valorMovimentado | number:'1.2-2':'pt-BR' }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Última compra</div>
+    <ng-container *ngIf="ultimaCompra as compra; else semUltimaCompra">
+      <div class="card-destaque">{{ compra.titulo }}</div>
+      <div class="sub">{{ compra.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</div>
+    </ng-container>
+    <ng-template #semUltimaCompra><div class="card-destaque muted">—</div></ng-template>
+  </div>
+  <div class="card">
+    <div class="label">Último pagamento</div>
+    <ng-container *ngIf="ultimoPagamento as pagamento; else semUltimoPagamento">
+      <div class="card-destaque">{{ pagamento.titulo }}</div>
+      <div class="sub">{{ pagamento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</div>
+    </ng-container>
+    <ng-template #semUltimoPagamento><div class="card-destaque muted">—</div></ng-template>
+  </div>
+  <div class="card">
+    <div class="label">Eventos neste mês</div>
+    <div class="valor">{{ eventosDesteMes }}</div>
+  </div>
+</div>
+
+<div class="painel">
+  <div class="timeline-filtros">
+    <div class="campo" style="max-width:220px;">
+      <label for="filtroTipo">Tipo de evento</label>
+      <app-dropdown-select
+        id="filtroTipo"
+        name="filtroTipo"
+        [ngModel]="filtroTipo"
+        (ngModelChange)="setFiltroTipo($event)"
+        [options]="filtroTipoOptions">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo timeline-campo-busca">
+      <label for="busca">Buscar</label>
+      <input type="text" id="busca" name="busca" [(ngModel)]="busca" (ngModelChange)="onFiltroTextoChange()" placeholder="Descrição, fornecedor, categoria...">
+    </div>
+
+    <div class="campo estreito">
+      <label for="dataInicio">De</label>
+      <input type="date" id="dataInicio" name="dataInicio" [(ngModel)]="dataInicio" (ngModelChange)="onFiltroTextoChange()">
+    </div>
+
+    <div class="campo estreito">
+      <label for="dataFim">Até</label>
+      <input type="date" id="dataFim" name="dataFim" [(ngModel)]="dataFim" (ngModelChange)="onFiltroTextoChange()">
+    </div>
+
+    <button type="button" class="secundario timeline-btn-limpar" (click)="limparFiltros()">Limpar filtros</button>
+  </div>
+</div>
+
+<div class="painel" *ngIf="carregando" style="text-align:center; color:var(--muted); font-size:0.85rem;">
+  Carregando linha do tempo...
+</div>
+
+<ng-container *ngIf="!carregando">
+  <div class="painel timeline-vazio" *ngIf="eventosFiltrados.length === 0" style="text-align:center; color:var(--muted); font-size:0.85rem;">
+    Nenhum evento encontrado para os filtros selecionados.
+  </div>
+
+  <div class="painel timeline-painel-wrap" *ngIf="eventosFiltrados.length > 0">
+    <div class="timeline-container">
+      <div class="timeline-grupo" *ngFor="let grupo of grupos">
+        <div class="timeline-mes">{{ grupo.mesLabel }}</div>
+
+        <div class="timeline-linha">
+          <div class="timeline-item" *ngFor="let evento of grupo.eventos">
+            <div class="timeline-marcador">
+              <div class="timeline-icone" [ngClass]="tipoClasse(evento.tipo)">
+                <svg *ngIf="evento.tipo === 'COMPRA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <svg *ngIf="evento.tipo === 'PAGAMENTO'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle><path d="M12 7v10"></path><path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5"></path>
+                </svg>
+                <svg *ngIf="evento.tipo === 'PARCELA_VENCIDA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'ENTREGA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'COTACAO_ESCOLHIDA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="3" width="16" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'COMPROVANTE'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <div class="timeline-trilho"></div>
+            </div>
+
+            <div class="timeline-card">
+              <div class="timeline-card-topo">
+                <span class="tag timeline-tag-tipo" [ngClass]="tipoClasse(evento.tipo)">{{ tipoLabel(evento.tipo) }}</span>
+                <span class="timeline-data">{{ evento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <div class="timeline-titulo">{{ evento.titulo }}</div>
+              <div class="timeline-descricao" *ngIf="evento.descricao">{{ evento.descricao }}</div>
+
+              <div class="timeline-meta">
+                <span class="tag" *ngIf="evento.categoriaLabel" [ngClass]="evento.categoriaClasse">{{ evento.categoriaLabel }}</span>
+                <span class="timeline-fornecedor" *ngIf="evento.fornecedor">{{ evento.fornecedor }}</span>
+                <span class="timeline-status" *ngIf="evento.status">{{ evento.status }}</span>
+                <span class="timeline-valor" *ngIf="evento.valor !== undefined">R$ {{ evento.valor | number:'1.2-2':'pt-BR' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="paginador">
+      <span class="paginador-info">Página {{ paginaAtualEventos }} de {{ totalPaginasEventos }} · {{ eventosFiltrados.length }} evento(s)</span>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualEventos === 1" (click)="irParaPaginaEventos(paginaAtualEventos - 1)" aria-label="Página anterior">‹</button>
+      <ng-container *ngFor="let p of paginasVisiveisEventos">
+        <span *ngIf="p === '...'" class="paginador-reticencias">…</span>
+        <button *ngIf="p !== '...'" type="button" class="paginador-numero" [class.ativo]="p === paginaAtualEventos" [disabled]="totalPaginasEventos <= 1" (click)="irParaPaginaEventos(p)">{{ p }}</button>
+      </ng-container>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualEventos === totalPaginasEventos" (click)="irParaPaginaEventos(paginaAtualEventos + 1)" aria-label="Próxima página">›</button>
+    </div>
+  </div>
+</ng-container>
+
+
+==================================================
+ARQUIVO: src/app/timeline/timeline.component.ts
+==================================================
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import {
+  TIMELINE_TIPO_LABEL,
+  TIMELINE_TIPO_ORDEM,
+  TimelineEvento,
+  TimelineService,
+  TimelineTipo
+} from '../core/timeline.service';
+
+const TODOS = 'TODOS';
+
+type FiltroTipo = 'TODOS' | TimelineTipo;
+
+@Component({
+  selector: 'app-timeline',
+  standalone: true,
+  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  templateUrl: './timeline.component.html',
+  styleUrl: './timeline.component.css'
+})
+export class TimelineComponent implements OnInit {
+  private service = inject(TimelineService);
+
+  eventos: TimelineEvento[] = [];
+  carregando = true;
+  erro = '';
+
+  filtroTipoOptions: DropdownOpcao[] = [
+    { value: TODOS, label: 'Todos os tipos' },
+    ...TIMELINE_TIPO_ORDEM.map(tipo => ({ value: tipo, label: TIMELINE_TIPO_LABEL[tipo] }))
+  ];
+
+  filtroTipo: FiltroTipo = TODOS;
+  busca = '';
+  dataInicio = '';
+  dataFim = '';
+
+  eventosPorPagina = 5;
+  paginaAtualEventos = 1;
+
+  ngOnInit(): void {
+    this.carregar();
+  }
+
+  carregar(): void {
+    this.carregando = true;
+    this.erro = '';
+
+    this.service.obterEventos().subscribe({
+      next: eventos => {
+        this.eventos = eventos;
+        this.carregando = false;
+        this.paginaAtualEventos = 1;
+      },
+      error: () => {
+        this.erro = 'Não foi possível carregar a linha do tempo agora.';
+        this.carregando = false;
+      }
+    });
+  }
+
+  setFiltroTipo(valor: string): void {
+    this.filtroTipo = valor as FiltroTipo;
+    this.paginaAtualEventos = 1;
+  }
+
+  onFiltroTextoChange(): void {
+    this.paginaAtualEventos = 1;
+  }
+
+  limparFiltros(): void {
+    this.filtroTipo = TODOS;
+    this.busca = '';
+    this.dataInicio = '';
+    this.dataFim = '';
+    this.paginaAtualEventos = 1;
+  }
+
+  tipoLabel(tipo: TimelineTipo): string {
+    return TIMELINE_TIPO_LABEL[tipo];
+  }
+
+  tipoClasse(tipo: TimelineTipo): string {
+    return 'evento-' + tipo.toLowerCase().replace(/_/g, '-');
+  }
+
+  get totalEventos(): number {
+    return this.eventos.length;
+  }
+
+  get valorMovimentado(): number {
+    return this.eventos.reduce((soma, evento) => soma + (evento.valor ?? 0), 0);
+  }
+
+  get ultimaCompra(): TimelineEvento | undefined {
+    return this.eventos.find(evento => evento.tipo === 'COMPRA');
+  }
+
+  get ultimoPagamento(): TimelineEvento | undefined {
+    return this.eventos.find(evento => evento.tipo === 'PAGAMENTO');
+  }
+
+  get eventosDesteMes(): number {
+    const hoje = new Date();
+    const prefixoMes = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    return this.eventos.filter(evento => evento.data.startsWith(prefixoMes)).length;
+  }
+
+  get eventosFiltrados(): TimelineEvento[] {
+    const termo = this.busca.trim().toLowerCase();
+
+    return this.eventos.filter(evento => {
+      if (this.filtroTipo !== TODOS && evento.tipo !== this.filtroTipo) {
+        return false;
+      }
+
+      if (this.dataInicio && evento.data < this.dataInicio) {
+        return false;
+      }
+
+      if (this.dataFim && evento.data > this.dataFim) {
+        return false;
+      }
+
+      if (termo) {
+        const alvo = [evento.titulo, evento.descricao, evento.fornecedor, evento.categoriaLabel]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!alvo.includes(termo)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  get totalPaginasEventos(): number {
+    return Math.max(1, Math.ceil(this.eventosFiltrados.length / this.eventosPorPagina));
+  }
+
+  get eventosPaginados(): TimelineEvento[] {
+    if (this.paginaAtualEventos > this.totalPaginasEventos) {
+      this.paginaAtualEventos = this.totalPaginasEventos;
+    }
+    const inicio = (this.paginaAtualEventos - 1) * this.eventosPorPagina;
+    return this.eventosFiltrados.slice(inicio, inicio + this.eventosPorPagina);
+  }
+
+  get paginasVisiveisEventos(): (number | string)[] {
+    return this.calcularPaginasVisiveis(this.paginaAtualEventos, this.totalPaginasEventos);
+  }
+
+  irParaPaginaEventos(pagina: number | string): void {
+    if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasEventos) { return; }
+    this.paginaAtualEventos = pagina;
+  }
+
+  private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const paginas: (number | string)[] = [1];
+    if (atual > 3) { paginas.push('...'); }
+    const inicio = Math.max(2, atual - 1);
+    const fim = Math.min(total - 1, atual + 1);
+    for (let i = inicio; i <= fim; i++) { paginas.push(i); }
+    if (atual < total - 2) { paginas.push('...'); }
+    paginas.push(total);
+    return paginas;
+  }
+
+  get grupos(): { mesLabel: string; eventos: TimelineEvento[] }[] {
+    const mapa = new Map<string, TimelineEvento[]>();
+
+    this.eventosPaginados.forEach(evento => {
+      const chave = evento.data.slice(0, 7);
+      const lista = mapa.get(chave) ?? [];
+      lista.push(evento);
+      mapa.set(chave, lista);
+    });
+
+    return Array.from(mapa.entries()).map(([chave, eventos]) => ({
+      mesLabel: this.formatarMesAno(chave),
+      eventos
+    }));
+  }
+
+  private formatarMesAno(chave: string): string {
+    const [ano, mes] = chave.split('-').map(Number);
+    const data = new Date(ano, mes - 1, 1);
+    const label = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 }
 

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
-
 :host {
   --sidebar-width: 260px;
   --sidebar-width-collapsed: 76px;
@@ -17,7 +15,7 @@
 .app-shell {
   position: relative;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Metropolis', system-ui, sans-serif;
 }
 
 /* Sidebar flutua por cima do conteúdo (position: fixed), não empurra nada */
@@ -74,7 +72,7 @@
 }
 
 .titulo {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Metropolis', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
@@ -89,7 +87,6 @@
   white-space: nowrap;
 }
 
-/* Nav */
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -144,7 +141,6 @@
   padding: 11px;
 }
 
-/* Acessibilidade */
 .sidebar-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -157,7 +153,6 @@
   }
 }
 
-/* Conteúdo principal: margem fixa = largura recolhida, nunca muda */
 main {
   margin-left: var(--sidebar-width-collapsed);
   min-height: 100vh;

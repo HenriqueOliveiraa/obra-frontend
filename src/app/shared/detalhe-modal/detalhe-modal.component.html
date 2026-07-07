@@ -1,0 +1,39 @@
+<div class="modal-overlay" *ngIf="aberto" (click)="fecharModal()">
+  <div class="modal detalhe-modal" (click)="$event.stopPropagation()">
+    <div class="detalhe-cabecalho">
+      <div>
+        <h2 style="margin:0; padding:0; border:none;">{{ titulo }}</h2>
+        <p *ngIf="subtitulo" class="detalhe-subtitulo">{{ subtitulo }}</p>
+      </div>
+      <button type="button" class="icone" title="Fechar" aria-label="Fechar" (click)="fecharModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="detalhe-corpo">
+      <div class="detalhe-grupo" *ngFor="let grupo of grupos">
+        <div class="detalhe-grupo-titulo" *ngIf="grupo.titulo">{{ grupo.titulo }}</div>
+        <div class="detalhe-linha" *ngFor="let campo of grupo.campos">
+          <span class="detalhe-label">{{ campo.label }}</span>
+          <span
+            class="detalhe-valor"
+            [class.tag]="campo.tag"
+            [ngClass]="campo.tag ? campo.classeTag : ''"
+            [class.destaque]="campo.destaque"
+            [style.color]="!campo.tag && campo.corValor ? campo.corValor : null">
+            {{ campo.valor }}
+          </span>
+        </div>
+      </div>
+
+      <ng-content></ng-content>
+    </div>
+
+    <div class="modal-acoes">
+      <button type="button" class="secundario" (click)="fecharModal()">Fechar</button>
+    </div>
+  </div>
+</div>

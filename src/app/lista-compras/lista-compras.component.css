@@ -5,3 +5,11 @@
 .tag.prioridade-alta { background: #fee2e2; color: #b91c1c; }
 .tag.prioridade-media { background: #fef3c7; color: #b45309; }
 .tag.prioridade-baixa { background: #dbeafe; color: #1d4ed8; }
+
+.tabela-gastos td.col-acoes .linha-acoes {
+  gap: 6px;
+}
+
+.tabela-gastos td.col-acoes button.icone {
+  padding: 6px;
+}

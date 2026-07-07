@@ -131,9 +131,9 @@
   <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:23%;"><col style="width:12%;"><col style="width:6%;">
-      <col style="width:11%;"><col style="width:9%;"><col style="width:12%;">
-      <col style="width:9%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:17%;"><col style="width:16%;"><col style="width:5%;">
+      <col style="width:10%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:8%;"><col style="width:8%;"><col style="width:18%;">
     </colgroup>
     <thead>
     <tr>
@@ -199,6 +199,12 @@
       </td>
       <td class="col-acoes">
         <div class="linha-acoes">
+          <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(gasto)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
           <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(gasto)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 20h9"></path>
@@ -348,3 +354,11 @@
     </div>
   </div>
 </div>
+
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do gasto"
+  [subtitulo]="gastoDetalhes?.descricao || ''"
+  [grupos]="gruposDetalhesGasto"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>

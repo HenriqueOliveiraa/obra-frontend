@@ -5,6 +5,7 @@ import { GastoService } from '../core/gasto.service';
 import { ComprovanteService } from '../core/comprovante.service';
 import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
 import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
+import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 
 export interface DropdownOpcao {
   value: string;
@@ -170,9 +171,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
   posicao: { top: number; left: number; width: number; maxHeight: number } =
     { top: 0, left: 0, width: 0, maxHeight: 220 };
 
-  // Registro global: cada dropdown aberto que precisou de espaço extra
-  // entra aqui, junto com QUAL container ele expandiu (pode ser a página
-  // inteira ou um painel interno com scroll próprio).
   private static expansaoAtiva: {
     container: HTMLElement | Window;
     paddingOriginal: string;
@@ -217,7 +215,7 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
   private prepararAbertura(): void {
     const alturaDesejada = 220;
     const margem = 6;
-    const folga = 24; // margem de segurança extra
+    const folga = 24;
     const botao = this.elementRef.nativeElement.querySelector('.dropdown-trigger') as HTMLElement | null;
     if (!botao) { return; }
 
@@ -225,10 +223,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     const espacoAbaixo = window.innerHeight - rect.bottom - margem;
 
     if (espacoAbaixo < alturaDesejada) {
-      // Não cabe: descobre QUEM realmente rola (a página ou um painel
-      // interno) e aumenta a altura dele de verdade, criando espaço real
-      // para rolar — em vez de tentar rolar a window, que pode não ser
-      // quem controla o scroll nesse layout.
       const deficit = Math.ceil(alturaDesejada - espacoAbaixo);
       const container = this.encontrarContainerRolavel(botao);
       this.aplicarEspacoExtra(container, deficit + folga);
@@ -248,9 +242,6 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     }
   }
 
-  // Sobe pela árvore de elementos a partir do botão até achar um ancestral
-  // que realmente tem scroll próprio (overflow-y auto/scroll com conteúdo
-  // maior que a área visível). Se não achar nenhum, assume que é a window.
   private encontrarContainerRolavel(elemento: HTMLElement): HTMLElement | Window {
     let node: HTMLElement | null = elemento.parentElement;
 
@@ -286,14 +277,11 @@ export class DropdownSelectComponent implements ControlValueAccessor, OnDestroy 
     };
   }
 
-  // Aumenta a altura "de verdade" do container que rola (padding-bottom),
-  // criando espaço real para o scroll ir até lá. Some sozinho ao fechar.
   private aplicarEspacoExtra(container: HTMLElement | Window, altura: number): void {
     const alvo: HTMLElement = container === window ? document.body : (container as HTMLElement);
     const expansaoAtual = DropdownSelectComponent.expansaoAtiva;
 
     if (!expansaoAtual || expansaoAtual.container !== container) {
-      // Havia expansão em outro container (outro dropdown)? Desfaz ela antes.
       if (expansaoAtual) {
         const alvoAntigo: HTMLElement = expansaoAtual.container === window ? document.body : (expansaoAtual.container as HTMLElement);
         alvoAntigo.style.paddingBottom = expansaoAtual.paddingOriginal;
@@ -401,7 +389,7 @@ const STATUS_MATERIAL_CLASSE: Record<StatusMaterial, string> = {
   ENTREGUE: 'status-entregue'
 };
 
-const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024; // 5MB, limite razoável para dataUrl em localStorage
+const TAMANHO_MAXIMO_ARQUIVO = 5 * 1024 * 1024;
 
 type FiltroStatus = 'todos' | 'pago' | 'pendente';
 
@@ -416,7 +404,7 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
@@ -444,11 +432,13 @@ export class GastosComponent implements OnInit {
   editandoId: number | null = null;
   editForm: Gasto = this.formVazio();
 
-  // Comprovantes: indexados por gastoId para consulta rápida no template
   comprovantesPorGasto: Record<number, Comprovante> = {};
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
+
+  // --- Detalhes ---
+  detalhesId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -726,6 +716,78 @@ export class GastosComponent implements OnInit {
     this.comprovanteService.remover(gastoId).subscribe(() => {
       delete this.comprovantesPorGasto[gastoId];
     });
+  }
+
+  // --- Detalhes (modal reutilizável) ---
+
+  abrirDetalhes(gasto: Gasto): void {
+    this.detalhesId = gasto.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get gastoDetalhes(): Gasto | undefined {
+    return this.gastos.find(g => g.id === this.detalhesId);
+  }
+
+  get gruposDetalhesGasto(): GrupoDetalhe[] {
+    const gasto = this.gastoDetalhes;
+    if (!gasto) { return []; }
+
+    const grupos: GrupoDetalhe[] = [
+      {
+        titulo: 'Informações gerais',
+        campos: [
+          { label: 'Categoria', valor: this.categoriaLabel(gasto.categoria), tag: true, classeTag: this.categoriaClasse(gasto.categoria) },
+          { label: 'Quantidade', valor: String(gasto.quantidade) },
+          { label: 'Valor total', valor: this.formatarMoedaExibicao(gasto.valorTotal), destaque: true },
+          { label: 'Data da compra', valor: this.formatarDataExibicao(gasto.dataCompra) },
+          { label: 'Fornecedor', valor: gasto.fornecedor || '—' },
+          { label: 'Status de pagamento', valor: this.gastoPago(gasto) ? 'Pago' : 'Pendente', tag: true, classeTag: this.gastoPago(gasto) ? 'pago' : 'pendente' }
+        ]
+      }
+    ];
+
+    if (gasto.categoria === 'MATERIAL') {
+      grupos.push({
+        titulo: 'Entrega do material',
+        campos: [
+          { label: 'Status de entrega', valor: this.statusMaterialLabel(gasto.statusMaterial), tag: true, classeTag: this.statusMaterialClasse(gasto.statusMaterial) },
+          { label: 'Quem recebeu', valor: gasto.responsavelRecebimento || '—' }
+        ]
+      });
+    }
+
+    if (gasto.parcelas && gasto.parcelas.length > 0) {
+      grupos.push({
+        titulo: gasto.parcelado ? `Parcelas (${gasto.numeroParcelas}x)` : 'Pagamento à vista',
+        campos: gasto.parcelas.map(parcela => ({
+          label: `Parcela #${parcela.numero}`,
+          valor: `${this.formatarMoedaExibicao(parcela.valor)} · vence ${this.formatarDataExibicao(parcela.vencimento)}${parcela.pago ? ' · paga' : ' · pendente'}`
+        }))
+      });
+    }
+
+    const comprovante = this.comprovanteDoGasto(gasto.id);
+    grupos.push({
+      titulo: 'Comprovante',
+      campos: [
+        { label: 'Arquivo', valor: comprovante ? comprovante.nomeArquivo : 'Nenhum comprovante anexado' }
+      ]
+    });
+
+    return grupos;
+  }
+
+  private formatarDataExibicao(dataIso: string): string {
+    const [ano, mes, dia] = dataIso.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  private formatarMoedaExibicao(valor: number): string {
+    return `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   private formVazio(): Gasto {
