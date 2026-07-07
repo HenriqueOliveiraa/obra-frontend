@@ -21,11 +21,17 @@ export class LoginComponent {
 
   carregando = false;
   erro = '';
+  campoInvalido = false;
 
   onSubmit(): void {
-    if (!this.email || !this.senha) { return; }
+    if (!this.email || !this.senha) {
+      this.erro = 'Preencha e-mail e senha para continuar';
+      this.campoInvalido = true;
+      return;
+    }
 
     this.erro = '';
+    this.campoInvalido = false;
     this.carregando = true;
 
     this.auth.login({ email: this.email, senha: this.senha }).subscribe({
@@ -35,8 +41,16 @@ export class LoginComponent {
       },
       error: () => {
         this.carregando = false;
-        this.erro = 'E-mail ou senha inválidos.';
+        this.erro = 'E-mail ou senha incorreta';
+        this.campoInvalido = true;
       }
     });
+  }
+
+  onInput(): void {
+    if (this.campoInvalido) {
+      this.campoInvalido = false;
+      this.erro = '';
+    }
   }
 }

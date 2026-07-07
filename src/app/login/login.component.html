@@ -21,6 +21,8 @@
               id="email"
               name="email"
               [(ngModel)]="email"
+              (input)="onInput()"
+              [class.invalido]="campoInvalido"
               placeholder="Digite o e-mail"
               autocomplete="email"
               required>
@@ -34,6 +36,8 @@
                 id="senha"
                 name="senha"
                 [(ngModel)]="senha"
+                (input)="onInput()"
+                [class.invalido]="campoInvalido"
                 placeholder="Digite a senha"
                 autocomplete="current-password"
                 required>

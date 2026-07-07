@@ -195,10 +195,11 @@
 
 .login-erro {
   margin: 0;
-  font-size: 0.78rem;
+  margin-top: 10px;
+  font-size: 0.9rem;
   color: #dc2626;
   font-weight: 500;
-  text-align: center;
+  text-align: left;
 }
 
 .botao-acessar {
@@ -220,6 +221,9 @@
   transition: background 0.15s;
 }
 
+.login-erro + .botao-acessar {
+  margin-top: 0px;
+}
 .botao-acessar:hover:not(:disabled) {
   background: #2e2e2e;
   color: #ffffff;
@@ -249,4 +253,11 @@
   -webkit-text-fill-color: #111827;
   caret-color: #111827;
   transition: background-color 5000s ease-in-out 0s;
+}
+.campo-login input.invalido {
+  border-color: #dc2626;
+}
+
+.campo-login input.invalido:focus {
+  border-color: #dc2626;
 }
