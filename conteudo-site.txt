@@ -72,7 +72,7 @@ ARQUIVO: src/app/app.component.css
 }
 
 .titulo {
-  font-family: 'Metropolis', sans-serif;
+  font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
@@ -431,7 +431,7 @@ import { LoginComponent } from './login/login.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'pendencias', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'pendencias', component: PendenciasComponent, canActivate: [authGuard] },
   { path: 'calendario', component: CalendarioComponent, canActivate: [authGuard] },
@@ -2971,6 +2971,98 @@ ARQUIVO: src/app/gastos/gastos.component.css
   height: 14px;
 }
 
+.comprovante-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.modal-comprovante .comprovante-cabecalho h2 {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.comprovante-preview {
+  cursor: zoom-in;
+  transition: opacity 0.12s ease;
+}
+
+.comprovante-preview:hover {
+  opacity: 0.88;
+}
+
+.comprovante-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.botao-baixar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.botao-baixar:hover {
+  background: #f9fafb;
+  color: var(--ink);
+  border-color: #d1d5db;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 16, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  z-index: 200;
+}
+
+.lightbox-imagem {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-fechar {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.lightbox-fechar:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 
 ==================================================
 ARQUIVO: src/app/gastos/gastos.component.html
@@ -3300,7 +3392,15 @@ ARQUIVO: src/app/gastos/gastos.component.html
 
 <div class="modal-overlay" *ngIf="anexoGastoId" (click)="fecharAnexo()">
   <div class="modal modal-comprovante" (click)="$event.stopPropagation()">
-    <h2>Comprovante do gasto</h2>
+    <div class="comprovante-cabecalho">
+      <h2>Comprovante do gasto</h2>
+      <button type="button" class="icone" title="Fechar" aria-label="Fechar" (click)="fecharAnexo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
 
     <div class="comprovante-atual" *ngIf="comprovanteDoGasto(anexoGastoId) as comprovante">
       <div class="comprovante-info">
@@ -3313,9 +3413,28 @@ ARQUIVO: src/app/gastos/gastos.component.html
           <span>Enviado em {{ comprovante.dataUpload | date:'dd/MM/yyyy HH:mm' }}</span>
         </div>
       </div>
-      <img *ngIf="comprovante.tipoArquivo.startsWith('image/')" [src]="comprovante.dataUrl" alt="Prévia do comprovante" class="comprovante-preview">
+
+      <img
+        *ngIf="comprovante.tipoArquivo.startsWith('image/')"
+        [src]="comprovante.dataUrl"
+        alt="Prévia do comprovante"
+        class="comprovante-preview"
+        title="Clique para ampliar"
+        (click)="abrirImagemExpandida(comprovante.dataUrl)">
+
       <a *ngIf="!comprovante.tipoArquivo.startsWith('image/')" [href]="comprovante.dataUrl" [download]="comprovante.nomeArquivo" class="comprovante-abrir">Abrir arquivo</a>
-      <button type="button" class="secundario" (click)="removerComprovante(anexoGastoId)">Remover comprovante</button>
+
+      <div class="comprovante-acoes">
+        <a [href]="comprovante.dataUrl" [download]="comprovante.nomeArquivo" class="botao-baixar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Baixar comprovante
+        </a>
+        <button type="button" class="secundario" (click)="removerComprovante(anexoGastoId)">Remover comprovante</button>
+      </div>
     </div>
 
     <div class="campo largo" style="margin-top: 14px;">
@@ -3330,6 +3449,16 @@ ARQUIVO: src/app/gastos/gastos.component.html
       <button type="button" class="secundario" (click)="fecharAnexo()">Fechar</button>
     </div>
   </div>
+</div>
+
+<div class="lightbox-overlay" *ngIf="imagemExpandida" (click)="fecharImagemExpandida()">
+  <button type="button" class="lightbox-fechar" title="Fechar" aria-label="Fechar" (click)="fecharImagemExpandida()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+  <img [src]="imagemExpandida" alt="Comprovante ampliado" class="lightbox-imagem" (click)="$event.stopPropagation()">
 </div>
 
 <app-detalhe-modal
@@ -3782,6 +3911,7 @@ export class GastosComponent implements OnInit {
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
+  imagemExpandida: string | null = null;
 
   // --- Detalhes ---
   detalhesId: number | null = null;
@@ -4062,6 +4192,14 @@ export class GastosComponent implements OnInit {
     this.comprovanteService.remover(gastoId).subscribe(() => {
       delete this.comprovantesPorGasto[gastoId];
     });
+  }
+
+  abrirImagemExpandida(dataUrl: string): void {
+    this.imagemExpandida = dataUrl;
+  }
+
+  fecharImagemExpandida(): void {
+    this.imagemExpandida = null;
   }
 
   // --- Detalhes (modal reutilizável) ---
@@ -4671,9 +4809,6 @@ ARQUIVO: src/app/login/login.component.css
   font-family: 'Plus Jakarta Sans', -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-/*
-  Vetor ja ajustado e correto - nao mexer nesta regra.
-*/
 .login-visual {
   --vetor-largura: 100vw;
   --vetor-altura: 90vh;
@@ -4735,9 +4870,9 @@ ARQUIVO: src/app/login/login.component.css
 
 .login-titulo {
   font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  color: #111827;
+  color: #d46007;
   letter-spacing: -0.02em;
   margin-top: -30px;
 }
@@ -4839,8 +4974,8 @@ ARQUIVO: src/app/login/login.component.css
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #d46007;
+  border-radius: 50px;
+  background: #191c22;
   color: #ffffff;
   border: none;
   font-family: inherit;
@@ -4851,8 +4986,8 @@ ARQUIVO: src/app/login/login.component.css
 }
 
 .botao-acessar:hover:not(:disabled) {
-  background: #dbae69;
-  color: #644f22;
+  background: #2e2e2e;
+  color: #ffffff;
 }
 
 .botao-acessar:disabled {
@@ -4971,7 +5106,7 @@ export class LoginComponent {
     this.auth.login({ email: this.email, senha: this.senha }).subscribe({
       next: () => {
         this.carregando = false;
-        this.router.navigate(['/pendencias']);
+        this.router.navigate(['/dashboard']);
       },
       error: () => {
         this.carregando = false;

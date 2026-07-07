@@ -436,6 +436,7 @@ export class GastosComponent implements OnInit {
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
+  imagemExpandida: string | null = null;
 
   // --- Detalhes ---
   detalhesId: number | null = null;
@@ -716,6 +717,14 @@ export class GastosComponent implements OnInit {
     this.comprovanteService.remover(gastoId).subscribe(() => {
       delete this.comprovantesPorGasto[gastoId];
     });
+  }
+
+  abrirImagemExpandida(dataUrl: string): void {
+    this.imagemExpandida = dataUrl;
+  }
+
+  fecharImagemExpandida(): void {
+    this.imagemExpandida = null;
   }
 
   // --- Detalhes (modal reutilizável) ---
