@@ -1,15 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, Input, ElementRef, HostListener, forwardRef } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnDestroy, OnInit, forwardRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GastoService } from '../core/gasto.service';
 import { ComprovanteService } from '../core/comprovante.service';
 import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
 import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
-import { CardComponent } from '../shared/ui/card/card.component';
-import { PainelComponent } from '../shared/ui/painel/painel.component';
-import { TagComponent, TagVariante } from '../shared/ui/tag/tag.component';
-import { ModalComponent } from '../shared/ui/modal/modal.component';
 
 export interface DropdownOpcao {
   value: string;
@@ -372,7 +368,7 @@ export const CATEGORIA_LABEL: Record<Categoria, string> = {
   OUTROS: 'Outros'
 };
 
-export const CATEGORIA_CLASSE: Record<Categoria, TagVariante> = {
+export const CATEGORIA_CLASSE: Record<Categoria, string> = {
   MATERIAL: 'cat-material',
   MAO_DE_OBRA: 'cat-mao-de-obra',
   TRANSPORTE: 'cat-transporte',
@@ -408,17 +404,14 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent, CardComponent, PainelComponent, TagComponent, ModalComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
 export class GastosComponent implements OnInit {
   private service = inject(GastoService);
-  private pdfService = inject(PdfRelatorioService);
   private comprovanteService = inject(ComprovanteService);
-
-  paginaAtualGastos = 1;
-  itensPorPagina = 10;
+  private pdfService = inject(PdfRelatorioService);
 
   categorias = CATEGORIAS;
   categoriaOptions: DropdownOpcao[] = CATEGORIAS.map(cat => ({ value: cat, label: CATEGORIA_LABEL[cat] }));
@@ -430,6 +423,9 @@ export class GastosComponent implements OnInit {
 
   filtroStatus: FiltroStatus = 'todos';
 
+  itensPorPagina = 10;
+  paginaAtualGastos = 1;
+
   mostrarForm = false;
   form: Gasto = this.formVazio();
 
@@ -440,6 +436,7 @@ export class GastosComponent implements OnInit {
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
+  imagemExpandida: string | null = null;
 
   // --- Detalhes ---
   detalhesId: number | null = null;
@@ -449,8 +446,23 @@ export class GastosComponent implements OnInit {
   }
 
   carregar(): void {
-    this.service.listar().subscribe(pagina => this.gastos = pagina.content);
+    this.service.listar().subscribe(pagina => {
+      this.gastos = pagina.content;
+      if (this.paginaAtualGastos > this.totalPaginasGastos) {
+        this.paginaAtualGastos = this.totalPaginasGastos;
+      }
+    });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
+    this.carregarComprovantes();
+  }
+
+  carregarComprovantes(): void {
+    this.comprovanteService.listar().subscribe(comprovantes => {
+      this.comprovantesPorGasto = {};
+      for (const comprovante of comprovantes) {
+        this.comprovantesPorGasto[comprovante.gastoId] = comprovante;
+      }
+    });
   }
 
   toggleForm(): void {
@@ -464,8 +476,30 @@ export class GastosComponent implements OnInit {
     return CATEGORIA_LABEL[categoria] ?? categoria;
   }
 
-  categoriaClasse(categoria: Categoria): TagVariante {
-    return CATEGORIA_CLASSE[categoria] ?? 'cat-outros';
+  categoriaClasse(categoria: Categoria): string {
+    return CATEGORIA_CLASSE[categoria] ?? '';
+  }
+
+  statusMaterialLabel(status?: StatusMaterial): string {
+    return status ? STATUS_MATERIAL_LABEL[status] : STATUS_MATERIAL_LABEL.RETIRADO;
+  }
+
+  statusMaterialClasse(status?: StatusMaterial): string {
+    return status ? STATUS_MATERIAL_CLASSE[status] : STATUS_MATERIAL_CLASSE.RETIRADO;
+  }
+
+  avancarStatusMaterial(gasto: Gasto): void {
+    if (!gasto.id || gasto.categoria !== 'MATERIAL') { return; }
+    const atual = gasto.statusMaterial ?? 'RETIRADO';
+    const proximoIndex = (STATUS_MATERIAL_ORDEM.indexOf(atual) + 1) % STATUS_MATERIAL_ORDEM.length;
+    const proximo = STATUS_MATERIAL_ORDEM[proximoIndex];
+
+    const atualizado: Gasto = {
+      ...gasto,
+      statusMaterial: proximo
+    };
+
+    this.service.atualizar(gasto.id, atualizado).subscribe(() => this.carregar());
   }
 
   gastoPago(gasto: Gasto): boolean {
@@ -581,7 +615,11 @@ export class GastosComponent implements OnInit {
 
   editar(gasto: Gasto): void {
     this.editandoId = gasto.id ?? null;
-    this.editForm = { ...gasto, diaVencimento: gasto.diaVencimento ?? 12 };
+    this.editForm = {
+      ...gasto,
+      diaVencimento: gasto.diaVencimento ?? 12,
+      statusMaterial: gasto.statusMaterial ?? 'RETIRADO'
+    };
   }
 
   salvarEdicao(): void {
@@ -681,6 +719,14 @@ export class GastosComponent implements OnInit {
     });
   }
 
+  abrirImagemExpandida(dataUrl: string): void {
+    this.imagemExpandida = dataUrl;
+  }
+
+  fecharImagemExpandida(): void {
+    this.imagemExpandida = null;
+  }
+
   // --- Detalhes (modal reutilizável) ---
 
   abrirDetalhes(gasto: Gasto): void {
@@ -744,18 +790,6 @@ export class GastosComponent implements OnInit {
     return grupos;
   }
 
-  statusMaterialLabel(status: StatusMaterial | undefined): string {
-    if (!status) { return '—'; }
-    const labels: Record<StatusMaterial, string> = { RETIRADO: 'Retirado', A_CAMINHO: 'A caminho', ENTREGUE: 'Entregue' };
-    return labels[status] ?? status;
-  }
-
-  statusMaterialClasse(status: StatusMaterial | undefined): string {
-    if (!status) { return ''; }
-    const classes: Record<StatusMaterial, string> = { RETIRADO: 'status-retirado', A_CAMINHO: 'status-caminho', ENTREGUE: 'status-entregue' };
-    return classes[status] ?? '';
-  }
-
   private formatarDataExibicao(dataIso: string): string {
     const [ano, mes, dia] = dataIso.split('-');
     return `${dia}/${mes}/${ano}`;
@@ -775,7 +809,9 @@ export class GastosComponent implements OnInit {
       numeroParcelas: 1,
       diaVencimento: 12,
       dataCompra: new Date().toISOString().slice(0, 10),
-      fornecedor: ''
+      fornecedor: '',
+      statusMaterial: 'RETIRADO',
+      responsavelRecebimento: ''
     };
   }
 }

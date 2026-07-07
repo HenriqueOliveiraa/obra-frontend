@@ -1,31 +1,53 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { ItemCompra } from './models';
-import { API_BASE } from './api-base';
+
+const CHAVE_STORAGE = 'obra-da-casa:lista-compras';
 
 @Injectable({ providedIn: 'root' })
 export class ListaComprasService {
-  private http = inject(HttpClient);
-  private url = `${API_BASE}/lista-compras`;
 
   listar(): Observable<ItemCompra[]> {
-    return this.http.get<ItemCompra[]>(this.url);
+    return of(this.lerTodos());
   }
 
   criar(item: ItemCompra): Observable<ItemCompra> {
-    return this.http.post<ItemCompra>(this.url, item);
+    const todos = this.lerTodos();
+    const novoId = todos.length > 0 ? Math.max(...todos.map(i => i.id ?? 0)) + 1 : 1;
+    const novo: ItemCompra = { ...item, id: novoId };
+    todos.push(novo);
+    this.salvarTodos(todos);
+    return of(novo);
   }
 
   atualizar(id: number, item: ItemCompra): Observable<ItemCompra> {
-    return this.http.put<ItemCompra>(`${this.url}/${id}`, item);
-  }
-
-  marcarComprado(id: number): Observable<ItemCompra> {
-    return this.http.patch<ItemCompra>(`${this.url}/${id}/marcar-comprado`, {});
+    const todos = this.lerTodos();
+    const index = todos.findIndex(i => i.id === id);
+    const atualizado: ItemCompra = { ...item, id };
+    if (index >= 0) {
+      todos[index] = atualizado;
+      this.salvarTodos(todos);
+    }
+    return of(atualizado);
   }
 
   excluir(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${id}`);
+    const todos = this.lerTodos().filter(i => i.id !== id);
+    this.salvarTodos(todos);
+    return of(undefined);
+  }
+
+  private lerTodos(): ItemCompra[] {
+    const bruto = localStorage.getItem(CHAVE_STORAGE);
+    if (!bruto) { return []; }
+    try {
+      return JSON.parse(bruto) as ItemCompra[];
+    } catch {
+      return [];
+    }
+  }
+
+  private salvarTodos(itens: ItemCompra[]): void {
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(itens));
   }
 }

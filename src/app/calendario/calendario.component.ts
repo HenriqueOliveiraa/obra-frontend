@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DiaTrabalhoService } from '../core/dia-trabalho.service';
 import { DiaTrabalho } from '../core/models';
-import { CardComponent } from '../shared/ui/card/card.component';
-import { PainelComponent } from '../shared/ui/painel/painel.component';
 
 interface CelulaDia {
   dia: number;
@@ -20,7 +18,7 @@ const NOMES_MES = [
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardComponent, PainelComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.css'
 })

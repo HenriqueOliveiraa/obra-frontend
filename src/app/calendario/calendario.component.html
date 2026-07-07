@@ -4,9 +4,13 @@
 </div>
 
 <div style="display:grid; grid-template-columns:auto 1fr; gap:14px; margin-bottom:20px; align-items:stretch;">
-  <app-card label="Dias trabalhados" [valor]="diasTrabalhados + ''" tamanho="grande" sub="neste mês"></app-card>
+  <div class="card" style="display:flex; flex-direction:column; justify-content:center; padding:20px 28px;">
+    <div class="label">Dias trabalhados</div>
+    <div class="valor" style="font-size:2.2rem;">{{ diasTrabalhados }}</div>
+    <div class="sub">neste mês</div>
+  </div>
 
-  <div class="legenda">
+  <div class="card legenda">
     <div class="legenda-item">
       <div class="legenda-swatch" style="background:#d1fae5; border:1px solid #a7f3d0;"></div>
       <div>
@@ -31,7 +35,7 @@
   </div>
 </div>
 
-<app-painel>
+<div class="painel">
   <div class="calendario-topo">
     <button type="button" class="secundario" (click)="mesAnterior()">&larr; Anterior</button>
     <h2>{{ nomeMes }} {{ ano }}</h2>
@@ -52,9 +56,10 @@
       <span class="obs" *ngIf="celula.registro?.observacao">{{ celula.registro?.observacao }}</span>
     </div>
   </div>
-</app-painel>
+</div>
 
-<app-painel [titulo]="'Registrar dia ' + (form.data + 'T00:00:00' | date:'dd/MM/yyyy')">
+<div class="painel">
+  <h2>Registrar dia {{ form.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</h2>
   <form class="form-dia" (ngSubmit)="salvar()">
     <div class="campo">
       <label for="data">Data</label>
@@ -77,4 +82,4 @@
       excluir registro
     </button>
   </form>
-</app-painel>
+</div>

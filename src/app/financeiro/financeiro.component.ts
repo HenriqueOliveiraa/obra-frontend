@@ -70,10 +70,8 @@ export class FinanceiroComponent implements OnInit {
   mostrarForm = false;
 
   ngOnInit(): void {
-    this.orcamentoService.obterConfig().subscribe(config => {
-      this.config = config;
-      this.form = this.clonarConfig(config);
-    });
+    this.config = this.orcamentoService.obterConfig();
+    this.form = this.clonarConfig(this.config);
 
     this.gastoService.resumo().subscribe(resumo => this.resumo = resumo);
 
@@ -150,10 +148,9 @@ export class FinanceiroComponent implements OnInit {
   }
 
   salvar(): void {
-    this.orcamentoService.salvarConfig(this.form).subscribe(config => {
-      this.config = config;
-      this.mostrarForm = false;
-    });
+    this.orcamentoService.salvarConfig(this.form);
+    this.config = this.clonarConfig(this.form);
+    this.mostrarForm = false;
   }
 
   exportarPdf(): void {
