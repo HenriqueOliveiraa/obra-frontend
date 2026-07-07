@@ -11,7 +11,7 @@ import { LoginComponent } from './login/login.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'pendencias', component: PendenciasComponent, canActivate: [authGuard] },
   { path: 'calendario', component: CalendarioComponent, canActivate: [authGuard] },
