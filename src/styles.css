@@ -216,15 +216,16 @@ main {
 
 h1 {
     font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.9rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: #181A20;
 }
 
 h1 + p {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     color: var(--muted);
-    margin-top: 3px;
+    margin-top: -10px;
     font-weight: 500;
 }
 
@@ -492,7 +493,7 @@ form.form-gasto {
     letter-spacing: 0.04em;
 }
 
-input, select {
+input, select, textarea {
     padding: 9px 12px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -504,7 +505,7 @@ input, select {
     width: 100%;
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
     background: #fff;
@@ -513,6 +514,12 @@ input:focus, select:focus {
 
 input[type="checkbox"] {
     accent-color: var(--accent);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    zoom: 0.75;
+    margin-right: 4px;
 }
 
 .campo-checkbox {

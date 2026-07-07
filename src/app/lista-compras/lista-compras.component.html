@@ -50,7 +50,7 @@
 
     <div class="campo">
       <label for="quantidadeDesejada">Quantidade desejada</label>
-      <input type="number" min="0" step="0.01" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
+      <input type="number" min="1" step="1" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
     </div>
 
     <div class="campo">
@@ -117,7 +117,7 @@
       <td>
         <span class="tag" [ngClass]="prioridadeClasse(item.prioridade)">{{ prioridadeLabel(item.prioridade) }}</span>
       </td>
-      <td style="color:var(--muted); white-space:normal; text-align:left; padding-left:10px;">{{ item.observacao || '—' }}</td>
+      <td class="col-observacao">{{ item.observacao || '—' }}</td>
       <td>
         <button
           type="button"
@@ -195,7 +195,7 @@
 
       <div class="campo">
         <label for="edit-quantidadeDesejada">Quantidade desejada</label>
-        <input type="number" min="0" step="0.01" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
+        <input type="number" min="1" step="1" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
       </div>
 
       <div class="campo">
