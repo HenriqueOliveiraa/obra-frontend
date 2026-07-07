@@ -130,7 +130,7 @@ const MARGEM_LOGO_MM = 2;
  * - AUMENTE este número para mover o logo mais para BAIXO.
  * - DIMINUA (ou use negativo) para mover o logo mais para CIMA.
  */
-const DESLOCAMENTO_VERTICAL_LOGO_MM = 6;
+const DESLOCAMENTO_VERTICAL_LOGO_MM = 1;
 
 /** Resultado do carregamento do logo institucional, pronto para uso no jsPDF. */
 export interface LogoCarregado {

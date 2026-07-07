@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
-
 :host {
   --sidebar-width: 260px;
   --sidebar-width-collapsed: 76px;
@@ -15,25 +13,31 @@
 }
 
 .app-shell {
-  display: flex;
-  height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
+  position: relative;
+  min-height: 100vh;
+  font-family: 'Metropolis', system-ui, sans-serif;
 }
 
+/* Sidebar flutua por cima do conteúdo (position: fixed), não empurra nada */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  flex-shrink: 0;
+  z-index: 5000;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, var(--sidebar-bg-top) 0%, var(--sidebar-bg-bottom) 100%);
   border-right: 1px solid var(--sidebar-border);
   overflow: hidden;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.28);
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.colapsada {
   width: var(--sidebar-width-collapsed);
+  box-shadow: none;
 }
 
 /* Brand */
@@ -41,25 +45,31 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 20px;
+  /* padding-left fixo: (76px sidebar recolhida - 62px logo) / 2 = 7px.
+     Assim a logo nasce sempre no mesmo x, aberta ou fechada. */
+  padding: 22px 20px 22px 7px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
-.logo {
-  width: 36px;
-  height: 36px;
+.sidebar-brand .logo {
+  width: 62px !important;
+  height: 62px !important;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
-  color: #1a1d23;
-  box-shadow: 0 4px 14px rgba(232, 163, 61, 0.25);
+  background: none;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translateX(-4px);
 }
 
 .titulo {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
@@ -74,7 +84,20 @@
   white-space: nowrap;
 }
 
-/* Nav */
+/* Texto do brand sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.sidebar-brand-texto {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 200px;
+  transition: opacity 0.18s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .sidebar-brand-texto {
+  opacity: 0;
+  max-width: 0;
+}
+
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -87,8 +110,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
+  /* padding-left = 17px (posição do ícone) + 18px (largura do ícone) + 12px (gap) = 47px.
+     O ícone fica com position:absolute, então nada além dele afeta essa posição. */
+  padding: 11px 17px 11px 47px;
   border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
@@ -99,7 +123,25 @@
 }
 
 .sidebar-nav a svg {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
   flex-shrink: 0;
+}
+
+/* Label do menu sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.nav-label {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 160px;
+  transition: opacity 0.15s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .nav-label {
+  opacity: 0;
+  max-width: 0;
 }
 
 .sidebar-nav a:hover {
@@ -124,71 +166,29 @@
   background: var(--accent);
 }
 
-.sidebar.colapsada .sidebar-nav a {
-  justify-content: center;
-  padding: 11px;
-}
-
-/* Footer / collapse */
-.sidebar-footer {
-  padding: 14px 12px;
-  border-top: 1px solid var(--sidebar-border);
-}
-
-.sidebar-footer button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--sidebar-border);
-  background: #1e2128;
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-}
-
-.sidebar-footer button:hover {
-  background: var(--sidebar-hover);
-  color: var(--text-primary);
-  border-color: #3a404b;
-}
-
-.sidebar-footer button svg {
-  flex-shrink: 0;
-  transition: transform 0.25s ease;
-}
-
-.sidebar.colapsada .sidebar-footer button {
-  justify-content: center;
-}
-
-.sidebar.colapsada .sidebar-footer svg {
-  transform: rotate(180deg);
-}
-
-/* Acessibilidade */
-.sidebar-nav a:focus-visible,
-.sidebar-footer button:focus-visible {
+.sidebar-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar,
-  .sidebar-nav a,
-  .sidebar-footer button,
-  .sidebar-footer svg {
+  .sidebar-nav a {
     transition: none;
   }
 }
 
 main {
-  flex: 1;
-  min-width: 0;
+  margin-left: var(--sidebar-width-collapsed);
+  min-height: 100vh;
   overflow: auto;
+}
+.sidebar-divisor {
+  border-top: 1px solid var(--sidebar-border);
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.sidebar-sair:hover {
+  color: #f87171;
 }

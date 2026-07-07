@@ -79,3 +79,58 @@
 .comprovante-abrir:hover {
   text-decoration: underline;
 }
+
+/* Ajustes do status de entrega dentro da tabela de gastos:
+   cor neutra (cinza), tamanho reduzido, e alinhado ao lado da
+   categoria em uma única linha, sem quebrar. */
+
+.tabela-gastos .celula-categoria {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tabela-gastos .tag.status-material {
+  background: #e5e7eb;
+  color: #4b5563;
+  border: none;
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.tabela-gastos .tag.status-material:hover {
+  background: #d1d5db;
+  color: #1f2937;
+}
+
+/* Sobrescreve as cores por estado (retirado/a caminho/entregue)
+   apenas dentro da tabela, mantendo todas no mesmo cinza neutro. */
+.tabela-gastos .tag.status-material.status-retirado,
+.tabela-gastos .tag.status-material.status-caminho,
+.tabela-gastos .tag.status-material.status-entregue {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Ajustes para os 3 botões de ação caberem sem gerar rolagem horizontal */
+.tabela-gastos th.col-acoes,
+.tabela-gastos td.col-acoes {
+  padding-left: 6px;
+  padding-right: 10px;
+}
+
+.tabela-gastos td.col-acoes .linha-acoes {
+  gap: 5px;
+}
+
+.tabela-gastos td.col-acoes button.icone {
+  padding: 6px;
+}
+
+.tabela-gastos td.col-acoes button.icone svg {
+  width: 14px;
+  height: 14px;
+}
