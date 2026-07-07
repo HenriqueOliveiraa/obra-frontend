@@ -10,13 +10,11 @@
   min-height: 100vh;
   width: 100%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
   background: linear-gradient(160deg, var(--cor-inicio) 0%, var(--cor-fim) 100%);
   font-family: 'Plus Jakarta Sans', -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-.login-visual {
+.login-visual-wrapper {
   --vetor-largura: 100vw;
   --vetor-altura: 90vh;
   --vetor-baixo: 0px;
@@ -29,6 +27,15 @@
   height: var(--vetor-altura);
   z-index: 1;
   pointer-events: none;
+
+  filter: drop-shadow(0 -10px 16px rgba(0, 0, 0, 0.082));
+}
+
+.login-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background-color: #ffffff;
 
   -webkit-mask-image: url('/Vector.png');
@@ -42,17 +49,27 @@
 }
 
 .login-form-area {
-  position: relative;
+  position: absolute;
+  bottom: var(--vetor-baixo, 0px);
+  right: var(--vetor-direita, 0px);
+  width: var(--vetor-largura, 100vw);
+  height: var(--vetor-altura, 90vh);
   z-index: 2;
-  width: 48%;
-  display: flex;
-  justify-content: center;
-  padding: 0 40px;
+}
+
+.login-centro {
+  position: absolute;
+  left: 25%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-width: calc(100vw - 48px);
 }
 
 .login-card {
   width: 100%;
-  max-width: 440px;
+  padding: 0 40px;
+  box-sizing: border-box;
 }
 
 .login-brand {
@@ -60,19 +77,23 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 4px;
 }
 
 .login-logo {
-  width: 290px;
-  height: 290px;
-  margin-bottom: -20px;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 45px;
+  flex-shrink: 0;
 }
 
 .login-logo-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .login-titulo {
@@ -82,11 +103,13 @@
   color: #d46007;
   letter-spacing: -0.02em;
   margin-top: -30px;
+  text-align: center;
+  width: 100%;
 }
 
 .login-badge {
   align-self: center;
-  margin-top: 8px;
+  margin: 8px auto 0;
   padding: 4px 14px;
   border-radius: 999px;
   background: var(--cor-fim, #e8a33d);
@@ -102,12 +125,14 @@
   flex-direction: column;
   gap: 12px;
   margin-top: 20px;
+  width: 100%;
 }
 
 .campo-login {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
 }
 
 .campo-login label {
@@ -139,6 +164,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .senha-wrapper input {
@@ -156,13 +182,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
+  color: #191c22;
   cursor: pointer;
   border-radius: 6px;
+  transition: color 0.15s;
 }
 
 .botao-olho:hover {
-  color: #6b7280;
+  color: #4d4d4d;
   background: none;
 }
 
@@ -171,6 +198,7 @@
   font-size: 0.78rem;
   color: #dc2626;
   font-weight: 500;
+  text-align: center;
 }
 
 .botao-acessar {
@@ -203,8 +231,22 @@
 }
 
 @media (max-width: 900px) {
-  .login-form-area {
-    padding: 0 24px;
-    justify-content: center;
+  .login-centro {
+    left: 50%;
+    width: 100%;
+    max-width: 480px;
   }
+  .login-card {
+    padding: 0 24px;
+  }
+}
+.campo-login input:-webkit-autofill,
+.campo-login input:-webkit-autofill:hover,
+.campo-login input:-webkit-autofill:focus,
+.campo-login input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: #111827;
+  caret-color: #111827;
+  transition: background-color 5000s ease-in-out 0s;
 }
