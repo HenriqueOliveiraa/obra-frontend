@@ -181,8 +181,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #d46007;
+  border-radius: 50px;
+  background: #191c22;
   color: #ffffff;
   border: none;
   font-family: inherit;
@@ -193,8 +193,8 @@
 }
 
 .botao-acessar:hover:not(:disabled) {
-  background: #dbae69;
-  color: #644f22;
+  background: #2e2e2e;
+  color: #ffffff;
 }
 
 .botao-acessar:disabled {
