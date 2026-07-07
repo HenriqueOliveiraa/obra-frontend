@@ -1,11 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Input, ElementRef, HostListener, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { GastoService } from '../core/gasto.service';
 import { ComprovanteService } from '../core/comprovante.service';
 import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
 import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
+import { CardComponent } from '../shared/ui/card/card.component';
+import { PainelComponent } from '../shared/ui/painel/painel.component';
+import { TagComponent, TagVariante } from '../shared/ui/tag/tag.component';
+import { ModalComponent } from '../shared/ui/modal/modal.component';
 
 export interface DropdownOpcao {
   value: string;
@@ -404,12 +408,17 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent, CardComponent, PainelComponent, TagComponent, ModalComponent],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
 export class GastosComponent implements OnInit {
   private service = inject(GastoService);
+  private pdfService = inject(PdfRelatorioService);
+  private comprovanteService = inject(ComprovanteService);
+
+  paginaAtualGastos = 1;
+  itensPorPagina = 10;
 
   categorias = CATEGORIAS;
   categoriaOptions: DropdownOpcao[] = CATEGORIAS.map(cat => ({ value: cat, label: CATEGORIA_LABEL[cat] }));
@@ -733,6 +742,18 @@ export class GastosComponent implements OnInit {
     });
 
     return grupos;
+  }
+
+  statusMaterialLabel(status: StatusMaterial | undefined): string {
+    if (!status) { return '—'; }
+    const labels: Record<StatusMaterial, string> = { RETIRADO: 'Retirado', A_CAMINHO: 'A caminho', ENTREGUE: 'Entregue' };
+    return labels[status] ?? status;
+  }
+
+  statusMaterialClasse(status: StatusMaterial | undefined): string {
+    if (!status) { return ''; }
+    const classes: Record<StatusMaterial, string> = { RETIRADO: 'status-retirado', A_CAMINHO: 'status-caminho', ENTREGUE: 'status-entregue' };
+    return classes[status] ?? '';
   }
 
   private formatarDataExibicao(dataIso: string): string {
