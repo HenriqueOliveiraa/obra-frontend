@@ -192,3 +192,15 @@ main {
 .sidebar-sair:hover {
   color: #f87171;
 }
+
+/* ── Ajuste exclusivo do menu recolhido: só a margem do hover/marcador,
+     o ícone continua com position absolute/left/transform intocados ── */
+
+.sidebar.colapsada .sidebar-nav a {
+  padding-left: 17px;
+  padding-right: 17px;
+}
+
+.sidebar.colapsada .sidebar-nav a.ativo::before {
+  display: none;
+}
