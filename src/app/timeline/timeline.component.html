@@ -1,0 +1,163 @@
+<div class="cabecalho">
+  <div>
+    <h1>Linha do Tempo Financeira</h1>
+    <p>Histórico cronológico de tudo que já aconteceu financeiramente na obra</p>
+  </div>
+  <button type="button" class="secundario" (click)="carregar()">Atualizar</button>
+</div>
+
+<div class="erro" *ngIf="erro">{{ erro }}</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">Eventos</div>
+    <div class="valor">{{ totalEventos }}</div>
+  </div>
+  <div class="card pago">
+    <div class="label">Valor movimentado</div>
+    <div class="valor">R$ {{ valorMovimentado | number:'1.2-2':'pt-BR' }}</div>
+  </div>
+  <div class="card">
+    <div class="label">Última compra</div>
+    <ng-container *ngIf="ultimaCompra as compra; else semUltimaCompra">
+      <div class="card-destaque">{{ compra.titulo }}</div>
+      <div class="sub">{{ compra.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</div>
+    </ng-container>
+    <ng-template #semUltimaCompra><div class="card-destaque muted">—</div></ng-template>
+  </div>
+  <div class="card">
+    <div class="label">Último pagamento</div>
+    <ng-container *ngIf="ultimoPagamento as pagamento; else semUltimoPagamento">
+      <div class="card-destaque">{{ pagamento.titulo }}</div>
+      <div class="sub">{{ pagamento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</div>
+    </ng-container>
+    <ng-template #semUltimoPagamento><div class="card-destaque muted">—</div></ng-template>
+  </div>
+  <div class="card">
+    <div class="label">Eventos neste mês</div>
+    <div class="valor">{{ eventosDesteMes }}</div>
+  </div>
+</div>
+
+<div class="painel">
+  <div class="timeline-filtros">
+    <div class="campo timeline-filtro-tipo">
+      <label for="filtroTipo">Tipo de evento</label>
+      <app-dropdown-select
+        id="filtroTipo"
+        name="filtroTipo"
+        [ngModel]="filtroTipo"
+        (ngModelChange)="setFiltroTipo($event)"
+        [options]="filtroTipoOptions">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo timeline-campo-busca">
+      <label for="busca">Buscar</label>
+      <input type="text" id="busca" name="busca" [(ngModel)]="busca" (ngModelChange)="onFiltroTextoChange()" placeholder="Descrição, fornecedor, categoria...">
+    </div>
+
+    <div class="campo estreito">
+      <label for="dataInicio">De</label>
+      <input type="date" id="dataInicio" name="dataInicio" [(ngModel)]="dataInicio" (ngModelChange)="onFiltroTextoChange()">
+    </div>
+
+    <div class="campo estreito">
+      <label for="dataFim">Até</label>
+      <input type="date" id="dataFim" name="dataFim" [(ngModel)]="dataFim" (ngModelChange)="onFiltroTextoChange()">
+    </div>
+
+    <button type="button" class="secundario timeline-btn-limpar" (click)="limparFiltros()">Limpar filtros</button>
+  </div>
+</div>
+
+<div class="painel" *ngIf="carregando" style="text-align:center; color:var(--muted); font-size:0.85rem;">
+  Carregando linha do tempo...
+</div>
+
+<ng-container *ngIf="!carregando">
+  <div class="painel timeline-vazio" *ngIf="eventosFiltrados.length === 0" style="text-align:center; color:var(--muted); font-size:0.85rem;">
+    Nenhum evento encontrado para os filtros selecionados.
+  </div>
+
+  <div class="painel timeline-painel-wrap" *ngIf="eventosFiltrados.length > 0">
+    <div class="timeline-container">
+      <div class="timeline-grupo" *ngFor="let grupo of grupos">
+        <div class="timeline-mes">{{ grupo.mesLabel }}</div>
+
+        <div class="timeline-linha">
+          <div class="timeline-item" *ngFor="let evento of grupo.eventos">
+            <div class="timeline-marcador">
+              <div class="timeline-icone" [ngClass]="tipoClasse(evento.tipo)">
+                <svg *ngIf="evento.tipo === 'COMPRA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <svg *ngIf="evento.tipo === 'PAGAMENTO'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle><path d="M12 7v10"></path><path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5"></path>
+                </svg>
+                <svg *ngIf="evento.tipo === 'PARCELA_VENCIDA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'ENTREGA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'COTACAO_ESCOLHIDA'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="3" width="16" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line>
+                </svg>
+                <svg *ngIf="evento.tipo === 'COMPROVANTE'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+              <div class="timeline-trilho"></div>
+            </div>
+
+            <div class="timeline-card">
+              <div class="timeline-card-topo">
+                <span class="tag timeline-tag-tipo" [ngClass]="tipoClasse(evento.tipo)">{{ tipoLabel(evento.tipo) }}</span>
+                <div class="timeline-card-topo-direita">
+                  <span class="timeline-data">{{ evento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+                  <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(evento)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="timeline-titulo">{{ evento.titulo }}</div>
+              <div class="timeline-descricao" *ngIf="evento.descricao">{{ evento.descricao }}</div>
+
+              <div class="timeline-meta">
+                <span class="tag" *ngIf="evento.categoriaLabel" [ngClass]="evento.categoriaClasse">{{ evento.categoriaLabel }}</span>
+                <span class="timeline-fornecedor" *ngIf="evento.fornecedor">{{ evento.fornecedor }}</span>
+                <span class="timeline-status" *ngIf="evento.status">{{ evento.status }}</span>
+                <span class="timeline-valor" *ngIf="evento.valor !== undefined">R$ {{ evento.valor | number:'1.2-2':'pt-BR' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="paginador">
+      <span class="paginador-info">Página {{ paginaAtualEventos }} de {{ totalPaginasEventos }} · {{ eventosFiltrados.length }} evento(s)</span>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualEventos === 1" (click)="irParaPaginaEventos(paginaAtualEventos - 1)" aria-label="Página anterior">‹</button>
+      <ng-container *ngFor="let p of paginasVisiveisEventos">
+        <span *ngIf="p === '...'" class="paginador-reticencias">…</span>
+        <button *ngIf="p !== '...'" type="button" class="paginador-numero" [class.ativo]="p === paginaAtualEventos" [disabled]="totalPaginasEventos <= 1" (click)="irParaPaginaEventos(p)">{{ p }}</button>
+      </ng-container>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualEventos === totalPaginasEventos" (click)="irParaPaginaEventos(paginaAtualEventos + 1)" aria-label="Próxima página">›</button>
+    </div>
+  </div>
+</ng-container>
+
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do evento"
+  [subtitulo]="eventoDetalhes?.titulo || ''"
+  [grupos]="gruposDetalhesEvento"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GastoService } from '../core/gasto.service';
 import { Categoria, CategoriaGastoTotal, Dashboard, ResumoGastos } from '../core/models';
 import { CardComponent } from '../shared/ui/card/card.component';
-import { PainelComponent } from '../shared/ui/painel/painel.component';
+
 
 const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
@@ -28,13 +28,13 @@ interface SegmentoDonut {
   dashoffset: string;
 }
 
-const DONUT_R = 42;
+const DONUT_R = 80;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CardComponent, PainelComponent],
+  imports: [CommonModule, CardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -45,10 +45,16 @@ export class DashboardComponent implements OnInit {
   resumo: ResumoGastos = { totalGasto: 0, totalPago: 0, totalPendente: 0, parcelasPagas: 0, parcelasPendentes: 0 };
   segmentos: SegmentoDonut[] = [];
 
+  materiaisPorPagina = 8;
+  paginaAtualMateriais = 1;
+
   ngOnInit(): void {
     this.service.dashboard().subscribe(dashboard => {
       this.dashboard = dashboard;
       this.segmentos = this.calcularSegmentos(dashboard.gastoPorCategoria);
+      if (this.paginaAtualMateriais > this.totalPaginasMateriais) {
+        this.paginaAtualMateriais = this.totalPaginasMateriais;
+      }
     });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
   }
@@ -67,6 +73,38 @@ export class DashboardComponent implements OnInit {
 
   maiorQuantidade(): number {
     return this.dashboard.materiaisMaisComprados[0]?.quantidadeTotal ?? 1;
+  }
+
+  get totalPaginasMateriais(): number {
+    return Math.max(1, Math.ceil(this.dashboard.materiaisMaisComprados.length / this.materiaisPorPagina));
+  }
+
+  get materiaisPaginados() {
+    const inicio = (this.paginaAtualMateriais - 1) * this.materiaisPorPagina;
+    return this.dashboard.materiaisMaisComprados.slice(inicio, inicio + this.materiaisPorPagina);
+  }
+
+  get paginasVisiveisMateriais(): (number | string)[] {
+    return this.calcularPaginasVisiveis(this.paginaAtualMateriais, this.totalPaginasMateriais);
+  }
+
+  irParaPaginaMateriais(pagina: number | string): void {
+    if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasMateriais) { return; }
+    this.paginaAtualMateriais = pagina;
+  }
+
+  private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const paginas: (number | string)[] = [1];
+    if (atual > 3) { paginas.push('...'); }
+    const inicio = Math.max(2, atual - 1);
+    const fim = Math.min(total - 1, atual + 1);
+    for (let i = inicio; i <= fim; i++) { paginas.push(i); }
+    if (atual < total - 2) { paginas.push('...'); }
+    paginas.push(total);
+    return paginas;
   }
 
   private calcularSegmentos(categorias: CategoriaGastoTotal[]): SegmentoDonut[] {

@@ -14,9 +14,10 @@
 </div>
 
 <div class="painel-duplo">
-  <app-painel titulo="Materiais mais comprados">
-    <div style="display:flex; flex-direction:column; gap:16px;">
-      <div *ngFor="let mat of dashboard.materiaisMaisComprados">
+  <div class="painel">
+    <h2>Materiais mais comprados</h2>
+    <div class="materiais-lista">
+      <div *ngFor="let mat of materiaisPaginados">
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
           <span style="font-size:0.82rem; font-weight:600; color:#374151;">{{ mat.descricao }}</span>
           <span style="font-size:0.72rem; color:var(--muted); font-weight:500;">{{ mat.quantidadeTotal }} un.</span>
@@ -30,30 +31,45 @@
         Nenhum gasto lançado ainda.
       </div>
     </div>
-  </app-painel>
 
-  <app-painel titulo="Gasto por categoria">
-    <div style="display:flex; align-items:center; gap:24px;" *ngIf="segmentos.length > 0; else semDados">
-      <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0;">
-        <circle cx="60" cy="60" r="42" fill="none" stroke="#f3f4f6" stroke-width="15"></circle>
-        <circle *ngFor="let seg of segmentos" cx="60" cy="60" r="42" fill="none"
-                [attr.stroke]="seg.cor" stroke-width="15"
-                [attr.stroke-dasharray]="seg.dasharray" [attr.stroke-dashoffset]="seg.dashoffset"></circle>
-        <text x="60" y="56" text-anchor="middle" font-size="8" fill="#9ca3af" font-weight="600">TOTAL</text>
-        <text x="60" y="69" text-anchor="middle" font-size="10" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0' }}</text>
-      </svg>
-      <div style="flex:1; display:flex; flex-direction:column; gap:11px; min-width:0;">
-        <div *ngFor="let seg of segmentos" style="display:flex; align-items:center; gap:9px;">
-          <div style="width:9px; height:9px; border-radius:3px; flex-shrink:0;" [style.background]="seg.cor"></div>
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:0.78rem; font-weight:600; color:#374151;">{{ seg.categoria }}</div>
-            <div style="font-size:0.7rem; color:var(--muted); margin-top:1px;">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2' }}</div>
+    <div class="paginador" *ngIf="dashboard.materiaisMaisComprados.length > 0">
+      <span class="paginador-info">Página {{ paginaAtualMateriais }} de {{ totalPaginasMateriais }} · {{ dashboard.materiaisMaisComprados.length }} item(ns)</span>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualMateriais === 1" (click)="irParaPaginaMateriais(paginaAtualMateriais - 1)" aria-label="Página anterior">‹</button>
+      <ng-container *ngFor="let p of paginasVisiveisMateriais">
+        <span *ngIf="p === '...'" class="paginador-reticencias">…</span>
+        <button *ngIf="p !== '...'" type="button" class="paginador-numero" [class.ativo]="p === paginaAtualMateriais" [disabled]="totalPaginasMateriais <= 1" (click)="irParaPaginaMateriais(p)">{{ p }}</button>
+      </ng-container>
+      <button type="button" class="paginador-seta" [disabled]="paginaAtualMateriais === totalPaginasMateriais" (click)="irParaPaginaMateriais(paginaAtualMateriais + 1)" aria-label="Próxima página">›</button>
+    </div>
+  </div>
+
+  <div class="painel">
+    <h2>Gasto por categoria</h2>
+    <div class="gasto-categoria-conteudo" *ngIf="segmentos.length > 0; else semDados">
+      <div class="gasto-categoria-grid">
+        <svg width="230" height="230" viewBox="0 0 230 230" style="flex-shrink:0;">
+          <circle cx="115" cy="115" r="80" fill="none" stroke="#f3f4f6" stroke-width="26"></circle>
+          <circle *ngFor="let seg of segmentos" cx="115" cy="115" r="80" fill="none"
+                  [attr.stroke]="seg.cor" stroke-width="26"
+                  [attr.stroke-dasharray]="seg.dasharray" [attr.stroke-dashoffset]="seg.dashoffset"></circle>
+          <text x="115" y="108" text-anchor="middle" font-size="13" fill="#9ca3af" font-weight="600">TOTAL</text>
+          <text x="115" y="130" text-anchor="middle" font-size="18" fill="#111827" font-weight="800">R$ {{ resumo.totalGasto | number:'1.0-0':'pt-BR' }}</text>
+        </svg>
+        <div class="gasto-categoria-legenda">
+          <div *ngFor="let seg of segmentos" class="gasto-categoria-legenda-item">
+            <div class="gasto-categoria-legenda-bolinha" [style.background]="seg.cor"></div>
+            <div style="flex:1; min-width:0;">
+              <div class="gasto-categoria-legenda-titulo">{{ seg.categoria }}</div>
+              <div class="gasto-categoria-legenda-valor">{{ seg.pct }}% · R$ {{ seg.totalGasto | number:'1.2-2':'pt-BR' }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <ng-template #semDados>
-      <div style="font-size:0.82rem; color:var(--muted);">Nenhum gasto lançado ainda.</div>
+      <div class="gasto-categoria-conteudo">
+        <div style="font-size:0.82rem; color:var(--muted);">Nenhum gasto lançado ainda.</div>
+      </div>
     </ng-template>
-  </app-painel>
+  </div>
 </div>

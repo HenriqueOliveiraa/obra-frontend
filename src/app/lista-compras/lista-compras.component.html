@@ -75,19 +75,24 @@
   </form>
 </div>
 
-<div class="filtro-status">
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'todos'" (click)="setFiltro('todos')">Todos</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'pendentes'" (click)="setFiltro('pendentes')">Pendentes</button>
-  <button type="button" class="chip" [class.ativo]="filtroStatus === 'comprados'" (click)="setFiltro('comprados')">Comprados</button>
+<div class="campo" style="max-width:230px; margin-bottom:20px;">
+  <label for="filtroStatus">Filtrar por status</label>
+  <app-dropdown-select
+    id="filtroStatus"
+    name="filtroStatus"
+    [ngModel]="filtroStatus"
+    (ngModelChange)="setFiltro($event)"
+    [options]="filtroStatusOptions">
+  </app-dropdown-select>
 </div>
 
 <div class="painel tabela-wrap">
   <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:18%;"><col style="width:12%;"><col style="width:10%;">
-      <col style="width:12%;"><col style="width:22%;"><col style="width:14%;">
-      <col style="width:12%;">
+      <col style="width:18%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:10%;"><col style="width:20%;"><col style="width:14%;">
+      <col style="width:20%;">
     </colgroup>
     <thead>
     <tr>
@@ -124,6 +129,12 @@
       </td>
       <td class="col-acoes">
         <div class="linha-acoes">
+          <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(item)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
           <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(item)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 20h9"></path>
@@ -209,3 +220,11 @@
     </form>
   </div>
 </div>
+
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do item"
+  [subtitulo]="itemDetalhes?.descricao || ''"
+  [grupos]="gruposDetalhesItem"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>

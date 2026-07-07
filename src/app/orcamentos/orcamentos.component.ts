@@ -5,6 +5,7 @@ import { CotacaoService } from '../core/cotacao.service';
 import { Cotacao, CategoriaOrcamento } from '../core/models';
 import { DropdownOpcao, DropdownSelectComponent } from '../shared/ui/dropdown-select/dropdown-select.component';
 import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/pdf/pdf-relatorio.service';
+import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 import {
   CATEGORIAS_ORCAMENTO,
   CATEGORIA_ORCAMENTO_LABEL,
@@ -33,7 +34,7 @@ interface GrupoCategoria {
 @Component({
   selector: 'app-orcamentos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './orcamentos.component.html',
   styleUrl: './orcamentos.component.css'
 })
@@ -49,13 +50,16 @@ export class OrcamentosComponent implements OnInit {
 
   filtroCategoria: FiltroCategoria = TODAS;
 
-  categoriasColapsadas = new Set<CategoriaOrcamento>();
+  categoriasColapsadas = new Set<CategoriaOrcamento>(CATEGORIAS_ORCAMENTO);
 
   mostrarForm = false;
   form: Cotacao = this.formVazio();
 
   editandoId: number | null = null;
   editForm: Cotacao = this.formVazio();
+
+  // --- Detalhes ---
+  detalhesId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -166,6 +170,17 @@ export class OrcamentosComponent implements OnInit {
       .filter((grupo): grupo is GrupoCategoria => grupo !== null);
   }
 
+  totalCotacoesGrupo(grupo: GrupoCategoria): number {
+    return grupo.subgrupos.reduce((soma, sub) => soma + sub.cotacoes.length, 0);
+  }
+
+  valorEscolhidoGrupo(grupo: GrupoCategoria): number {
+    return grupo.subgrupos
+      .flatMap(sub => sub.cotacoes)
+      .filter(c => c.escolhido)
+      .reduce((soma, c) => soma + c.valor, 0);
+  }
+
   toggleForm(): void {
     this.mostrarForm = !this.mostrarForm;
     if (!this.mostrarForm) {
@@ -272,6 +287,52 @@ export class OrcamentosComponent implements OnInit {
   excluir(id: number | undefined): void {
     if (!id) { return; }
     this.service.excluir(id).subscribe(() => this.carregar());
+  }
+
+  // --- Detalhes (modal reutilizável) ---
+
+  abrirDetalhes(cotacao: Cotacao): void {
+    this.detalhesId = cotacao.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get cotacaoDetalhes(): Cotacao | undefined {
+    return this.cotacoes.find(c => c.id === this.detalhesId);
+  }
+
+  get gruposDetalhesCotacao(): GrupoDetalhe[] {
+    const cotacao = this.cotacaoDetalhes;
+    if (!cotacao) { return []; }
+
+    return [
+      {
+        titulo: 'Informações da cotação',
+        campos: [
+          { label: 'Categoria', valor: this.categoriaLabel(cotacao.categoria), tag: true, classeTag: this.categoriaClasse(cotacao.categoria) },
+          { label: 'Subcategoria', valor: cotacao.subcategoria },
+          { label: 'Item', valor: cotacao.item },
+          { label: 'Fornecedor', valor: cotacao.fornecedor },
+          { label: 'Valor', valor: this.formatarMoedaExibicao(cotacao.valor), destaque: true },
+          { label: 'Quantidade', valor: cotacao.quantidade ? String(cotacao.quantidade) : '—' },
+          { label: 'Unidade', valor: cotacao.unidade || '—' },
+          { label: 'Data da cotação', valor: this.formatarDataExibicao(cotacao.data) },
+          { label: 'Observação', valor: cotacao.observacao || '—' },
+          { label: 'Status', valor: cotacao.escolhido ? 'Escolhida' : 'Não escolhida', tag: true, classeTag: cotacao.escolhido ? 'pago' : 'pendente' }
+        ]
+      }
+    ];
+  }
+
+  private formatarDataExibicao(dataIso: string): string {
+    const [ano, mes, dia] = dataIso.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  private formatarMoedaExibicao(valor: number): string {
+    return `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   private prepararParaSalvar(origem: Cotacao): Cotacao {

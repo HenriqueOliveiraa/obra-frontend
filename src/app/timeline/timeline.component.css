@@ -1,0 +1,228 @@
+:host {
+  display: block;
+}
+
+.card-destaque {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-destaque.muted {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Filtros ── */
+
+.timeline-filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timeline-filtro-tipo {
+  max-width: 230px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.timeline-campo-busca {
+  flex: 1;
+  min-width: 220px;
+}
+
+.timeline-btn-limpar {
+  height: 38px;
+}
+
+/* ── Container com altura fixa para caber 5 eventos por página ── */
+
+.timeline-painel-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-container {
+  min-height: 0;
+}
+
+.timeline-painel-wrap .paginador {
+  margin-top: 4px;
+}
+
+/* ── Estrutura da timeline ── */
+
+.timeline-grupo {
+  margin-bottom: 30px;
+}
+
+.timeline-mes {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding-left: 4px;
+}
+
+.timeline-linha {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+}
+
+.timeline-marcador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timeline-icone {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.timeline-trilho {
+  flex: 1;
+  width: 2px;
+  background: var(--border);
+  margin: 4px 0;
+  min-height: 24px;
+}
+
+.timeline-item:last-child .timeline-trilho {
+  display: none;
+}
+
+.timeline-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.timeline-grupo:last-child .timeline-item:last-child .timeline-card {
+  margin-bottom: 0;
+}
+
+.timeline-item:hover .timeline-card {
+  box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);
+  border-color: #e5e7eb;
+}
+
+.timeline-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.timeline-card-topo-direita {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-data {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.timeline-titulo {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.timeline-descricao {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.timeline-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.timeline-fornecedor,
+.timeline-status {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.timeline-valor {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin-left: auto;
+}
+
+/* ── Cores por tipo de evento ── */
+
+.timeline-icone.evento-compra { background: #fef3c7; color: #b45309; }
+.timeline-icone.evento-pagamento { background: #d1fae5; color: #047857; }
+.timeline-icone.evento-parcela-vencida { background: #fee2e2; color: #dc2626; }
+.timeline-icone.evento-entrega { background: #dbeafe; color: #1d4ed8; }
+.timeline-icone.evento-cotacao-escolhida { background: #ede9fe; color: #6d28d9; }
+.timeline-icone.evento-comprovante { background: #f3f4f6; color: #4b5563; }
+
+.timeline-tag-tipo.evento-compra { background: #fef3c7; color: #b45309; }
+.timeline-tag-tipo.evento-pagamento { background: #d1fae5; color: #047857; }
+.timeline-tag-tipo.evento-parcela-vencida { background: #fee2e2; color: #dc2626; }
+.timeline-tag-tipo.evento-entrega { background: #dbeafe; color: #1d4ed8; }
+.timeline-tag-tipo.evento-cotacao-escolhida { background: #ede9fe; color: #6d28d9; }
+.timeline-tag-tipo.evento-comprovante { background: #f3f4f6; color: #4b5563; }
+
+.tag.cat-material { background: #fef3c7; color: #b45309; }
+.tag.cat-mao-de-obra { background: #dbeafe; color: #1d4ed8; }
+.tag.cat-transporte { background: #d1fae5; color: #047857; }
+.tag.cat-outros { background: #ede9fe; color: #6d28d9; }
+
+@media (max-width: 768px) {
+  .timeline-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeline-filtro-tipo {
+    width: 100%;
+  }
+
+  .timeline-campo-busca {
+    min-width: 0;
+  }
+
+  .timeline-valor {
+    margin-left: 0;
+  }
+}
