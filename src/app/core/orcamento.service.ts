@@ -1,56 +1,56 @@
-import { Injectable } from '@angular/core';
-import { Categoria, OrcamentoConfig } from './models';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { OrcamentoConfig } from './models';
+import { API_BASE } from './api-base';
 
-const CHAVE_STORAGE = 'obra-da-casa:orcamento-config';
-
-const CONFIG_PADRAO: OrcamentoConfig = {
-  orcamentoTotal: 0,
-  tetoPorCategoria: {
-    MATERIAL: 0,
-    MAO_DE_OBRA: 0,
-    TRANSPORTE: 0,
-    OUTROS: 0
-  },
-  margemtolerancia: 0
-};
+interface OrcamentoConfigAPI {
+  orcamentoTotal: number;
+  tetoMaterial: number;
+  tetoMaoDeObra: number;
+  tetoTransporte: number;
+  tetoOutros: number;
+  margemTolerancia: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class OrcamentoService {
+  private http = inject(HttpClient);
+  private url = `${API_BASE}/orcamento-config`;
 
-  obterConfig(): OrcamentoConfig {
-    const bruto = localStorage.getItem(CHAVE_STORAGE);
-    if (!bruto) {
-      return this.clonar(CONFIG_PADRAO);
-    }
-
-    try {
-      const salvo = JSON.parse(bruto) as Partial<OrcamentoConfig>;
-      const categorias: Categoria[] = ['MATERIAL', 'MAO_DE_OBRA', 'TRANSPORTE', 'OUTROS'];
-      const tetoPorCategoria = {} as Record<Categoria, number>;
-
-      categorias.forEach(categoria => {
-        tetoPorCategoria[categoria] = Number(salvo.tetoPorCategoria?.[categoria] ?? 0);
-      });
-
-      return {
-        orcamentoTotal: Number(salvo.orcamentoTotal ?? 0),
-        tetoPorCategoria,
-        margemtolerancia: Number(salvo.margemtolerancia ?? 0)
-      };
-    } catch {
-      return this.clonar(CONFIG_PADRAO);
-    }
+  obterConfig(): Observable<OrcamentoConfig> {
+    return this.http.get<OrcamentoConfigAPI>(this.url).pipe(
+      map(api => this.fromAPI(api))
+    );
   }
 
-  salvarConfig(config: OrcamentoConfig): void {
-    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(config));
+  salvarConfig(config: OrcamentoConfig): Observable<OrcamentoConfig> {
+    return this.http.put<OrcamentoConfigAPI>(this.url, this.toAPI(config)).pipe(
+      map(api => this.fromAPI(api))
+    );
   }
 
-  private clonar(config: OrcamentoConfig): OrcamentoConfig {
+  private fromAPI(api: OrcamentoConfigAPI): OrcamentoConfig {
+    return {
+      orcamentoTotal: api.orcamentoTotal,
+      tetoPorCategoria: {
+        MATERIAL: api.tetoMaterial,
+        MAO_DE_OBRA: api.tetoMaoDeObra,
+        TRANSPORTE: api.tetoTransporte,
+        OUTROS: api.tetoOutros
+      },
+      margemtolerancia: api.margemTolerancia
+    };
+  }
+
+  private toAPI(config: OrcamentoConfig): OrcamentoConfigAPI {
     return {
       orcamentoTotal: config.orcamentoTotal,
-      tetoPorCategoria: { ...config.tetoPorCategoria },
-      margemtolerancia: config.margemtolerancia
+      tetoMaterial: config.tetoPorCategoria?.MATERIAL ?? 0,
+      tetoMaoDeObra: config.tetoPorCategoria?.MAO_DE_OBRA ?? 0,
+      tetoTransporte: config.tetoPorCategoria?.TRANSPORTE ?? 0,
+      tetoOutros: config.tetoPorCategoria?.OUTROS ?? 0,
+      margemTolerancia: config.margemtolerancia ?? 0
     };
   }
 }
