@@ -1,8 +1,6 @@
 ==================================================
 ARQUIVO: src/app/app.component.css
 ==================================================
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
-
 :host {
   --sidebar-width: 260px;
   --sidebar-width-collapsed: 76px;
@@ -20,7 +18,7 @@ ARQUIVO: src/app/app.component.css
 .app-shell {
   position: relative;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Metropolis', system-ui, sans-serif;
 }
 
 /* Sidebar flutua por cima do conteúdo (position: fixed), não empurra nada */
@@ -50,23 +48,20 @@ ARQUIVO: src/app/app.component.css
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 20px;
+  /* padding-left fixo: (76px sidebar recolhida - 62px logo) / 2 = 7px.
+     Assim a logo nasce sempre no mesmo x, aberta ou fechada. */
+  padding: 22px 20px 22px 7px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
 .sidebar-brand .logo {
-  width: 52px;
-  height: 52px;
+  width: 62px !important;
+  height: 62px !important;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: none;
-}
-
-.sidebar.colapsada .sidebar-brand {
-  padding: 22px 0;
-  justify-content: center;
 }
 
 .logo-img {
@@ -77,7 +72,7 @@ ARQUIVO: src/app/app.component.css
 }
 
 .titulo {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Metropolis', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
@@ -92,6 +87,20 @@ ARQUIVO: src/app/app.component.css
   white-space: nowrap;
 }
 
+/* Texto do brand sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.sidebar-brand-texto {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 200px;
+  transition: opacity 0.18s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .sidebar-brand-texto {
+  opacity: 0;
+  max-width: 0;
+}
+
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -104,8 +113,9 @@ ARQUIVO: src/app/app.component.css
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
+  /* padding-left = 17px (posição do ícone) + 18px (largura do ícone) + 12px (gap) = 47px.
+     O ícone fica com position:absolute, então nada além dele afeta essa posição. */
+  padding: 11px 17px 11px 47px;
   border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
@@ -116,7 +126,25 @@ ARQUIVO: src/app/app.component.css
 }
 
 .sidebar-nav a svg {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
   flex-shrink: 0;
+}
+
+/* Label do menu sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.nav-label {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 160px;
+  transition: opacity 0.15s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .nav-label {
+  opacity: 0;
+  max-width: 0;
 }
 
 .sidebar-nav a:hover {
@@ -141,11 +169,6 @@ ARQUIVO: src/app/app.component.css
   background: var(--accent);
 }
 
-.sidebar.colapsada .sidebar-nav a {
-  justify-content: center;
-  padding: 11px;
-}
-
 .sidebar-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -163,110 +186,137 @@ main {
   min-height: 100vh;
   overflow: auto;
 }
+.sidebar-divisor {
+  border-top: 1px solid var(--sidebar-border);
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.sidebar-sair:hover {
+  color: #f87171;
+}
 
 
 ==================================================
 ARQUIVO: src/app/app.component.html
 ==================================================
-<div class="app-shell">
-  <aside class="sidebar" [class.colapsada]="sidebarCollapsed()" (mouseenter)="expandirSidebar()"
-    (mouseleave)="recolherSidebar()">
-    <div class="sidebar-brand">
-      <div class="logo">
-        <img src="/logo.png" alt="Obra da Casa" class="logo-img">
+<ng-container *ngIf="!emTelaDeLogin(); else somenteConteudo">
+  <div class="app-shell">
+    <aside class="sidebar" [class.colapsada]="sidebarCollapsed()" (mouseenter)="expandirSidebar()"
+      (mouseleave)="recolherSidebar()">
+      <div class="sidebar-brand">
+        <div class="logo">
+          <img src="/logo.png" alt="Obra da Casa" class="logo-img">
+        </div>
+        <div class="sidebar-brand-texto">
+          <div class="titulo">Obra da Casa</div>
+          <div class="subtitulo">Gestão de obras</div>
+        </div>
       </div>
-      <div *ngIf="!sidebarCollapsed()">
-        <div class="titulo">Obra da Casa</div>
-        <div class="subtitulo">Gestão de obras</div>
-      </div>
-    </div>
 
-    <nav class="sidebar-nav">
-      <a routerLink="/dashboard" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Dashboard</span>
-      </a>
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+          <span class="nav-label">Dashboard</span>
+        </a>
 
-      <a routerLink="/gastos" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23"></line>
-          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Gastos</span>
-      </a>
+        <a routerLink="/gastos" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
+          </svg>
+          <span class="nav-label">Gastos</span>
+        </a>
 
-      <a routerLink="/orcamentos" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="3" width="16" height="18" rx="2"></rect>
-          <line x1="8" y1="8" x2="16" y2="8"></line>
-          <line x1="8" y1="12" x2="16" y2="12"></line>
-          <line x1="8" y1="16" x2="12" y2="16"></line>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Orçamentos</span>
-      </a>
+        <a routerLink="/orcamentos" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+            <line x1="8" y1="8" x2="16" y2="8"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+            <line x1="8" y1="16" x2="12" y2="16"></line>
+          </svg>
+          <span class="nav-label">Orçamentos</span>
+        </a>
 
-      <a routerLink="/lista-compras" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Lista de compras</span>
-      </a>
+        <a routerLink="/lista-compras" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="nav-label">Lista de compras</span>
+        </a>
 
-      <a routerLink="/financeiro" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"></circle>
-          <path d="M12 7v10"></path>
-          <path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5">
-          </path>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Financeiro</span>
-      </a>
+        <a routerLink="/financeiro" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v10"></path>
+            <path d="M15 9.5c0-1.4-1.34-2.5-3-2.5s-3 1.1-3 2.5 1.34 2.5 3 2.5 3 1.1 3 2.5-1.34 2.5-3 2.5-3-1.1-3-2.5">
+            </path>
+          </svg>
+          <span class="nav-label">Financeiro</span>
+        </a>
 
-      <a routerLink="/calendario" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Calendário</span>
-      </a>
-      <a routerLink="/pendencias" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Pendências</span>
-      </a>
-      <a routerLink="/timeline" routerLinkActive="ativo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-        </svg>
-        <span *ngIf="!sidebarCollapsed()">Linha do tempo</span>
-      </a>
-    </nav>
-  </aside>
+        <a routerLink="/calendario" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span class="nav-label">Calendário</span>
+        </a>
+        <a routerLink="/pendencias" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span class="nav-label">Pendências</span>
+        </a>
+        <a routerLink="/timeline" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span class="nav-label">Linha do tempo</span>
+        </a>
 
-  <main>
-    <router-outlet></router-outlet>
-  </main>
-</div>
+        <div class="sidebar-divisor"></div>
+
+        <a href="javascript:void(0)" (click)="sair()" class="sidebar-sair">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span class="nav-label">Sair</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</ng-container>
+
+<ng-template #somenteConteudo>
+  <router-outlet></router-outlet>
+</ng-template>
 
 
 ==================================================
@@ -301,7 +351,9 @@ ARQUIVO: src/app/app.component.ts
 ==================================================
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -313,6 +365,17 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 export class AppComponent {
   title = 'Obra da Casa';
   sidebarCollapsed = signal(true);
+  emTelaDeLogin = signal(false);
+
+  constructor(private router: Router, private auth: AuthService) {
+    this.emTelaDeLogin.set(this.router.url.startsWith('/login'));
+
+    this.router.events
+      .pipe(filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd))
+      .subscribe(evento => {
+        this.emTelaDeLogin.set(evento.urlAfterRedirects.startsWith('/login'));
+      });
+  }
 
   expandirSidebar(): void {
     this.sidebarCollapsed.set(false);
@@ -320,6 +383,11 @@ export class AppComponent {
 
   recolherSidebar(): void {
     this.sidebarCollapsed.set(true);
+  }
+
+  sair(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }
 
@@ -359,17 +427,20 @@ import { OrcamentosComponent } from './orcamentos/orcamentos.component';
 import { PendenciasComponent } from './pendencias/pendencias.component';
 import { ListaComprasComponent } from './lista-compras/lista-compras.component';
 import { TimelineComponent } from './timeline/timeline.component';
+import { LoginComponent } from './login/login.component';
+import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'pendencias', pathMatch: 'full' },
-  { path: 'pendencias', component: PendenciasComponent },
-  { path: 'calendario', component: CalendarioComponent },
-  { path: 'gastos', component: GastosComponent },
-  { path: 'orcamentos', component: OrcamentosComponent },
-  { path: 'lista-compras', component: ListaComprasComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'financeiro', component: FinanceiroComponent },
-  { path: 'timeline', component: TimelineComponent }
+  { path: 'login', component: LoginComponent },
+  { path: 'pendencias', component: PendenciasComponent, canActivate: [authGuard] },
+  { path: 'calendario', component: CalendarioComponent, canActivate: [authGuard] },
+  { path: 'gastos', component: GastosComponent, canActivate: [authGuard] },
+  { path: 'orcamentos', component: OrcamentosComponent, canActivate: [authGuard] },
+  { path: 'lista-compras', component: ListaComprasComponent, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'financeiro', component: FinanceiroComponent, canActivate: [authGuard] },
+  { path: 'timeline', component: TimelineComponent, canActivate: [authGuard] }
 ];
 
 
@@ -597,6 +668,94 @@ export class CalendarioComponent implements OnInit {
 ARQUIVO: src/app/core/api-base.ts
 ==================================================
 export const API_BASE = 'http://localhost:8080';
+
+
+==================================================
+ARQUIVO: src/app/core/auth.guard.ts
+==================================================
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.estaAutenticado()) {
+    return true;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+
+
+==================================================
+ARQUIVO: src/app/core/auth.service.ts
+==================================================
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, tap, catchError } from 'rxjs';
+import { API_BASE } from './api-base';
+
+const CHAVE_TOKEN = 'obra-da-casa:token';
+
+export interface LoginPayload {
+  email: string;
+  senha: string;
+}
+
+export interface LoginResponse {
+  token: string;
+}
+
+/**
+ * Serviço de autenticação. Por padrão espera um endpoint `${API_BASE}/auth/login`
+ * que recebe { email, senha } e devolve { token }. Ajuste a URL e o formato de
+ * resposta conforme o backend real do projeto.
+ *
+ * MODO SEM BACKEND: enquanto MODO_MOCK estiver true, se a chamada ao backend
+ * falhar (ele ainda não existe/não está rodando), o login é aceito localmente
+ * com um token fake, só pra você conseguir testar a navegação do sistema.
+ * Quando o backend estiver pronto, troque MODO_MOCK para false.
+ */
+const MODO_MOCK = true;
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private http = inject(HttpClient);
+  private url = `${API_BASE}/auth/login`;
+
+  login(payload: LoginPayload): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(this.url, payload).pipe(
+      tap(resposta => this.salvarToken(resposta.token)),
+      catchError(erro => {
+        if (MODO_MOCK && payload.email && payload.senha) {
+          const respostaFake: LoginResponse = { token: 'token-mock-desenvolvimento' };
+          this.salvarToken(respostaFake.token);
+          return of(respostaFake);
+        }
+        throw erro;
+      })
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem(CHAVE_TOKEN);
+  }
+
+  estaAutenticado(): boolean {
+    return !!localStorage.getItem(CHAVE_TOKEN);
+  }
+
+  obterToken(): string | null {
+    return localStorage.getItem(CHAVE_TOKEN);
+  }
+
+  private salvarToken(token: string): void {
+    localStorage.setItem(CHAVE_TOKEN, token);
+  }
+}
 
 
 ==================================================
@@ -2792,6 +2951,26 @@ ARQUIVO: src/app/gastos/gastos.component.css
   color: #4b5563;
 }
 
+/* Ajustes para os 3 botões de ação caberem sem gerar rolagem horizontal */
+.tabela-gastos th.col-acoes,
+.tabela-gastos td.col-acoes {
+  padding-left: 6px;
+  padding-right: 10px;
+}
+
+.tabela-gastos td.col-acoes .linha-acoes {
+  gap: 5px;
+}
+
+.tabela-gastos td.col-acoes button.icone {
+  padding: 6px;
+}
+
+.tabela-gastos td.col-acoes button.icone svg {
+  width: 14px;
+  height: 14px;
+}
+
 
 ==================================================
 ARQUIVO: src/app/gastos/gastos.component.html
@@ -2929,9 +3108,9 @@ ARQUIVO: src/app/gastos/gastos.component.html
   <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:18%;"><col style="width:17%;"><col style="width:6%;">
-      <col style="width:11%;"><col style="width:9%;"><col style="width:12%;">
-      <col style="width:9%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:17%;"><col style="width:16%;"><col style="width:5%;">
+      <col style="width:10%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:8%;"><col style="width:8%;"><col style="width:18%;">
     </colgroup>
     <thead>
     <tr>
@@ -3986,6 +4165,14 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.css
 .tag.prioridade-media { background: #fef3c7; color: #b45309; }
 .tag.prioridade-baixa { background: #dbeafe; color: #1d4ed8; }
 
+.tabela-gastos td.col-acoes .linha-acoes {
+  gap: 6px;
+}
+
+.tabela-gastos td.col-acoes button.icone {
+  padding: 6px;
+}
+
 
 ==================================================
 ARQUIVO: src/app/lista-compras/lista-compras.component.html
@@ -4082,9 +4269,9 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
   <div class="tabela-scroll">
   <table class="tabela-gastos">
     <colgroup>
-      <col style="width:18%;"><col style="width:12%;"><col style="width:10%;">
-      <col style="width:12%;"><col style="width:22%;"><col style="width:14%;">
-      <col style="width:12%;">
+      <col style="width:18%;"><col style="width:10%;"><col style="width:8%;">
+      <col style="width:10%;"><col style="width:20%;"><col style="width:14%;">
+      <col style="width:20%;">
     </colgroup>
     <thead>
     <tr>
@@ -4121,6 +4308,12 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
       </td>
       <td class="col-acoes">
         <div class="linha-acoes">
+          <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(item)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
           <button type="button" class="icone" title="Editar" aria-label="Editar" (click)="editar(item)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 20h9"></path>
@@ -4207,6 +4400,14 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
   </div>
 </div>
 
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do item"
+  [subtitulo]="itemDetalhes?.descricao || ''"
+  [grupos]="gruposDetalhesItem"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>
+
 
 ==================================================
 ARQUIVO: src/app/lista-compras/lista-compras.component.ts
@@ -4217,6 +4418,7 @@ import { FormsModule } from '@angular/forms';
 import { ListaComprasService } from '../core/lista-compras.service';
 import { Categoria, ItemCompra, PrioridadeCompra } from '../core/models';
 import { CATEGORIAS, CATEGORIA_CLASSE, CATEGORIA_LABEL, DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { CampoDetalhe, DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 
 const PRIORIDADES: PrioridadeCompra[] = ['ALTA', 'MEDIA', 'BAIXA'];
 
@@ -4245,7 +4447,7 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pendentes', 'comprados'];
 @Component({
   selector: 'app-lista-compras',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './lista-compras.component.html',
   styleUrl: './lista-compras.component.css'
 })
@@ -4270,6 +4472,42 @@ export class ListaComprasComponent implements OnInit {
 
   editandoId: number | null = null;
   editForm: ItemCompra = this.formVazio();
+
+  // --- Detalhes (modal reutilizável) ---
+
+  detalhesId: number | null = null;
+
+  abrirDetalhes(item: ItemCompra): void {
+    this.detalhesId = item.id ?? null;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get itemDetalhes(): ItemCompra | undefined {
+    return this.itens.find(item => item.id === this.detalhesId);
+  }
+
+  get gruposDetalhesItem(): GrupoDetalhe[] {
+    const item = this.itemDetalhes;
+    if (!item) { return []; }
+
+    const campos: CampoDetalhe[] = [
+      { label: 'Categoria', valor: this.categoriaLabel(item.categoria), tag: true, classeTag: this.categoriaClasse(item.categoria) },
+      { label: 'Quantidade desejada', valor: item.quantidadeDesejada !== undefined && item.quantidadeDesejada !== null ? String(item.quantidadeDesejada) : '—' },
+      { label: 'Prioridade', valor: this.prioridadeLabel(item.prioridade), tag: true, classeTag: this.prioridadeClasse(item.prioridade) },
+      { label: 'Observação', valor: item.observacao || '—' },
+      { label: 'Status', valor: item.comprado ? 'Comprado' : 'Pendente', tag: true, classeTag: item.comprado ? 'pago' : 'pendente' }
+    ];
+
+    return [
+      {
+        titulo: 'Informações do item',
+        campos
+      }
+    ];
+  }
 
   ngOnInit(): void {
     this.carregar();
@@ -4413,6 +4651,338 @@ export class ListaComprasComponent implements OnInit {
 
 
 ==================================================
+ARQUIVO: src/app/login/login.component.css
+==================================================
+:host {
+  display: block;
+}
+
+.login-page {
+  --cor-inicio: #d46007;
+  --cor-fim: #dbae69;
+
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(160deg, var(--cor-inicio) 0%, var(--cor-fim) 100%);
+  font-family: 'Plus Jakarta Sans', -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/*
+  Vetor ja ajustado e correto - nao mexer nesta regra.
+*/
+.login-visual {
+  --vetor-largura: 100vw;
+  --vetor-altura: 90vh;
+  --vetor-baixo: 0px;
+  --vetor-direita: 0px;
+
+  position: absolute;
+  bottom: var(--vetor-baixo);
+  right: var(--vetor-direita);
+  width: var(--vetor-largura);
+  height: var(--vetor-altura);
+  z-index: 1;
+  pointer-events: none;
+  background-color: #ffffff;
+
+  -webkit-mask-image: url('/Vector.png');
+  mask-image: url('/Vector.png');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.login-form-area {
+  position: relative;
+  z-index: 2;
+  width: 48%;
+  display: flex;
+  justify-content: center;
+  padding: 0 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.login-logo {
+  width: 290px;
+  height: 290px;
+  margin-bottom: -20px;
+}
+
+.login-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.login-titulo {
+  font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-top: -30px;
+}
+
+.login-badge {
+  align-self: center;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--cor-fim, #e8a33d);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.login-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.campo-login {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-login label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.campo-login input {
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid #b9b9b9;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: transparent;
+  color: #111827;
+  width: 100%;
+}
+
+.campo-login input:focus {
+  outline: none;
+  border-color: #e8a33d;
+  background: transparent;
+}
+
+.senha-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.senha-wrapper input {
+  padding-right: 42px;
+}
+
+.botao-olho {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.botao-olho:hover {
+  color: #6b7280;
+  background: none;
+}
+
+.login-erro {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.botao-acessar {
+  margin-top: 14px;
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #d46007;
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.96rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.botao-acessar:hover:not(:disabled) {
+  background: #dbae69;
+  color: #644f22;
+}
+
+.botao-acessar:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .login-form-area {
+    padding: 0 24px;
+    justify-content: center;
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/login/login.component.html
+==================================================
+<div class="login-page">
+  <div class="login-visual" aria-hidden="true"></div>
+
+  <div class="login-form-area">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-logo">
+          <img src="/logo1.png" alt="Obra da Casa" class="login-logo-img">
+        </div>
+        <div class="login-titulo">Obra da Casa</div>
+      </div>
+
+      <form class="login-formulario" (ngSubmit)="onSubmit()">
+        <div class="campo-login">
+          <label for="email">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="Digite o e-mail"
+            autocomplete="email"
+            required>
+        </div>
+
+        <div class="campo-login">
+          <label for="senha">Senha</label>
+          <div class="senha-wrapper">
+            <input
+              [type]="mostrarSenha ? 'text' : 'password'"
+              id="senha"
+              name="senha"
+              [(ngModel)]="senha"
+              placeholder="Digite a senha"
+              autocomplete="current-password"
+              required>
+            <button
+              type="button"
+              class="botao-olho"
+              (click)="mostrarSenha = !mostrarSenha"
+              [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
+              <svg *ngIf="!mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a18.44 18.44 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p class="login-erro" *ngIf="erro">{{ erro }}</p>
+
+        <button type="submit" class="botao-acessar" [disabled]="carregando">
+          {{ carregando ? 'Entrando...' : 'Acessar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+==================================================
+ARQUIVO: src/app/login/login.component.ts
+==================================================
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../core/auth.service';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css'
+})
+export class LoginComponent {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  email = '';
+  senha = '';
+  mostrarSenha = false;
+
+  carregando = false;
+  erro = '';
+
+  onSubmit(): void {
+    if (!this.email || !this.senha) { return; }
+
+    this.erro = '';
+    this.carregando = true;
+
+    this.auth.login({ email: this.email, senha: this.senha }).subscribe({
+      next: () => {
+        this.carregando = false;
+        this.router.navigate(['/pendencias']);
+      },
+      error: () => {
+        this.carregando = false;
+        this.erro = 'E-mail ou senha inválidos.';
+      }
+    });
+  }
+}
+
+
+==================================================
 ARQUIVO: src/app/orcamentos/orcamentos.component.css
 ==================================================
 :host {
@@ -4464,27 +5034,32 @@ textarea:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 14px;
+    margin: 0;
     cursor: pointer;
     user-select: none;
 }
 
 .categoria-seta {
-    background: transparent;
+    background: #f9fafb;
     border: none;
     padding: 4px;
     margin: 0;
+    width: 32px;
+    height: 32px;
     color: var(--muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
     transition: transform 0.18s ease, color 0.15s, background 0.15s;
 }
 
 .categoria-seta:hover {
     color: var(--ink);
-    background: #f9fafb;
+    background: #f3f4f6;
 }
 
 .categoria-seta.colapsada {
@@ -4500,6 +5075,113 @@ textarea:focus {
     margin: 0;
     padding-bottom: 0;
     border-bottom: none;
+}
+
+/* ── Cards de categoria: visual mais rico (ícone, faixa de cor, resumo) ── */
+
+.painel-orcamento-categoria {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 20px 20px 24px;
+    transition: box-shadow 0.15s ease;
+}
+
+/* Mesmo padding em todos os lados aberto ou fechado — nada se move quando expande/recolhe */
+.painel-orcamento-categoria.colapsado {
+    padding: 20px 20px 20px 24px;
+}
+
+.painel-orcamento-categoria::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--border);
+}
+
+.painel-orcamento-categoria:hover {
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+}
+
+.painel-orcamento-categoria.cat-alvenaria::before { background: #f97316; }
+.painel-orcamento-categoria.cat-esquadrias::before { background: #3b82f6; }
+.painel-orcamento-categoria.cat-eletrica::before { background: #eab308; }
+.painel-orcamento-categoria.cat-hidraulica::before { background: #06b6d4; }
+.painel-orcamento-categoria.cat-revestimentos::before { background: #78716c; }
+.painel-orcamento-categoria.cat-acabamentos::before { background: #ec4899; }
+.painel-orcamento-categoria.cat-loucas-metais::before { background: #0ea5e9; }
+.painel-orcamento-categoria.cat-materiais-basicos::before { background: #f59e0b; }
+.painel-orcamento-categoria.cat-impermeabilizacao::before { background: #14b8a6; }
+.painel-orcamento-categoria.cat-vidros::before { background: #6366f1; }
+.painel-orcamento-categoria.cat-marcenaria::before { background: #ea580c; }
+.painel-orcamento-categoria.cat-gesso-drywall::before { background: #8b5cf6; }
+.painel-orcamento-categoria.cat-mao-de-obra::before { background: #10b981; }
+
+.categoria-cabecalho-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.categoria-icone {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.categoria-icone svg {
+    width: 19px;
+    height: 19px;
+}
+
+.categoria-icone.cat-alvenaria { background: #ffedd5; color: #c2410c; }
+.categoria-icone.cat-esquadrias { background: #dbeafe; color: #1d4ed8; }
+.categoria-icone.cat-eletrica { background: #fef9c3; color: #a16207; }
+.categoria-icone.cat-hidraulica { background: #cffafe; color: #0e7490; }
+.categoria-icone.cat-revestimentos { background: #e7e5e4; color: #57534e; }
+.categoria-icone.cat-acabamentos { background: #fce7f3; color: #be185d; }
+.categoria-icone.cat-loucas-metais { background: #e0f2fe; color: #0369a1; }
+.categoria-icone.cat-materiais-basicos { background: #fef3c7; color: #b45309; }
+.categoria-icone.cat-impermeabilizacao { background: #ccfbf1; color: #0f766e; }
+.categoria-icone.cat-vidros { background: #e0e7ff; color: #4338ca; }
+.categoria-icone.cat-marcenaria { background: #f5d0c5; color: #9a3412; }
+.categoria-icone.cat-gesso-drywall { background: #ede9fe; color: #6d28d9; }
+.categoria-icone.cat-mao-de-obra { background: #d1fae5; color: #047857; }
+
+.categoria-cabecalho-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.painel-categoria-cabecalho .tag {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 13px;
+    width: fit-content;
+    margin-right: 0 !important;
+}
+
+.categoria-resumo {
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.categoria-resumo strong {
+    color: var(--ink);
+    font-weight: 700;
 }
 
 /* ── Correção: coluna Fornecedor menor + Valor sempre inteiro ── */
@@ -4687,9 +5369,29 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   </app-dropdown-select>
 </div>
 
-<div class="painel" [class.colapsado]="estaColapsada(grupo.categoria)" *ngFor="let grupo of gruposFiltrados">
+<div class="painel painel-orcamento-categoria" [class.colapsado]="estaColapsada(grupo.categoria)"
+  [ngClass]="grupo.classe" *ngFor="let grupo of gruposFiltrados">
   <h2 class="painel-categoria-cabecalho" (click)="toggleCategoria(grupo.categoria)">
-    <span class="tag" [ngClass]="grupo.classe" style="margin-right:8px;">{{ grupo.label }}</span>
+    <div class="categoria-cabecalho-esquerda">
+      <div class="categoria-icone" [ngClass]="grupo.classe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+      </div>
+      <div class="categoria-cabecalho-textos">
+        <span class="tag" [ngClass]="grupo.classe">{{ grupo.label }}</span>
+        <span class="categoria-resumo">
+          <strong>{{ totalCotacoesGrupo(grupo) }}</strong> {{ totalCotacoesGrupo(grupo) === 1 ? 'cotação' : 'cotações' }}
+          <ng-container *ngIf="valorEscolhidoGrupo(grupo) > 0; else semEscolhaGrupo">
+            · <strong>R$ {{ valorEscolhidoGrupo(grupo) | number:'1.2-2':'pt-BR' }}</strong> escolhido
+          </ng-container>
+          <ng-template #semEscolhaGrupo> · nenhuma escolhida ainda</ng-template>
+        </span>
+      </div>
+    </div>
     <button type="button" class="categoria-seta" [class.colapsada]="estaColapsada(grupo.categoria)"
       (click)="$event.stopPropagation(); toggleCategoria(grupo.categoria)"
       [attr.aria-label]="estaColapsada(grupo.categoria) ? 'Expandir categoria' : 'Recolher categoria'">
@@ -4701,7 +5403,7 @@ ARQUIVO: src/app/orcamentos/orcamentos.component.html
   </h2>
 
   <ng-container *ngIf="!estaColapsada(grupo.categoria)">
-    <div *ngFor="let sub of grupo.subgrupos" style="margin-bottom:22px;">
+    <div *ngFor="let sub of grupo.subgrupos" style="margin-bottom:22px; margin-top:18px;">
       <div class="subcategoria-cabecalho">
         <span style="font-size:0.78rem; font-weight:700; color:#374151;">{{ sub.subcategoria }}</span>
         <span class="legenda-menor-valor">
@@ -5048,6 +5750,17 @@ export class OrcamentosComponent implements OnInit {
       .filter((grupo): grupo is GrupoCategoria => grupo !== null);
   }
 
+  totalCotacoesGrupo(grupo: GrupoCategoria): number {
+    return grupo.subgrupos.reduce((soma, sub) => soma + sub.cotacoes.length, 0);
+  }
+
+  valorEscolhidoGrupo(grupo: GrupoCategoria): number {
+    return grupo.subgrupos
+      .flatMap(sub => sub.cotacoes)
+      .filter(c => c.escolhido)
+      .reduce((soma, c) => soma + c.valor, 0);
+  }
+
   toggleForm(): void {
     this.mostrarForm = !this.mostrarForm;
     if (!this.mostrarForm) {
@@ -5293,12 +6006,6 @@ ARQUIVO: src/app/pendencias/pendencias.component.css
   font-size: 1.25rem;
   letter-spacing: -0.02em;
   color: #15803d;
-}
-
-.cabecalho button.secundario {
-  background: #E8A33D;
-  border: 1px solid #E8A33D;
-  color: #ffffff;
 }
 
 .cards-atencao {
@@ -5963,8 +6670,8 @@ ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.css
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #f3f4f6;
 }
 
@@ -5978,23 +6685,24 @@ ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.css
 .detalhe-corpo {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 26px;
 }
 
 .detalhe-grupo {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .detalhe-grupo-titulo {
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  padding-bottom: 8px;
-  border-bottom: 1px dashed #eef0f3;
+  letter-spacing: 0.06em;
+  color: var(--accent-hover);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .detalhe-linha {
@@ -6002,6 +6710,7 @@ ARQUIVO: src/app/shared/detalhe-modal/detalhe-modal.component.css
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
+  padding: 2px 0;
   font-size: 0.84rem;
 }
 
@@ -6144,6 +6853,12 @@ ARQUIVO: src/app/timeline/timeline.component.css
   flex-wrap: wrap;
 }
 
+.timeline-filtro-tipo {
+  max-width: 230px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
 .timeline-campo-busca {
   flex: 1;
   min-width: 220px;
@@ -6252,6 +6967,12 @@ ARQUIVO: src/app/timeline/timeline.component.css
   margin-bottom: 8px;
 }
 
+.timeline-card-topo-direita {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .timeline-data {
   font-size: 0.72rem;
   color: var(--muted);
@@ -6321,6 +7042,10 @@ ARQUIVO: src/app/timeline/timeline.component.css
     align-items: stretch;
   }
 
+  .timeline-filtro-tipo {
+    width: 100%;
+  }
+
   .timeline-campo-busca {
     min-width: 0;
   }
@@ -6377,7 +7102,7 @@ ARQUIVO: src/app/timeline/timeline.component.html
 
 <div class="painel">
   <div class="timeline-filtros">
-    <div class="campo" style="max-width:220px;">
+    <div class="campo timeline-filtro-tipo">
       <label for="filtroTipo">Tipo de evento</label>
       <app-dropdown-select
         id="filtroTipo"
@@ -6452,7 +7177,15 @@ ARQUIVO: src/app/timeline/timeline.component.html
             <div class="timeline-card">
               <div class="timeline-card-topo">
                 <span class="tag timeline-tag-tipo" [ngClass]="tipoClasse(evento.tipo)">{{ tipoLabel(evento.tipo) }}</span>
-                <span class="timeline-data">{{ evento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+                <div class="timeline-card-topo-direita">
+                  <span class="timeline-data">{{ evento.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+                  <button type="button" class="icone" title="Ver detalhes" aria-label="Ver detalhes" (click)="abrirDetalhes(evento)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div class="timeline-titulo">{{ evento.titulo }}</div>
@@ -6482,6 +7215,14 @@ ARQUIVO: src/app/timeline/timeline.component.html
   </div>
 </ng-container>
 
+<app-detalhe-modal
+  [aberto]="detalhesId !== null"
+  titulo="Detalhes do evento"
+  [subtitulo]="eventoDetalhes?.titulo || ''"
+  [grupos]="gruposDetalhesEvento"
+  (fechar)="fecharDetalhes()">
+</app-detalhe-modal>
+
 
 ==================================================
 ARQUIVO: src/app/timeline/timeline.component.ts
@@ -6490,6 +7231,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import { CampoDetalhe, DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 import {
   TIMELINE_TIPO_LABEL,
   TIMELINE_TIPO_ORDEM,
@@ -6505,7 +7247,7 @@ type FiltroTipo = 'TODOS' | TimelineTipo;
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent],
+  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
   templateUrl: './timeline.component.html',
   styleUrl: './timeline.component.css'
 })
@@ -6528,6 +7270,60 @@ export class TimelineComponent implements OnInit {
 
   eventosPorPagina = 5;
   paginaAtualEventos = 1;
+
+  // --- Detalhes (modal reutilizável) ---
+
+  detalhesId: string | null = null;
+
+  abrirDetalhes(evento: TimelineEvento): void {
+    this.detalhesId = evento.id;
+  }
+
+  fecharDetalhes(): void {
+    this.detalhesId = null;
+  }
+
+  get eventoDetalhes(): TimelineEvento | undefined {
+    return this.eventos.find(evento => evento.id === this.detalhesId);
+  }
+
+  get gruposDetalhesEvento(): GrupoDetalhe[] {
+    const evento = this.eventoDetalhes;
+    if (!evento) { return []; }
+
+    const campos: CampoDetalhe[] = [
+      { label: 'Tipo', valor: this.tipoLabel(evento.tipo), tag: true, classeTag: 'timeline-tag-tipo ' + this.tipoClasse(evento.tipo) },
+      { label: 'Data', valor: this.formatarDataExibicao(evento.data) }
+    ];
+
+    if (evento.descricao) {
+      campos.push({ label: 'Descrição', valor: evento.descricao });
+    }
+    if (evento.categoriaLabel) {
+      campos.push({ label: 'Categoria', valor: evento.categoriaLabel, tag: true, classeTag: evento.categoriaClasse });
+    }
+    if (evento.fornecedor) {
+      campos.push({ label: 'Fornecedor', valor: evento.fornecedor });
+    }
+    if (evento.status) {
+      campos.push({ label: 'Status', valor: evento.status });
+    }
+    if (evento.valor !== undefined) {
+      campos.push({ label: 'Valor', valor: `R$ ${evento.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, destaque: true });
+    }
+
+    return [
+      {
+        titulo: 'Informações do evento',
+        campos
+      }
+    ];
+  }
+
+  private formatarDataExibicao(dataIso: string): string {
+    const [ano, mes, dia] = dataIso.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
 
   ngOnInit(): void {
     this.carregar();
@@ -6722,6 +7518,46 @@ bootstrapApplication(AppComponent, appConfig)
 ==================================================
 ARQUIVO: src/styles.css
 ==================================================
+@font-face {
+    font-family: 'CabourgOT';
+    src: url('./fonts/CabourgOT-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'CabourgOT';
+    src: url('./fonts/CabourgOT-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Metropolis';
+    src: url('./fonts/Metropolis-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Metropolis';
+    src: url('./fonts/Metropolis-SemiBold.otf') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Metropolis';
+    src: url('./fonts/Metropolis-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -6747,7 +7583,7 @@ html, body {
 
 body {
     margin: 0;
-    font-family: 'Plus Jakarta Sans', -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
@@ -6899,8 +7735,9 @@ main {
 }
 
 h1 {
+    font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 1.4rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.02em;
 }
 

@@ -45,23 +45,20 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 22px 20px;
+  /* padding-left fixo: (76px sidebar recolhida - 62px logo) / 2 = 7px.
+     Assim a logo nasce sempre no mesmo x, aberta ou fechada. */
+  padding: 22px 20px 22px 7px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
 .sidebar-brand .logo {
-  width: 52px;
-  height: 52px;
+  width: 62px !important;
+  height: 62px !important;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: none;
-}
-
-.sidebar.colapsada .sidebar-brand {
-  padding: 22px 0;
-  justify-content: center;
 }
 
 .logo-img {
@@ -72,7 +69,7 @@
 }
 
 .titulo {
-  font-family: 'Metropolis', sans-serif;
+  font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
@@ -87,6 +84,20 @@
   white-space: nowrap;
 }
 
+/* Texto do brand sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.sidebar-brand-texto {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 200px;
+  transition: opacity 0.18s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .sidebar-brand-texto {
+  opacity: 0;
+  max-width: 0;
+}
+
 .sidebar-nav {
   flex: 1;
   padding: 16px 12px;
@@ -99,8 +110,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
+  /* padding-left = 17px (posição do ícone) + 18px (largura do ícone) + 12px (gap) = 47px.
+     O ícone fica com position:absolute, então nada além dele afeta essa posição. */
+  padding: 11px 17px 11px 47px;
   border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
@@ -111,7 +123,25 @@
 }
 
 .sidebar-nav a svg {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
   flex-shrink: 0;
+}
+
+/* Label do menu sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
+.nav-label {
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 160px;
+  transition: opacity 0.15s ease, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.colapsada .nav-label {
+  opacity: 0;
+  max-width: 0;
 }
 
 .sidebar-nav a:hover {
@@ -136,11 +166,6 @@
   background: var(--accent);
 }
 
-.sidebar.colapsada .sidebar-nav a {
-  justify-content: center;
-  padding: 11px;
-}
-
 .sidebar-nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -157,4 +182,13 @@ main {
   margin-left: var(--sidebar-width-collapsed);
   min-height: 100vh;
   overflow: auto;
+}
+.sidebar-divisor {
+  border-top: 1px solid var(--sidebar-border);
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.sidebar-sair:hover {
+  color: #f87171;
 }
