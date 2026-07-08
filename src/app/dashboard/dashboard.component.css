@@ -2,8 +2,6 @@
   display: block;
 }
 
-/* ── Painéis lado a lado com a mesma altura ── */
-
 .painel-duplo {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -17,9 +15,6 @@
     height: 100%;
 }
 
-/* Lista de materiais: altura fixa equivalente a 8 linhas,
-   pra manter o card do mesmo tamanho mesmo com menos itens
-   e o paginador sempre na mesma posição (rodapé do card) */
 .materiais-lista {
     display: flex;
     flex-direction: column;

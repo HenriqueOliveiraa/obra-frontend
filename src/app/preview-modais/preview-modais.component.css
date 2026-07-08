@@ -1,0 +1,76 @@
+.pv-pagina {
+  min-height: 100vh;
+  padding: 48px 32px;
+  background: #f0efe9;
+  font-family: 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.pv-cabecalho {
+  max-width: 640px;
+  margin: 0 auto 36px;
+  text-align: center;
+}
+
+.pv-cabecalho h1 {
+  margin: 0 0 8px;
+  font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pv-cabecalho p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.pv-grid {
+  max-width: 640px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.pv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #edecea;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.pv-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.pv-card-tag {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pv-card-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.pv-card-sucesso { border-top: 3px solid #16a34a; }
+.pv-card-erro { border-top: 3px solid #dc2626; }
+.pv-card-sair { border-top: 3px solid #e8a33d; }
+.pv-card-confirmacao { border-top: 3px solid #e8a33d; }
+
+@media (max-width: 520px) {
+  .pv-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -107,7 +107,7 @@
     </div>
 
     <div class="form-rodape">
-      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="button" class="secundario" (click)="tentarFecharFormNovo()">Cancelar</button>
       <button type="submit">Salvar cotação</button>
     </div>
   </form>
@@ -226,7 +226,7 @@
                   </svg>
                 </button>
                 <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir"
-                  (click)="excluir(cotacao.id)">
+                  (click)="abrirConfirmacaoExclusao(cotacao.id)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
                     <path d="M3 6h18"></path>
@@ -249,7 +249,7 @@
   Nenhuma cotação registrada ainda. Clique em "Nova cotação" para começar a comparar preços.
 </div>
 
-<div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
+<div class="modal-overlay" *ngIf="editandoId" (click)="tentarFecharModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <h2>Editar cotação</h2>
     <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
@@ -310,7 +310,7 @@
       </div>
 
       <div class="modal-acoes">
-        <button type="button" class="secundario" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="secundario" (click)="tentarFecharModal()">Cancelar</button>
         <button type="submit">Salvar edição</button>
       </div>
     </form>
@@ -324,3 +324,85 @@
   [grupos]="gruposDetalhesCotacao"
   (fechar)="fecharDetalhes()">
 </app-detalhe-modal>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSairNovo"
+  titulo="Sair sem salvar?"
+  mensagem="Você preencheu informações desta nova cotação que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSairNovo()"
+  (confirmar)="confirmarSairSemSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvarNovo"
+  titulo="Salvar cotação?"
+  mensagem="Confirme para salvar esta nova cotação."
+  (cancelar)="cancelarSalvarNovo()"
+  (confirmar)="confirmarSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoNovo"
+  titulo="Cotação salva!"
+  mensagem="A nova cotação foi salva com sucesso."
+  (fechar)="mostrarSucessoNovo = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroNovo"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErroNovo"
+  (fechar)="mostrarErroNovo = false">
+</app-modal-erro>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSair"
+  titulo="Sair sem salvar?"
+  mensagem="Você alterou informações desta cotação que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSair()"
+  (confirmar)="confirmarSairSemSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvar"
+  titulo="Salvar alterações?"
+  mensagem="Confirme para salvar as alterações feitas nesta cotação."
+  (cancelar)="cancelarSalvarEdicao()"
+  (confirmar)="confirmarSalvarEdicao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoEdicao"
+  titulo="Cotação atualizada!"
+  mensagem="As alterações foram salvas com sucesso."
+  (fechar)="mostrarSucessoEdicao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroEdicao"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErroEdicao"
+  (fechar)="mostrarErroEdicao = false">
+</app-modal-erro>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoExcluir"
+  titulo="Excluir cotação?"
+  mensagem="Essa ação não poderá ser desfeita."
+  (cancelar)="cancelarExclusao()"
+  (confirmar)="confirmarExclusao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoExclusao"
+  titulo="Cotação excluída!"
+  mensagem="A cotação foi removida com sucesso."
+  (fechar)="mostrarSucessoExclusao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroExclusao"
+  titulo="Erro ao excluir"
+  [mensagem]="mensagemErroExclusao"
+  (fechar)="mostrarErroExclusao = false">
+</app-modal-erro>

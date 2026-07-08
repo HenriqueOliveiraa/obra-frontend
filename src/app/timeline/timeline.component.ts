@@ -42,8 +42,6 @@ export class TimelineComponent implements OnInit {
   eventosPorPagina = 5;
   paginaAtualEventos = 1;
 
-  // --- Detalhes (modal reutilizável) ---
-
   detalhesId: string | null = null;
 
   abrirDetalhes(evento: TimelineEvento): void {

@@ -5,6 +5,10 @@ import { ListaComprasService } from '../core/lista-compras.service';
 import { Categoria, ItemCompra, PrioridadeCompra } from '../core/models';
 import { CATEGORIAS, CATEGORIA_CLASSE, CATEGORIA_LABEL, DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
 import { CampoDetalhe, DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
+import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
+import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
+import { ModalSairComponent } from '../shared/modais/modal-sair/modal-sair.component';
+import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 const PRIORIDADES: PrioridadeCompra[] = ['ALTA', 'MEDIA', 'BAIXA'];
 
@@ -33,7 +37,16 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pendentes', 'comprados'];
 @Component({
   selector: 'app-lista-compras',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DropdownSelectComponent,
+    DetalheModalComponent,
+    ModalSucessoComponent,
+    ModalErroComponent,
+    ModalSairComponent,
+    ModalConfirmacaoComponent
+  ],
   templateUrl: './lista-compras.component.html',
   styleUrl: './lista-compras.component.css'
 })
@@ -55,11 +68,29 @@ export class ListaComprasComponent implements OnInit {
 
   mostrarForm = false;
   form: ItemCompra = this.formVazio();
+  private snapshotNovo = '';
+
+  mostrarConfirmacaoSairNovo = false;
+  mostrarConfirmacaoSalvarNovo = false;
+  mostrarSucessoNovo = false;
+  mostrarErroNovo = false;
+  mensagemErroNovo = '';
 
   editandoId: number | null = null;
   editForm: ItemCompra = this.formVazio();
+  private snapshotEdicao = '';
 
-  // --- Detalhes (modal reutilizável) ---
+  mostrarConfirmacaoSair = false;
+  mostrarConfirmacaoSalvar = false;
+  mostrarSucessoEdicao = false;
+  mostrarErroEdicao = false;
+  mensagemErroEdicao = '';
+
+  mostrarConfirmacaoExcluir = false;
+  mostrarSucessoExclusao = false;
+  mostrarErroExclusao = false;
+  mensagemErroExclusao = '';
+  private idParaExcluir: number | null = null;
 
   detalhesId: number | null = null;
 
@@ -180,36 +211,127 @@ export class ListaComprasComponent implements OnInit {
   }
 
   toggleForm(): void {
-    this.mostrarForm = !this.mostrarForm;
-    if (!this.mostrarForm) {
-      this.form = this.formVazio();
+    if (this.mostrarForm) {
+      this.tentarFecharFormNovo();
+    } else {
+      this.abrirFormNovo();
     }
   }
 
+  private abrirFormNovo(): void {
+    this.mostrarForm = true;
+    this.form = this.formVazio();
+    this.snapshotNovo = JSON.stringify(this.form);
+  }
+
+  private houveAlteracoesNoNovo(): boolean {
+    return JSON.stringify(this.form) !== this.snapshotNovo;
+  }
+
+  tentarFecharFormNovo(): void {
+    if (this.houveAlteracoesNoNovo()) {
+      this.mostrarConfirmacaoSairNovo = true;
+    } else {
+      this.fecharFormNovo();
+    }
+  }
+
+  confirmarSairSemSalvarNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+    this.fecharFormNovo();
+  }
+
+  cancelarSairNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+  }
+
+  private fecharFormNovo(): void {
+    this.mostrarForm = false;
+    this.form = this.formVazio();
+    this.snapshotNovo = '';
+  }
+
   salvar(): void {
-    this.service.criar(this.form).subscribe(() => {
-      this.mostrarForm = false;
-      this.form = this.formVazio();
-      this.carregar();
+    this.mostrarConfirmacaoSalvarNovo = true;
+  }
+
+  confirmarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
+
+    this.service.criar(this.form).subscribe({
+      next: () => {
+        this.fecharFormNovo();
+        this.carregar();
+        this.mostrarSucessoNovo = true;
+      },
+      error: () => {
+        this.mensagemErroNovo = 'Não foi possível salvar este item. Tente novamente.';
+        this.mostrarErroNovo = true;
+      }
     });
+  }
+
+  cancelarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
   }
 
   editar(item: ItemCompra): void {
     this.editandoId = item.id ?? null;
     this.editForm = { ...item };
+    this.snapshotEdicao = JSON.stringify(this.editForm);
+  }
+
+  private houveAlteracoesNaEdicao(): boolean {
+    return JSON.stringify(this.editForm) !== this.snapshotEdicao;
+  }
+
+  tentarFecharModal(): void {
+    if (this.houveAlteracoesNaEdicao()) {
+      this.mostrarConfirmacaoSair = true;
+    } else {
+      this.fecharModal();
+    }
+  }
+
+  confirmarSairSemSalvar(): void {
+    this.mostrarConfirmacaoSair = false;
+    this.fecharModal();
+  }
+
+  cancelarSair(): void {
+    this.mostrarConfirmacaoSair = false;
   }
 
   salvarEdicao(): void {
     if (!this.editandoId) { return; }
-    this.service.atualizar(this.editandoId, this.editForm).subscribe(() => {
-      this.fecharModal();
-      this.carregar();
+    this.mostrarConfirmacaoSalvar = true;
+  }
+
+  confirmarSalvarEdicao(): void {
+    if (!this.editandoId) { return; }
+    this.mostrarConfirmacaoSalvar = false;
+
+    this.service.atualizar(this.editandoId, this.editForm).subscribe({
+      next: () => {
+        this.fecharModal();
+        this.carregar();
+        this.mostrarSucessoEdicao = true;
+      },
+      error: () => {
+        this.mensagemErroEdicao = 'Não foi possível salvar as alterações deste item. Tente novamente.';
+        this.mostrarErroEdicao = true;
+      }
     });
+  }
+
+  cancelarSalvarEdicao(): void {
+    this.mostrarConfirmacaoSalvar = false;
   }
 
   fecharModal(): void {
     this.editandoId = null;
     this.editForm = this.formVazio();
+    this.snapshotEdicao = '';
   }
 
   alternarComprado(item: ItemCompra): void {
@@ -218,9 +340,34 @@ export class ListaComprasComponent implements OnInit {
     this.service.atualizar(item.id, atualizado).subscribe(() => this.carregar());
   }
 
-  excluir(id: number | undefined): void {
+  abrirConfirmacaoExclusao(id: number | undefined): void {
     if (!id) { return; }
-    this.service.excluir(id).subscribe(() => this.carregar());
+    this.idParaExcluir = id;
+    this.mostrarConfirmacaoExcluir = true;
+  }
+
+  confirmarExclusao(): void {
+    if (!this.idParaExcluir) { return; }
+    const id = this.idParaExcluir;
+    this.mostrarConfirmacaoExcluir = false;
+
+    this.service.excluir(id).subscribe({
+      next: () => {
+        this.idParaExcluir = null;
+        this.carregar();
+        this.mostrarSucessoExclusao = true;
+      },
+      error: () => {
+        this.idParaExcluir = null;
+        this.mensagemErroExclusao = 'Não foi possível excluir este item. Tente novamente.';
+        this.mostrarErroExclusao = true;
+      }
+    });
+  }
+
+  cancelarExclusao(): void {
+    this.mostrarConfirmacaoExcluir = false;
+    this.idParaExcluir = null;
   }
 
   private formVazio(): ItemCompra {

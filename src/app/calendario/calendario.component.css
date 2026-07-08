@@ -1,3 +1,39 @@
-.calendario-topo button {
-  font-size: 0.85rem;
+.secundario.perigo {
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.secundario.perigo:hover {
+  background: #dc26261c;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.calendario-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.calendario-nav:hover {
+  background: #f3f4f6;
+  color: var(--ink);
+}
+
+.calendario-nav:active {
+  background: #e5e7eb;
+}
+
+.calendario-nav:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

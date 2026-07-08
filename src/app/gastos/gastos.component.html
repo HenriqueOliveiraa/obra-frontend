@@ -110,7 +110,7 @@
     </div>
 
     <div class="form-rodape">
-      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="button" class="secundario" (click)="tentarFecharFormNovo()">Cancelar</button>
       <button type="submit">Adicionar</button>
     </div>
   </form>
@@ -152,16 +152,16 @@
     <tr *ngFor="let gasto of gastosPaginados">
       <td class="col-descricao">
         <div style="font-weight:600;">{{ gasto.descricao }}</div>
-        <details>
-          <summary>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas</summary>
-          <ul class="parcelas-lista">
-            <li *ngFor="let parcela of gasto.parcelas">
-              <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2':'pt-BR' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
-              <span *ngIf="parcela.pago" class="tag pago">pago</span>
-              <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
-            </li>
-          </ul>
-        </details>
+        <button
+          type="button"
+          class="botao-ver-parcelas"
+          [class.aberto]="parcelasAbertoId === gasto.id"
+          (click)="toggleParcelas(gasto, $event)">
+          {{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas
+          <svg class="seta-parcelas" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
       </td>
       <td>
         <div class="celula-categoria">
@@ -211,7 +211,7 @@
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
             </svg>
           </button>
-          <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="excluir(gasto.id)">
+          <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="abrirConfirmacaoExclusao(gasto.id)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -244,7 +244,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
+<div class="modal-overlay" *ngIf="editandoId" (click)="tentarFecharModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <h2>Editar gasto</h2>
     <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
@@ -314,7 +314,7 @@
       </div>
 
       <div class="modal-acoes">
-        <button type="button" class="secundario" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="secundario" (click)="tentarFecharModal()">Cancelar</button>
         <button type="submit">Salvar edição</button>
       </div>
     </form>
@@ -405,3 +405,113 @@
   [grupos]="gruposDetalhesGasto"
   (fechar)="fecharDetalhes()">
 </app-detalhe-modal>
+
+<div class="popover-backdrop" *ngIf="parcelasAbertoId !== null" (click)="fecharParcelas()"></div>
+
+<div
+  class="popover-parcelas"
+  *ngIf="gastoParcelasAberto as gasto"
+  [style.top.px]="parcelasPosicao.top"
+  [style.left.px]="parcelasPosicao.left"
+  [style.min-width.px]="parcelasPosicao.width"
+  [style.max-height.px]="parcelasPosicao.maxHeight"
+  (click)="$event.stopPropagation()">
+  <div class="popover-parcelas-cabecalho">
+    <span>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'À vista' }}</span>
+    <button type="button" class="icone" title="Fechar" aria-label="Fechar" (click)="fecharParcelas()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <ul class="parcelas-lista">
+    <li *ngFor="let parcela of gasto.parcelas">
+      <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2':'pt-BR' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+      <span *ngIf="parcela.pago" class="tag pago">pago</span>
+      <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
+    </li>
+  </ul>
+</div>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSair"
+  titulo="Sair sem salvar?"
+  mensagem="Você alterou informações deste gasto que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSair()"
+  (confirmar)="confirmarSairSemSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvar"
+  titulo="Salvar alterações?"
+  mensagem="Confirme para salvar as alterações feitas neste gasto."
+  (cancelar)="cancelarSalvarEdicao()"
+  (confirmar)="confirmarSalvarEdicao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoEdicao"
+  titulo="Gasto atualizado!"
+  mensagem="As alterações foram salvas com sucesso."
+  (fechar)="mostrarSucessoEdicao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroEdicao"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErroEdicao"
+  (fechar)="mostrarErroEdicao = false">
+</app-modal-erro>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSairNovo"
+  titulo="Sair sem salvar?"
+  mensagem="Você preencheu informações deste novo gasto que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSairNovo()"
+  (confirmar)="confirmarSairSemSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvarNovo"
+  titulo="Adicionar gasto?"
+  mensagem="Confirme para adicionar este novo gasto à lista."
+  (cancelar)="cancelarSalvarNovo()"
+  (confirmar)="confirmarSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoNovo"
+  titulo="Gasto adicionado!"
+  mensagem="O novo gasto foi salvo com sucesso."
+  (fechar)="mostrarSucessoNovo = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroNovo"
+  titulo="Erro ao adicionar"
+  [mensagem]="mensagemErroNovo"
+  (fechar)="mostrarErroNovo = false">
+</app-modal-erro>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoExcluir"
+  titulo="Excluir gasto?"
+  mensagem="Essa ação não poderá ser desfeita."
+  (cancelar)="cancelarExclusao()"
+  (confirmar)="confirmarExclusao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoExclusao"
+  titulo="Gasto excluído!"
+  mensagem="O gasto foi removido com sucesso."
+  (fechar)="mostrarSucessoExclusao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroExclusao"
+  titulo="Erro ao excluir"
+  [mensagem]="mensagemErroExclusao"
+  (fechar)="mostrarErroExclusao = false">
+</app-modal-erro>
