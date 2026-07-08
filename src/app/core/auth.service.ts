@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, tap } from 'rxjs/operators';
 import { API_BASE } from './api-base';
 
 const CHAVE_TOKEN = 'obra-da-casa:token';
@@ -25,7 +25,7 @@ export interface LoginResponse {
  * Quando o backend estiver pronto, troque MODO_MOCK para false para usar
  * a chamada real via HttpClient.
  */
-const MODO_MOCK = true;
+const MODO_MOCK = false;
 
 const EMAIL_MOCK = 'admin@gmail.com';
 const SENHA_MOCK = '12345678';
@@ -50,8 +50,10 @@ export class AuthService {
       return throwError(() => new Error('Credenciais inválidas')).pipe(delay(400));
     }
 
-    // Fluxo real (quando MODO_MOCK = false)
-    return this.http.post<LoginResponse>(this.url, payload);
+    // Fluxo real
+    return this.http.post<LoginResponse>(this.url, payload).pipe(
+      tap(resp => this.salvarToken(resp.token))
+    );
   }
 
   logout(): void {

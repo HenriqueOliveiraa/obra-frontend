@@ -1,43 +1,27 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Comprovante } from './models';
-
-const CHAVE_STORAGE = 'obra-da-casa:comprovantes';
+import { API_BASE } from './api-base';
 
 @Injectable({ providedIn: 'root' })
 export class ComprovanteService {
+  private http = inject(HttpClient);
+  private url = `${API_BASE}/comprovantes`;
 
   listar(): Observable<Comprovante[]> {
-    return of(this.lerTodos());
+    return this.http.get<Comprovante[]>(this.url);
+  }
+
+  buscarPorGasto(gastoId: number): Observable<Comprovante> {
+    return this.http.get<Comprovante>(`${this.url}/gasto/${gastoId}`);
   }
 
   salvar(comprovante: Comprovante): Observable<Comprovante> {
-    const todos = this.lerTodos().filter(c => c.gastoId !== comprovante.gastoId);
-    todos.push(comprovante);
-    this.salvarTodos(todos);
-    return of(comprovante);
+    return this.http.post<Comprovante>(this.url, comprovante);
   }
 
   remover(gastoId: number): Observable<void> {
-    const todos = this.lerTodos().filter(c => c.gastoId !== gastoId);
-    this.salvarTodos(todos);
-    return of(undefined);
-  }
-
-  private lerTodos(): Comprovante[] {
-    const bruto = localStorage.getItem(CHAVE_STORAGE);
-    if (!bruto) { return []; }
-    try {
-      return JSON.parse(bruto) as Comprovante[];
-    } catch {
-      return [];
-    }
-  }
-
-  private salvarTodos(comprovantes: Comprovante[]): void {
-    try {
-      localStorage.setItem(CHAVE_STORAGE, JSON.stringify(comprovantes));
-    } catch {
-    }
+    return this.http.delete<void>(`${this.url}/gasto/${gastoId}`);
   }
 }

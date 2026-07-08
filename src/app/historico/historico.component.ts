@@ -26,149 +26,6 @@ interface GrupoDeDia {
   eventos: AuditoriaEvento[];
 }
 
-const EVENTOS_FICTICIOS: AuditoriaEvento[] = [
-  {
-    id: 'f1',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'gasto',
-    entidadeId: '101',
-    entidadeDescricao: 'Cimento CP-II 50kg',
-    acao: 'CRIACAO',
-    descricao: 'Criou o gasto "Cimento CP-II 50kg" no valor de R$ 320,00',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
-  },
-  {
-    id: 'f2',
-    usuarioId: '2',
-    usuarioNome: 'Maria',
-    entidade: 'item_compra',
-    entidadeId: '55',
-    entidadeDescricao: 'Rejunte cinza',
-    acao: 'EDICAO',
-    descricao: 'Marcou "Rejunte cinza" como comprado',
-    dadosAnteriores: { status: 'Pendente' },
-    dadosNovos: { status: 'Comprado' },
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-  },
-  {
-    id: 'f3',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'orcamento',
-    entidadeId: '12',
-    entidadeDescricao: 'Reforma do banheiro',
-    acao: 'EDICAO',
-    descricao: 'Atualizou o orçamento "Reforma do banheiro"',
-    dadosAnteriores: { valorTotal: 8500, prazoDias: 30 },
-    dadosNovos: { valorTotal: 9200, prazoDias: 35 },
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-  },
-  {
-    id: 'f4',
-    usuarioId: '2',
-    usuarioNome: 'Maria',
-    entidade: 'item_compra',
-    entidadeId: '58',
-    entidadeDescricao: 'Fio elétrico 10 Amarelo',
-    acao: 'CRIACAO',
-    descricao: 'Adicionou o item "Fio elétrico 10 Amarelo" à lista de compras',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-  },
-  {
-    id: 'f5',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'gasto',
-    entidadeId: '98',
-    entidadeDescricao: 'Frete de material',
-    acao: 'EXCLUSAO',
-    descricao: 'Excluiu o gasto "Frete de material" lançado por engano',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-  },
-  {
-    id: 'f6',
-    usuarioId: '2',
-    usuarioNome: 'Maria',
-    entidade: 'gasto',
-    entidadeId: '99',
-    entidadeDescricao: 'Pedreiro - diária',
-    acao: 'CRIACAO',
-    descricao: 'Criou o gasto "Pedreiro - diária" no valor de R$ 180,00',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 50).toISOString(),
-  },
-  {
-    id: 'f7',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'item_compra',
-    entidadeId: '60',
-    entidadeDescricao: 'Tinta branca 18L',
-    acao: 'CRIACAO',
-    descricao: 'Adicionou o item "Tinta branca 18L" à lista de compras',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 55).toISOString(),
-  },
-  {
-    id: 'f8',
-    usuarioId: '2',
-    usuarioNome: 'Maria',
-    entidade: 'orcamento',
-    entidadeId: '13',
-    entidadeDescricao: 'Pintura externa',
-    acao: 'EDICAO',
-    descricao: 'Atualizou o orçamento "Pintura externa"',
-    dadosAnteriores: { valorTotal: 4200 },
-    dadosNovos: { valorTotal: 4600 },
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 60).toISOString(),
-  },
-  {
-    id: 'f9',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'gasto',
-    entidadeId: '102',
-    entidadeDescricao: 'Areia média m³',
-    acao: 'CRIACAO',
-    descricao: 'Criou o gasto "Areia média m³" no valor de R$ 210,00',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 70).toISOString(),
-  },
-  {
-    id: 'f10',
-    usuarioId: '2',
-    usuarioNome: 'Maria',
-    entidade: 'item_compra',
-    entidadeId: '61',
-    entidadeDescricao: 'Torneira monocomando',
-    acao: 'EXCLUSAO',
-    descricao: 'Excluiu o item "Torneira monocomando" da lista, comprado por engano em duplicidade',
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 78).toISOString(),
-  },
-  {
-    id: 'f11',
-    usuarioId: '1',
-    usuarioNome: 'Henrique',
-    entidade: 'orcamento',
-    entidadeId: '14',
-    entidadeDescricao: 'Elétrica geral',
-    acao: 'EDICAO',
-    descricao: 'Atualizou o orçamento "Elétrica geral"',
-    dadosAnteriores: { prazoDias: 20 },
-    dadosNovos: { prazoDias: 25 },
-    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 90).toISOString(),
-  },
-];
-
-const USUARIOS_FICTICIOS: UsuarioResumo[] = [
-  { id: '1', nome: 'Henrique' },
-  { id: '2', nome: 'Maria' },
-];
-
-const ENTIDADES_FICTICIAS: EntidadeResumo[] = [
-  { chave: 'gasto', rotulo: 'Gastos' },
-  { chave: 'item_compra', rotulo: 'Lista de compras' },
-  { chave: 'orcamento', rotulo: 'Orçamentos' },
-];
-
 const ROTULOS_ACAO: Record<AcaoAuditoria, string> = {
   CRIACAO: 'Criação',
   EDICAO: 'Edição',
@@ -345,37 +202,12 @@ export class HistoricoComponent implements OnInit {
           this.carregando.set(false);
         },
         error: () => {
-          const filtrados = this.filtrarEventosFicticios(filtro);
-          const inicio = (this.pagina() - 1) * this.tamanhoPagina;
-          this.eventos.set(filtrados.slice(inicio, inicio + this.tamanhoPagina));
-          this.total.set(filtrados.length);
-          this.erro.set(null);
+          this.eventos.set([]);
+          this.total.set(0);
+          this.erro.set('Não foi possível carregar o histórico. Tente novamente.');
           this.carregando.set(false);
         },
       });
-  }
-
-  private filtrarEventosFicticios(filtro: FiltroAuditoria): AuditoriaEvento[] {
-    const termoBusca = filtro.busca?.trim().toLowerCase();
-    const inicio = filtro.dataInicio ? new Date(`${filtro.dataInicio}T00:00:00`) : null;
-    const fim = filtro.dataFim ? new Date(`${filtro.dataFim}T23:59:59`) : null;
-
-    return EVENTOS_FICTICIOS.filter((evento) => {
-      if (filtro.usuarioId && evento.usuarioId !== filtro.usuarioId) return false;
-      if (filtro.entidade && evento.entidade !== filtro.entidade) return false;
-      if (filtro.acao && evento.acao !== filtro.acao) return false;
-
-      const dataEvento = new Date(evento.criadoEm);
-      if (inicio && dataEvento < inicio) return false;
-      if (fim && dataEvento > fim) return false;
-
-      if (termoBusca) {
-        const alvo = `${evento.descricao} ${evento.entidadeDescricao ?? ''}`.toLowerCase();
-        if (!alvo.includes(termoBusca)) return false;
-      }
-
-      return true;
-    }).sort((a, b) => new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime());
   }
 
   private carregarOpcoesDeFiltro(): void {
@@ -384,8 +216,7 @@ export class HistoricoComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (usuarios) => this.usuarios.set(usuarios),
-        // MOCK: remover quando o endpoint /auditoria/usuarios existir de verdade.
-        error: () => this.usuarios.set(USUARIOS_FICTICIOS),
+        error: () => this.usuarios.set([]),
       });
 
     this.auditoriaService
@@ -393,8 +224,7 @@ export class HistoricoComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (entidades) => this.entidades.set(entidades),
-        // MOCK: remover quando o endpoint /auditoria/entidades existir de verdade.
-        error: () => this.entidades.set(ENTIDADES_FICTICIAS),
+        error: () => this.entidades.set([]),
       });
   }
 

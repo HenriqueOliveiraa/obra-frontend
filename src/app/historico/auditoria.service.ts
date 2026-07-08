@@ -9,11 +9,12 @@ import {
   RespostaPaginada,
   UsuarioResumo,
 } from './auditoria.model';
+import { API_BASE } from '../core/api-base';
 
 @Injectable({ providedIn: 'root' })
 export class AuditoriaService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/auditoria'; // ajuste para a URL real da API
+  private readonly baseUrl = `${API_BASE}/auditoria`;
 
   listar(filtro: FiltroAuditoria): Observable<RespostaPaginada<AuditoriaEvento>> {
     let params = new HttpParams()
