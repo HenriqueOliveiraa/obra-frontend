@@ -13,6 +13,10 @@ export class ComprovanteService {
     return this.http.get<Comprovante[]>(this.url);
   }
 
+  buscarPorGasto(gastoId: number): Observable<Comprovante> {
+    return this.http.get<Comprovante>(`${this.url}/gasto/${gastoId}`);
+  }
+
   salvar(comprovante: Comprovante): Observable<Comprovante> {
     return this.http.post<Comprovante>(this.url, comprovante);
   }

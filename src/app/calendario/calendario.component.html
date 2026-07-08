@@ -4,9 +4,13 @@
 </div>
 
 <div style="display:grid; grid-template-columns:auto 1fr; gap:14px; margin-bottom:20px; align-items:stretch;">
-  <app-card label="Dias trabalhados" [valor]="diasTrabalhados + ''" tamanho="grande" sub="neste mês"></app-card>
+  <div class="card" style="display:flex; flex-direction:column; justify-content:center; padding:20px 28px;">
+    <div class="label">Dias trabalhados</div>
+    <div class="valor" style="font-size:2.2rem;">{{ diasTrabalhados }}</div>
+    <div class="sub">neste mês</div>
+  </div>
 
-  <div class="legenda">
+  <div class="card legenda">
     <div class="legenda-item">
       <div class="legenda-swatch" style="background:#d1fae5; border:1px solid #a7f3d0;"></div>
       <div>
@@ -31,11 +35,19 @@
   </div>
 </div>
 
-<app-painel>
+<div class="painel">
   <div class="calendario-topo">
-    <button type="button" class="secundario" (click)="mesAnterior()">&larr; Anterior</button>
+    <button type="button" class="calendario-nav" (click)="mesAnterior()" aria-label="Mês anterior">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
     <h2>{{ nomeMes }} {{ ano }}</h2>
-    <button type="button" class="secundario" (click)="mesProximo()">Próximo &rarr;</button>
+    <button type="button" class="calendario-nav" (click)="mesProximo()" aria-label="Próximo mês">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 
   <div class="dias-semana">
@@ -52,9 +64,10 @@
       <span class="obs" *ngIf="celula.registro?.observacao">{{ celula.registro?.observacao }}</span>
     </div>
   </div>
-</app-painel>
+</div>
 
-<app-painel [titulo]="'Registrar dia ' + (form.data + 'T00:00:00' | date:'dd/MM/yyyy')">
+<div class="painel">
+  <h2>Registrar dia {{ form.data + 'T00:00:00' | date:'dd/MM/yyyy' }}</h2>
   <form class="form-dia" (ngSubmit)="salvar()">
     <div class="campo">
       <label for="data">Data</label>
@@ -73,8 +86,52 @@
     </div>
 
     <button type="submit">Salvar</button>
-    <button type="button" class="link" *ngIf="registroAtual()" (click)="excluir(registroAtual()?.id)">
-      excluir registro
+    <button type="button" class="secundario perigo" *ngIf="registroAtual()" (click)="abrirConfirmacaoExclusao(registroAtual()?.id)">
+      Excluir registro
     </button>
   </form>
-</app-painel>
+</div>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvar"
+  titulo="Salvar registro?"
+  mensagem="Confirme para salvar o registro deste dia."
+  (cancelar)="cancelarSalvar()"
+  (confirmar)="confirmarSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucesso"
+  titulo="Registro salvo!"
+  mensagem="O registro do dia foi salvo com sucesso."
+  (fechar)="mostrarSucesso = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErro"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErro"
+  (fechar)="mostrarErro = false">
+</app-modal-erro>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoExcluir"
+  titulo="Excluir registro?"
+  mensagem="Essa ação não poderá ser desfeita."
+  (cancelar)="cancelarExclusao()"
+  (confirmar)="confirmarExclusao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoExclusao"
+  titulo="Registro excluído!"
+  mensagem="O registro deste dia foi removido com sucesso."
+  (fechar)="mostrarSucessoExclusao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroExclusao"
+  titulo="Erro ao excluir"
+  [mensagem]="mensagemErroExclusao"
+  (fechar)="mostrarErroExclusao = false">
+</app-modal-erro>

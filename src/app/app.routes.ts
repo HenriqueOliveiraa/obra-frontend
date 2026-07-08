@@ -8,10 +8,11 @@ import { PendenciasComponent } from './pendencias/pendencias.component';
 import { ListaComprasComponent } from './lista-compras/lista-compras.component';
 import { TimelineComponent } from './timeline/timeline.component';
 import { LoginComponent } from './login/login.component';
+import { PreviewModaisComponent } from './preview-modais/preview-modais.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'pendencias', component: PendenciasComponent, canActivate: [authGuard] },
   { path: 'calendario', component: CalendarioComponent, canActivate: [authGuard] },
@@ -20,5 +21,8 @@ export const routes: Routes = [
   { path: 'lista-compras', component: ListaComprasComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'financeiro', component: FinanceiroComponent, canActivate: [authGuard] },
-  { path: 'timeline', component: TimelineComponent, canActivate: [authGuard] }
+  { path: 'timeline', component: TimelineComponent, canActivate: [authGuard] },
+  { path: 'preview-modais', component: PreviewModaisComponent },
+  { path: 'historico', loadComponent: () => import('./historico/historico.component').then((m) => m.HistoricoComponent),
+  }
 ];

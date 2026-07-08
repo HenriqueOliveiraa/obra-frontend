@@ -5,6 +5,9 @@ import { GastoService } from '../core/gasto.service';
 import { OrcamentoService } from '../core/orcamento.service';
 import { Categoria, Dashboard, Gasto, OrcamentoConfig, ResumoGastos } from '../core/models';
 import { PdfRelatorioService, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
+import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
+import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
+import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 const CATEGORIA_LABEL: Record<Categoria, string> = {
   MATERIAL: 'Material',
@@ -46,7 +49,13 @@ interface LinhaCategoria {
 @Component({
   selector: 'app-financeiro',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalSucessoComponent,
+    ModalErroComponent,
+    ModalConfirmacaoComponent
+  ],
   templateUrl: './financeiro.component.html',
   styleUrl: './financeiro.component.css'
 })
@@ -68,12 +77,17 @@ export class FinanceiroComponent implements OnInit {
   gastosPorMes: GastoMes[] = [];
 
   mostrarForm = false;
+  private snapshotForm = '';
+
+  mostrarConfirmacaoSair = false;
+  mostrarConfirmacaoSalvar = false;
+  mostrarSucesso = false;
+  mostrarErro = false;
+  mensagemErro = '';
 
   ngOnInit(): void {
-    this.orcamentoService.obterConfig().subscribe(config => {
-      this.config = config;
-      this.form = this.clonarConfig(config);
-    });
+    this.config = this.orcamentoService.obterConfig();
+    this.form = this.clonarConfig(this.config);
 
     this.gastoService.resumo().subscribe(resumo => this.resumo = resumo);
 
@@ -145,15 +159,66 @@ export class FinanceiroComponent implements OnInit {
   }
 
   toggleForm(): void {
+    if (this.mostrarForm) {
+      this.tentarFecharForm();
+    } else {
+      this.abrirForm();
+    }
+  }
+
+  private abrirForm(): void {
+    this.mostrarForm = true;
     this.form = this.clonarConfig(this.config);
-    this.mostrarForm = !this.mostrarForm;
+    this.snapshotForm = JSON.stringify(this.form);
+  }
+
+  private houveAlteracoes(): boolean {
+    return JSON.stringify(this.form) !== this.snapshotForm;
+  }
+
+  tentarFecharForm(): void {
+    if (this.houveAlteracoes()) {
+      this.mostrarConfirmacaoSair = true;
+    } else {
+      this.fecharForm();
+    }
+  }
+
+  confirmarSairSemSalvar(): void {
+    this.mostrarConfirmacaoSair = false;
+    this.fecharForm();
+  }
+
+  cancelarSair(): void {
+    this.mostrarConfirmacaoSair = false;
+  }
+
+  private fecharForm(): void {
+    this.mostrarForm = false;
+    this.form = this.clonarConfig(this.config);
+    this.snapshotForm = '';
   }
 
   salvar(): void {
-    this.orcamentoService.salvarConfig(this.form).subscribe(config => {
-      this.config = config;
-      this.mostrarForm = false;
-    });
+    this.mostrarConfirmacaoSalvar = true;
+  }
+
+  confirmarSalvar(): void {
+    this.mostrarConfirmacaoSalvar = false;
+
+    try {
+      this.orcamentoService.salvarConfig(this.form);
+      this.config = this.clonarConfig(this.form);
+      this.fecharForm();
+      this.mostrarSucesso = true;
+    } catch {
+      this.mensagemErro = 'Não foi possível salvar o orçamento. Tente novamente.';
+      this.mostrarErro = true;
+    }
+  }
+
+  cancelarSalvar(): void {
+    this.mostrarConfirmacaoSalvar = false;
   }
 
   exportarPdf(): void {

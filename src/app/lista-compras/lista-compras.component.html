@@ -50,7 +50,7 @@
 
     <div class="campo">
       <label for="quantidadeDesejada">Quantidade desejada</label>
-      <input type="number" min="0" step="0.01" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
+      <input type="number" min="1" step="1" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
     </div>
 
     <div class="campo">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="form-rodape">
-      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="button" class="secundario" (click)="tentarFecharFormNovo()">Cancelar</button>
       <button type="submit">Adicionar</button>
     </div>
   </form>
@@ -117,7 +117,7 @@
       <td>
         <span class="tag" [ngClass]="prioridadeClasse(item.prioridade)">{{ prioridadeLabel(item.prioridade) }}</span>
       </td>
-      <td style="color:var(--muted); white-space:normal; text-align:left; padding-left:10px;">{{ item.observacao || '—' }}</td>
+      <td class="col-observacao">{{ item.observacao || '—' }}</td>
       <td>
         <button
           type="button"
@@ -141,7 +141,7 @@
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
             </svg>
           </button>
-          <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="excluir(item.id)">
+          <button type="button" class="icone perigo" title="Excluir" aria-label="Excluir" (click)="abrirConfirmacaoExclusao(item.id)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -174,7 +174,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="editandoId" (click)="fecharModal()">
+<div class="modal-overlay" *ngIf="editandoId" (click)="tentarFecharModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <h2>Editar item</h2>
     <form class="form-gasto form-modal" (ngSubmit)="salvarEdicao()">
@@ -195,7 +195,7 @@
 
       <div class="campo">
         <label for="edit-quantidadeDesejada">Quantidade desejada</label>
-        <input type="number" min="0" step="0.01" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
+        <input type="number" min="1" step="1" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
       </div>
 
       <div class="campo">
@@ -214,7 +214,7 @@
       </div>
 
       <div class="modal-acoes">
-        <button type="button" class="secundario" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="secundario" (click)="tentarFecharModal()">Cancelar</button>
         <button type="submit">Salvar edição</button>
       </div>
     </form>
@@ -228,3 +228,91 @@
   [grupos]="gruposDetalhesItem"
   (fechar)="fecharDetalhes()">
 </app-detalhe-modal>
+
+<!-- Modais reutilizáveis do fluxo de "Novo item" -->
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSairNovo"
+  titulo="Sair sem salvar?"
+  mensagem="Você preencheu informações deste novo item que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSairNovo()"
+  (confirmar)="confirmarSairSemSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvarNovo"
+  titulo="Adicionar item?"
+  mensagem="Confirme para adicionar este item à lista de compras."
+  (cancelar)="cancelarSalvarNovo()"
+  (confirmar)="confirmarSalvarNovo()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoNovo"
+  titulo="Item adicionado!"
+  mensagem="O novo item foi adicionado com sucesso à lista de compras."
+  (fechar)="mostrarSucessoNovo = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroNovo"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErroNovo"
+  (fechar)="mostrarErroNovo = false">
+</app-modal-erro>
+
+<!-- Modais reutilizáveis do fluxo de edição de item -->
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSair"
+  titulo="Sair sem salvar?"
+  mensagem="Você alterou informações deste item que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSair()"
+  (confirmar)="confirmarSairSemSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvar"
+  titulo="Salvar alterações?"
+  mensagem="Confirme para salvar as alterações feitas neste item."
+  (cancelar)="cancelarSalvarEdicao()"
+  (confirmar)="confirmarSalvarEdicao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoEdicao"
+  titulo="Item atualizado!"
+  mensagem="As alterações foram salvas com sucesso."
+  (fechar)="mostrarSucessoEdicao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroEdicao"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErroEdicao"
+  (fechar)="mostrarErroEdicao = false">
+</app-modal-erro>
+
+<!-- Modais reutilizáveis do fluxo de exclusão de item -->
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoExcluir"
+  titulo="Excluir item?"
+  mensagem="Essa ação não poderá ser desfeita."
+  (cancelar)="cancelarExclusao()"
+  (confirmar)="confirmarExclusao()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucessoExclusao"
+  titulo="Item excluído!"
+  mensagem="O item foi removido com sucesso da lista de compras."
+  (fechar)="mostrarSucessoExclusao = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErroExclusao"
+  titulo="Erro ao excluir"
+  [mensagem]="mensagemErroExclusao"
+  (fechar)="mostrarErroExclusao = false">
+</app-modal-erro>

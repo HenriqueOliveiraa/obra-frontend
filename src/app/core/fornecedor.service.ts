@@ -1,27 +1,53 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { Fornecedor } from './models';
-import { API_BASE } from './api-base';
+
+const CHAVE_STORAGE = 'obra-da-casa:fornecedores';
 
 @Injectable({ providedIn: 'root' })
 export class FornecedorService {
-  private http = inject(HttpClient);
-  private url = `${API_BASE}/fornecedores`;
 
   listar(): Observable<Fornecedor[]> {
-    return this.http.get<Fornecedor[]>(this.url);
+    return of(this.lerTodos());
   }
 
   criar(fornecedor: Fornecedor): Observable<Fornecedor> {
-    return this.http.post<Fornecedor>(this.url, fornecedor);
+    const todos = this.lerTodos();
+    const novoId = todos.length > 0 ? Math.max(...todos.map(f => f.id ?? 0)) + 1 : 1;
+    const novo: Fornecedor = { ...fornecedor, id: novoId };
+    todos.push(novo);
+    this.salvarTodos(todos);
+    return of(novo);
   }
 
   atualizar(id: number, fornecedor: Fornecedor): Observable<Fornecedor> {
-    return this.http.put<Fornecedor>(`${this.url}/${id}`, fornecedor);
+    const todos = this.lerTodos();
+    const index = todos.findIndex(f => f.id === id);
+    const atualizado: Fornecedor = { ...fornecedor, id };
+    if (index >= 0) {
+      todos[index] = atualizado;
+      this.salvarTodos(todos);
+    }
+    return of(atualizado);
   }
 
   excluir(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${id}`);
+    const todos = this.lerTodos().filter(f => f.id !== id);
+    this.salvarTodos(todos);
+    return of(undefined);
+  }
+
+  private lerTodos(): Fornecedor[] {
+    const bruto = localStorage.getItem(CHAVE_STORAGE);
+    if (!bruto) { return []; }
+    try {
+      return JSON.parse(bruto) as Fornecedor[];
+    } catch {
+      return [];
+    }
+  }
+
+  private salvarTodos(fornecedores: Fornecedor[]): void {
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(fornecedores));
   }
 }

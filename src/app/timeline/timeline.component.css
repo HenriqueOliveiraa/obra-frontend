@@ -16,8 +16,6 @@
   font-weight: 600;
 }
 
-/* ── Filtros ── */
-
 .timeline-filtros {
   display: flex;
   align-items: flex-end;
@@ -40,8 +38,6 @@
   height: 38px;
 }
 
-/* ── Container com altura fixa para caber 5 eventos por página ── */
-
 .timeline-painel-wrap {
   display: flex;
   flex-direction: column;
@@ -54,8 +50,6 @@
 .timeline-painel-wrap .paginador {
   margin-top: 4px;
 }
-
-/* ── Estrutura da timeline ── */
 
 .timeline-grupo {
   margin-bottom: 30px;
@@ -186,8 +180,6 @@
   color: var(--ink);
   margin-left: auto;
 }
-
-/* ── Cores por tipo de evento ── */
 
 .timeline-icone.evento-compra { background: #fef3c7; color: #b45309; }
 .timeline-icone.evento-pagamento { background: #d1fae5; color: #047857; }

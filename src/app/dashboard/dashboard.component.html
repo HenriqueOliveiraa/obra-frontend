@@ -4,13 +4,26 @@
 </div>
 
 <div class="cards">
-  <app-card label="Total gasto" [valor]="'R$ ' + (resumo.totalGasto | number:'1.2-2')" [barraPercent]="100"></app-card>
-  <app-card label="Total pago" [valor]="'R$ ' + (resumo.totalPago | number:'1.2-2')" variante="pago"
-             [barraPercent]="resumo.totalGasto ? (resumo.totalPago / resumo.totalGasto) * 100 : 0"></app-card>
-  <app-card label="A pagar" [valor]="'R$ ' + (resumo.totalPendente | number:'1.2-2')" variante="pendente"
-             [barraPercent]="resumo.totalGasto ? (resumo.totalPendente / resumo.totalGasto) * 100 : 0"></app-card>
-  <app-card label="Parcelas" [valor]="resumo.parcelasPagas + ' / ' + resumo.parcelasPendentes"
-             [barraPercent]="44" barraCor="#6366f1"></app-card>
+  <div class="card">
+    <div class="label">Total gasto</div>
+    <div class="valor">R$ {{ resumo.totalGasto | number:'1.2-2':'pt-BR' }}</div>
+    <div class="card-barra"><div style="width:100%;"></div></div>
+  </div>
+  <div class="card pago">
+    <div class="label">Total pago</div>
+    <div class="valor">R$ {{ resumo.totalPago | number:'1.2-2':'pt-BR' }}</div>
+    <div class="card-barra"><div [style.width.%]="resumo.totalGasto ? (resumo.totalPago / resumo.totalGasto) * 100 : 0"></div></div>
+  </div>
+  <div class="card pendente">
+    <div class="label">A pagar</div>
+    <div class="valor">R$ {{ resumo.totalPendente | number:'1.2-2':'pt-BR' }}</div>
+    <div class="card-barra"><div [style.width.%]="resumo.totalGasto ? (resumo.totalPendente / resumo.totalGasto) * 100 : 0"></div></div>
+  </div>
+  <div class="card">
+    <div class="label">Parcelas</div>
+    <div class="valor">{{ resumo.parcelasPagas }} <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">/ {{ resumo.parcelasPendentes }}</span></div>
+    <div class="card-barra"><div style="width:44%; background:#6366f1;"></div></div>
+  </div>
 </div>
 
 <div class="painel-duplo">
@@ -25,7 +38,7 @@
         <div class="barra-col" style="width:100%;">
           <div class="barra" [style.width.%]="(mat.quantidadeTotal / maiorQuantidade()) * 100"></div>
         </div>
-        <div style="font-size:0.7rem; color:var(--muted); margin-top:4px; font-weight:500;">R$ {{ mat.valorTotalGasto | number:'1.2-2' }}</div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:4px; font-weight:500;">R$ {{ mat.valorTotalGasto | number:'1.2-2':'pt-BR' }}</div>
       </div>
       <div *ngIf="dashboard.materiaisMaisComprados.length === 0" style="font-size:0.82rem; color:var(--muted);">
         Nenhum gasto lançado ainda.

@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DiaTrabalhoService } from '../core/dia-trabalho.service';
 import { DiaTrabalho } from '../core/models';
-import { CardComponent } from '../shared/ui/card/card.component';
-import { PainelComponent } from '../shared/ui/painel/painel.component';
+import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
+import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
+import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 interface CelulaDia {
   dia: number;
@@ -20,7 +21,7 @@ const NOMES_MES = [
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardComponent, PainelComponent],
+  imports: [CommonModule, FormsModule, ModalSucessoComponent, ModalErroComponent, ModalConfirmacaoComponent],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.css'
 })
@@ -36,6 +37,17 @@ export class CalendarioComponent implements OnInit {
   diasTrabalhados = 0;
 
   form: DiaTrabalho = { data: this.formatarData(new Date()), trabalhou: true, observacao: '' };
+
+  mostrarConfirmacaoSalvar = false;
+  mostrarSucesso = false;
+  mostrarErro = false;
+  mensagemErro = '';
+
+  mostrarConfirmacaoExcluir = false;
+  mostrarSucessoExclusao = false;
+  mostrarErroExclusao = false;
+  mensagemErroExclusao = '';
+  private idParaExcluir: number | null = null;
 
   ngOnInit(): void {
     this.carregarMes();
@@ -85,24 +97,65 @@ export class CalendarioComponent implements OnInit {
   }
 
   salvar(): void {
+    this.mostrarConfirmacaoSalvar = true;
+  }
+
+  confirmarSalvar(): void {
+    this.mostrarConfirmacaoSalvar = false;
     const existente = this.registros.find(r => r.data === this.form.data);
     const acao = existente?.id
       ? this.service.atualizar(existente.id, this.form)
       : this.service.criar(this.form);
 
-    acao.subscribe(() => this.carregarMes());
+    acao.subscribe({
+      next: () => {
+        this.carregarMes();
+        this.mostrarSucesso = true;
+      },
+      error: () => {
+        this.mensagemErro = 'Não foi possível salvar o registro deste dia. Tente novamente.';
+        this.mostrarErro = true;
+      }
+    });
+  }
+
+  cancelarSalvar(): void {
+    this.mostrarConfirmacaoSalvar = false;
   }
 
   registroAtual(): DiaTrabalho | undefined {
     return this.registros.find(r => r.data === this.form.data);
   }
 
-  excluir(id: number | undefined): void {
+  abrirConfirmacaoExclusao(id: number | undefined): void {
     if (!id) { return; }
-    this.service.excluir(id).subscribe(() => {
-      this.form = { data: this.form.data, trabalhou: true, observacao: '' };
-      this.carregarMes();
+    this.idParaExcluir = id;
+    this.mostrarConfirmacaoExcluir = true;
+  }
+
+  confirmarExclusao(): void {
+    if (!this.idParaExcluir) { return; }
+    const id = this.idParaExcluir;
+    this.mostrarConfirmacaoExcluir = false;
+
+    this.service.excluir(id).subscribe({
+      next: () => {
+        this.idParaExcluir = null;
+        this.form = { data: this.form.data, trabalhou: true, observacao: '' };
+        this.carregarMes();
+        this.mostrarSucessoExclusao = true;
+      },
+      error: () => {
+        this.idParaExcluir = null;
+        this.mensagemErroExclusao = 'Não foi possível excluir este registro. Tente novamente.';
+        this.mostrarErroExclusao = true;
+      }
     });
+  }
+
+  cancelarExclusao(): void {
+    this.mostrarConfirmacaoExcluir = false;
+    this.idParaExcluir = null;
   }
 
   classeCelula(celula: CelulaDia): string {

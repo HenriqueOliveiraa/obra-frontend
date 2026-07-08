@@ -13,3 +13,12 @@
 .tabela-gastos td.col-acoes button.icone {
   padding: 6px;
 }
+
+.tabela-gastos td.col-observacao {
+  vertical-align: middle;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  padding-left: 10px;
+  color: var(--muted);
+}

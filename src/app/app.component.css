@@ -18,7 +18,6 @@
   font-family: 'Metropolis', system-ui, sans-serif;
 }
 
-/* Sidebar flutua por cima do conteúdo (position: fixed), não empurra nada */
 .sidebar {
   position: fixed;
   top: 0;
@@ -40,13 +39,10 @@
   box-shadow: none;
 }
 
-/* Brand */
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  /* padding-left fixo: (76px sidebar recolhida - 62px logo) / 2 = 7px.
-     Assim a logo nasce sempre no mesmo x, aberta ou fechada. */
   padding: 22px 20px 22px 7px;
   border-bottom: 1px solid var(--sidebar-border);
 }
@@ -84,7 +80,6 @@
   white-space: nowrap;
 }
 
-/* Texto do brand sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
 .sidebar-brand-texto {
   overflow: hidden;
   white-space: nowrap;
@@ -110,8 +105,6 @@
   position: relative;
   display: flex;
   align-items: center;
-  /* padding-left = 17px (posição do ícone) + 18px (largura do ícone) + 12px (gap) = 47px.
-     O ícone fica com position:absolute, então nada além dele afeta essa posição. */
   padding: 11px 17px 11px 47px;
   border-radius: 10px;
   color: var(--text-secondary);
@@ -130,7 +123,6 @@
   flex-shrink: 0;
 }
 
-/* Label do menu sempre no DOM: anima junto com a largura da sidebar, sem "pulo" */
 .nav-label {
   overflow: hidden;
   white-space: nowrap;
@@ -191,4 +183,13 @@ main {
 
 .sidebar-sair:hover {
   color: #f87171;
+}
+
+.sidebar.colapsada .sidebar-nav a {
+  padding-left: 17px;
+  padding-right: 17px;
+}
+
+.sidebar.colapsada .sidebar-nav a.ativo::before {
+  display: none;
 }

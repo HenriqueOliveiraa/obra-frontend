@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotacaoService } from '../core/cotacao.service';
 import { Cotacao, CategoriaOrcamento } from '../core/models';
-import { DropdownOpcao, DropdownSelectComponent } from '../shared/ui/dropdown-select/dropdown-select.component';
+import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
 import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/pdf/pdf-relatorio.service';
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
+import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
+import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
+import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 import {
   CATEGORIAS_ORCAMENTO,
   CATEGORIA_ORCAMENTO_LABEL,
@@ -34,7 +37,15 @@ interface GrupoCategoria {
 @Component({
   selector: 'app-orcamentos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DropdownSelectComponent,
+    DetalheModalComponent,
+    ModalSucessoComponent,
+    ModalErroComponent,
+    ModalConfirmacaoComponent
+  ],
   templateUrl: './orcamentos.component.html',
   styleUrl: './orcamentos.component.css'
 })
@@ -54,11 +65,30 @@ export class OrcamentosComponent implements OnInit {
 
   mostrarForm = false;
   form: Cotacao = this.formVazio();
+  private snapshotNovo = '';
+
+  mostrarConfirmacaoSairNovo = false;
+  mostrarConfirmacaoSalvarNovo = false;
+  mostrarSucessoNovo = false;
+  mostrarErroNovo = false;
+  mensagemErroNovo = '';
 
   editandoId: number | null = null;
   editForm: Cotacao = this.formVazio();
+  private snapshotEdicao = '';
 
-  // --- Detalhes ---
+  mostrarConfirmacaoSair = false;
+  mostrarConfirmacaoSalvar = false;
+  mostrarSucessoEdicao = false;
+  mostrarErroEdicao = false;
+  mensagemErroEdicao = '';
+
+  mostrarConfirmacaoExcluir = false;
+  mostrarSucessoExclusao = false;
+  mostrarErroExclusao = false;
+  mensagemErroExclusao = '';
+  private idParaExcluir: number | null = null;
+
   detalhesId: number | null = null;
 
   ngOnInit(): void {
@@ -182,10 +212,44 @@ export class OrcamentosComponent implements OnInit {
   }
 
   toggleForm(): void {
-    this.mostrarForm = !this.mostrarForm;
-    if (!this.mostrarForm) {
-      this.form = this.formVazio();
+    if (this.mostrarForm) {
+      this.tentarFecharFormNovo();
+    } else {
+      this.abrirFormNovo();
     }
+  }
+
+  private abrirFormNovo(): void {
+    this.mostrarForm = true;
+    this.form = this.formVazio();
+    this.snapshotNovo = JSON.stringify(this.form);
+  }
+
+  private houveAlteracoesNoNovo(): boolean {
+    return JSON.stringify(this.form) !== this.snapshotNovo;
+  }
+
+  tentarFecharFormNovo(): void {
+    if (this.houveAlteracoesNoNovo()) {
+      this.mostrarConfirmacaoSairNovo = true;
+    } else {
+      this.fecharFormNovo();
+    }
+  }
+
+  confirmarSairSemSalvarNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+    this.fecharFormNovo();
+  }
+
+  cancelarSairNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+  }
+
+  private fecharFormNovo(): void {
+    this.mostrarForm = false;
+    this.form = this.formVazio();
+    this.snapshotNovo = '';
   }
 
   exportarPdf(): void {
@@ -252,31 +316,89 @@ export class OrcamentosComponent implements OnInit {
   }
 
   salvar(): void {
+    this.mostrarConfirmacaoSalvarNovo = true;
+  }
+
+  confirmarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
     const cotacao = this.prepararParaSalvar(this.form);
-    this.service.criar(cotacao).subscribe(() => {
-      this.mostrarForm = false;
-      this.form = this.formVazio();
-      this.carregar();
+
+    this.service.criar(cotacao).subscribe({
+      next: () => {
+        this.fecharFormNovo();
+        this.carregar();
+        this.mostrarSucessoNovo = true;
+      },
+      error: () => {
+        this.mensagemErroNovo = 'Não foi possível salvar esta cotação. Tente novamente.';
+        this.mostrarErroNovo = true;
+      }
     });
+  }
+
+  cancelarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
   }
 
   editar(cotacao: Cotacao): void {
     this.editandoId = cotacao.id ?? null;
     this.editForm = { ...cotacao };
+    this.snapshotEdicao = JSON.stringify(this.editForm);
+  }
+
+  private houveAlteracoesNaEdicao(): boolean {
+    return JSON.stringify(this.editForm) !== this.snapshotEdicao;
+  }
+
+  tentarFecharModal(): void {
+    if (this.houveAlteracoesNaEdicao()) {
+      this.mostrarConfirmacaoSair = true;
+    } else {
+      this.fecharModal();
+    }
+  }
+
+  confirmarSairSemSalvar(): void {
+    this.mostrarConfirmacaoSair = false;
+    this.fecharModal();
+  }
+
+  // Usuário decidiu continuar editando (voltou do modal de confirmação).
+  cancelarSair(): void {
+    this.mostrarConfirmacaoSair = false;
   }
 
   salvarEdicao(): void {
     if (!this.editandoId) { return; }
+    this.mostrarConfirmacaoSalvar = true;
+  }
+
+  confirmarSalvarEdicao(): void {
+    if (!this.editandoId) { return; }
+    this.mostrarConfirmacaoSalvar = false;
     const cotacao = this.prepararParaSalvar(this.editForm);
-    this.service.atualizar(this.editandoId, cotacao).subscribe(() => {
-      this.fecharModal();
-      this.carregar();
+
+    this.service.atualizar(this.editandoId, cotacao).subscribe({
+      next: () => {
+        this.fecharModal();
+        this.carregar();
+        this.mostrarSucessoEdicao = true;
+      },
+      error: () => {
+        this.mensagemErroEdicao = 'Não foi possível salvar as alterações desta cotação. Tente novamente.';
+        this.mostrarErroEdicao = true;
+      }
     });
+  }
+
+  cancelarSalvarEdicao(): void {
+    this.mostrarConfirmacaoSalvar = false;
   }
 
   fecharModal(): void {
     this.editandoId = null;
     this.editForm = this.formVazio();
+    this.snapshotEdicao = '';
   }
 
   marcarEscolhido(id: number | undefined): void {
@@ -284,12 +406,35 @@ export class OrcamentosComponent implements OnInit {
     this.service.marcarEscolhido(id).subscribe(() => this.carregar());
   }
 
-  excluir(id: number | undefined): void {
+  abrirConfirmacaoExclusao(id: number | undefined): void {
     if (!id) { return; }
-    this.service.excluir(id).subscribe(() => this.carregar());
+    this.idParaExcluir = id;
+    this.mostrarConfirmacaoExcluir = true;
   }
 
-  // --- Detalhes (modal reutilizável) ---
+  confirmarExclusao(): void {
+    if (!this.idParaExcluir) { return; }
+    const id = this.idParaExcluir;
+    this.mostrarConfirmacaoExcluir = false;
+
+    this.service.excluir(id).subscribe({
+      next: () => {
+        this.idParaExcluir = null;
+        this.carregar();
+        this.mostrarSucessoExclusao = true;
+      },
+      error: () => {
+        this.idParaExcluir = null;
+        this.mensagemErroExclusao = 'Não foi possível excluir esta cotação. Tente novamente.';
+        this.mostrarErroExclusao = true;
+      }
+    });
+  }
+
+  cancelarExclusao(): void {
+    this.mostrarConfirmacaoExcluir = false;
+    this.idParaExcluir = null;
+  }
 
   abrirDetalhes(cotacao: Cotacao): void {
     this.detalhesId = cotacao.id ?? null;
