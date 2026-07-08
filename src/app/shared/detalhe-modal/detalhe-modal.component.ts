@@ -8,11 +8,15 @@ export interface CampoDetalhe {
   classeTag?: string;
   destaque?: boolean;
   corValor?: string;
+  /** Exibe o valor como um "chip" de arquivo, com ícone de documento. */
+  arquivo?: boolean;
 }
 
 export interface GrupoDetalhe {
   titulo?: string;
   campos: CampoDetalhe[];
+  /** Usa um espaçamento mais compacto — ideal para listas repetitivas, como parcelas. */
+  compacto?: boolean;
 }
 
 @Component({

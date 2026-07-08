@@ -14,18 +14,32 @@
     </div>
 
     <div class="detalhe-corpo">
-      <div class="detalhe-grupo" *ngFor="let grupo of grupos">
+      <div class="detalhe-grupo" [class.compacto]="grupo.compacto" *ngFor="let grupo of grupos">
         <div class="detalhe-grupo-titulo" *ngIf="grupo.titulo">{{ grupo.titulo }}</div>
-        <div class="detalhe-linha" *ngFor="let campo of grupo.campos">
+        <div class="detalhe-linha" [class.parcela]="grupo.compacto" *ngFor="let campo of grupo.campos">
           <span class="detalhe-label">{{ campo.label }}</span>
+
           <span
-            class="detalhe-valor"
-            [class.tag]="campo.tag"
-            [ngClass]="campo.tag ? campo.classeTag : ''"
-            [class.destaque]="campo.destaque"
-            [style.color]="!campo.tag && campo.corValor ? campo.corValor : null">
-            {{ campo.valor }}
+            *ngIf="campo.arquivo; else valorPadrao"
+            class="detalhe-arquivo"
+            [title]="campo.valor">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>{{ campo.valor }}</span>
           </span>
+
+          <ng-template #valorPadrao>
+            <span
+              class="detalhe-valor"
+              [class.tag]="campo.tag"
+              [ngClass]="campo.tag ? campo.classeTag : ''"
+              [class.destaque]="campo.destaque"
+              [style.color]="!campo.tag && campo.corValor ? campo.corValor : null">
+              {{ campo.valor }}
+            </span>
+          </ng-template>
         </div>
       </div>
 

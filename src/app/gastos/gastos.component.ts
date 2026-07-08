@@ -8,7 +8,6 @@ import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
 import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
-import { ModalSairComponent } from '../shared/modais/modal-sair/modal-sair.component';
 import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 export interface DropdownOpcao {
@@ -415,7 +414,6 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
     DetalheModalComponent,
     ModalSucessoComponent,
     ModalErroComponent,
-    ModalSairComponent,
     ModalConfirmacaoComponent
   ],
   templateUrl: './gastos.component.html',
@@ -925,6 +923,7 @@ export class GastosComponent implements OnInit {
     if (gasto.parcelas && gasto.parcelas.length > 0) {
       grupos.push({
         titulo: gasto.parcelado ? `Parcelas (${gasto.numeroParcelas}x)` : 'Pagamento à vista',
+        compacto: true,
         campos: gasto.parcelas.map(parcela => ({
           label: `Parcela #${parcela.numero}`,
           valor: `${this.formatarMoedaExibicao(parcela.valor)} · vence ${this.formatarDataExibicao(parcela.vencimento)}${parcela.pago ? ' · paga' : ' · pendente'}`
@@ -936,7 +935,9 @@ export class GastosComponent implements OnInit {
     grupos.push({
       titulo: 'Comprovante',
       campos: [
-        { label: 'Arquivo', valor: comprovante ? comprovante.nomeArquivo : 'Nenhum comprovante anexado' }
+        comprovante
+          ? { label: 'Arquivo', valor: comprovante.nomeArquivo, arquivo: true }
+          : { label: 'Arquivo', valor: 'Nenhum comprovante anexado' }
       ]
     });
 
