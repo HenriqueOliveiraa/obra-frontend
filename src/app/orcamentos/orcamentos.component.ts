@@ -8,7 +8,6 @@ import { PdfRelatorioService, formatarMoedaPdf, formatarDataPdf } from '../core/
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
 import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
 import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
-import { ModalSairComponent } from '../shared/modais/modal-sair/modal-sair.component';
 import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 import {
   CATEGORIAS_ORCAMENTO,
@@ -45,7 +44,6 @@ interface GrupoCategoria {
     DetalheModalComponent,
     ModalSucessoComponent,
     ModalErroComponent,
-    ModalSairComponent,
     ModalConfirmacaoComponent
   ],
   templateUrl: './orcamentos.component.html',

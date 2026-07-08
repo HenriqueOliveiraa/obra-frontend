@@ -7,7 +7,6 @@ import { Categoria, Dashboard, Gasto, OrcamentoConfig, ResumoGastos } from '../c
 import { PdfRelatorioService, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
 import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
-import { ModalSairComponent } from '../shared/modais/modal-sair/modal-sair.component';
 import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 const CATEGORIA_LABEL: Record<Categoria, string> = {
@@ -55,7 +54,6 @@ interface LinhaCategoria {
     FormsModule,
     ModalSucessoComponent,
     ModalErroComponent,
-    ModalSairComponent,
     ModalConfirmacaoComponent
   ],
   templateUrl: './financeiro.component.html',

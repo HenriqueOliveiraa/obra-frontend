@@ -4,60 +4,91 @@
 
 .detalhe-modal {
   max-width: 560px;
+  border-radius: 16px;
+  overflow: hidden;
 }
+
+/* ── Cabeçalho ── */
 
 .detalhe-cabecalho {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 22px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.detalhe-cabecalho h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .detalhe-subtitulo {
-  margin: 4px 0 0;
-  font-size: 0.78rem;
+  margin: 3px 0 0;
+  font-size: 0.8rem;
   color: var(--muted);
   font-weight: 500;
 }
 
+.detalhe-cabecalho .icone {
+  border-radius: 8px;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.detalhe-cabecalho .icone:hover {
+  background: #f3f4f6;
+  color: var(--ink);
+}
+
+/* ── Corpo ── */
+
 .detalhe-corpo {
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 24px;
 }
 
 .detalhe-grupo {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2px;
 }
 
 .detalhe-grupo-titulo {
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   color: var(--accent-hover);
-  padding-bottom: 10px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  padding-bottom: 9px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.18);
 }
 
 .detalhe-linha {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 2px 0;
-  font-size: 0.84rem;
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  transition: background 0.12s ease;
+}
+
+.detalhe-linha:hover {
+  background: #fafaf9;
 }
 
 .detalhe-label {
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
   flex-shrink: 0;
   min-width: 130px;
 }
@@ -67,13 +98,71 @@
   font-weight: 600;
   text-align: right;
   word-break: break-word;
+  letter-spacing: -0.005em;
 }
 
 .detalhe-valor.destaque {
-  font-weight: 800;
-  font-size: 0.92rem;
+  font-weight: 700;
+  font-size: 0.94rem;
+  color: var(--accent-hover);
 }
 
 .detalhe-valor.tag {
   font-weight: 700;
+  font-size: 0.72rem;
+  padding: 4px 11px;
+  border-radius: 999px;
+}
+
+/* Linhas de parcelas ficam mais compactas e levemente diferenciadas,
+   já que costumam se repetir várias vezes seguidas */
+.detalhe-linha.parcela {
+  font-size: 0.8rem;
+}
+
+.detalhe-linha.parcela .detalhe-label {
+  font-weight: 600;
+  color: var(--ink);
+  min-width: auto;
+}
+
+.detalhe-linha.parcela .detalhe-valor {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* ── Arquivo / comprovante ── */
+
+.detalhe-arquivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 5px 12px 5px 8px;
+  border-radius: 999px;
+  background: #f9fafb;
+  border: 1px solid #eef0f2;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.detalhe-arquivo svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.detalhe-arquivo span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+/* ── Rodapé ── */
+
+.modal-acoes {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
 }
