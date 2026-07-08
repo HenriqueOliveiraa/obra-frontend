@@ -1,0 +1,24 @@
+<div class="mconf-overlay" *ngIf="visivel" (click)="onOverlayClick()">
+  <div class="mconf-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="mconf-icone">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"></path>
+        <line x1="12" y1="16.5" x2="12.01" y2="16.5"></line>
+      </svg>
+    </div>
+
+    <h2 class="mconf-titulo">{{ titulo }}</h2>
+    <p class="mconf-mensagem">{{ mensagem }}</p>
+
+    <div class="mconf-acoes">
+      <button type="button" class="mconf-btn mconf-btn-cancelar" (click)="onCancelar()">
+        {{ textoCancelar }}
+      </button>
+      <button type="button" class="mconf-btn mconf-btn-confirmar" (click)="onConfirmar()">
+        {{ textoConfirmar }}
+      </button>
+    </div>
+  </div>
+</div>

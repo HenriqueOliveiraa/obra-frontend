@@ -1,0 +1,24 @@
+<div class="msair-overlay" *ngIf="visivel">
+  <div class="msair-modal" role="dialog" aria-modal="true">
+    <div class="msair-icone">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="7.5" x2="12" y2="13"></line>
+        <line x1="12" y1="16.5" x2="12.01" y2="16.5"></line>
+      </svg>
+    </div>
+
+    <h2 class="msair-titulo">{{ titulo }}</h2>
+    <p class="msair-mensagem">{{ mensagem }}</p>
+
+    <div class="msair-acoes">
+      <button type="button" class="msair-btn msair-btn-voltar" (click)="onVoltar()">
+        {{ textoVoltar }}
+      </button>
+      <button type="button" class="msair-btn msair-btn-continuar" (click)="onContinuar()">
+        {{ textoContinuar }}
+      </button>
+    </div>
+  </div>
+</div>

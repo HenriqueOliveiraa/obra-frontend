@@ -76,7 +76,7 @@
     </div>
 
     <div class="form-rodape">
-      <button type="button" class="secundario" (click)="toggleForm()">Cancelar</button>
+      <button type="button" class="secundario" (click)="tentarFecharForm()">Cancelar</button>
       <button type="submit">Salvar orçamento</button>
     </div>
   </form>
@@ -117,3 +117,33 @@
     </ng-template>
   </div>
 </div>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSair"
+  titulo="Sair sem salvar?"
+  mensagem="Você alterou informações deste orçamento que ainda não foram salvas. Se sair agora, elas serão perdidas."
+  (cancelar)="cancelarSair()"
+  (confirmar)="confirmarSairSemSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacaoSalvar"
+  titulo="Salvar orçamento?"
+  mensagem="Confirme para salvar as alterações feitas na configuração do orçamento."
+  (cancelar)="cancelarSalvar()"
+  (confirmar)="confirmarSalvar()">
+</app-modal-confirmacao>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucesso"
+  titulo="Orçamento salvo!"
+  mensagem="A configuração do orçamento foi salva com sucesso."
+  (fechar)="mostrarSucesso = false">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErro"
+  titulo="Erro ao salvar"
+  [mensagem]="mensagemErro"
+  (fechar)="mostrarErro = false">
+</app-modal-erro>

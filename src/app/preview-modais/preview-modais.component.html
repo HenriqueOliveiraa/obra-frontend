@@ -1,0 +1,55 @@
+<div class="pv-pagina">
+  <header class="pv-cabecalho">
+    <h1>Preview de modais</h1>
+    <p>Clica em cada botão pra abrir o modal e conferir a estilização.</p>
+  </header>
+
+  <div class="pv-grid">
+    <button type="button" class="pv-card pv-card-sucesso" (click)="abrir('sucesso')">
+      <span class="pv-card-tag">Sucesso</span>
+      <span class="pv-card-desc">Ícone verde, botão único "Voltar"</span>
+    </button>
+
+    <button type="button" class="pv-card pv-card-erro" (click)="abrir('erro')">
+      <span class="pv-card-tag">Erro</span>
+      <span class="pv-card-desc">Ícone vermelho, botão único "Fechar"</span>
+    </button>
+
+    <button type="button" class="pv-card pv-card-sair" (click)="abrir('sair')">
+      <span class="pv-card-tag">Sair</span>
+      <span class="pv-card-desc">Ícone amarelo, "Voltar" / "Continuar"</span>
+    </button>
+
+    <button type="button" class="pv-card pv-card-confirmacao" (click)="abrir('confirmacao')">
+      <span class="pv-card-tag">Confirmação</span>
+      <span class="pv-card-desc">Genérico, "Cancelar" / "Confirmar"</span>
+    </button>
+  </div>
+</div>
+
+<app-modal-sucesso
+  [visivel]="mostrarSucesso"
+  mensagem="Informações do administrador alteradas com sucesso!"
+  (fechar)="fecharTudo()">
+</app-modal-sucesso>
+
+<app-modal-erro
+  [visivel]="mostrarErro"
+  mensagem="Não foi possível salvar as alterações. Tente novamente."
+  (fechar)="fecharTudo()">
+</app-modal-erro>
+
+<app-modal-sair
+  [visivel]="mostrarSair"
+  (continuar)="fecharTudo()"
+  (voltar)="fecharTudo()">
+</app-modal-sair>
+
+<app-modal-confirmacao
+  [visivel]="mostrarConfirmacao"
+  titulo="Excluir gasto?"
+  mensagem="Essa ação não poderá ser desfeita."
+  textoConfirmar="Excluir"
+  (confirmar)="fecharTudo()"
+  (cancelar)="fecharTudo()">
+</app-modal-confirmacao>

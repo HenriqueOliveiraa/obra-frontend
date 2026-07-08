@@ -41,8 +41,6 @@ textarea:focus {
 .tag.cat-gesso-drywall { background: #ede9fe; color: #6d28d9; }
 .tag.cat-mao-de-obra { background: #d1fae5; color: #047857; }
 
-/* ── Cabeçalho de categoria recolhível (Orçamentos) ── */
-
 .painel-categoria-cabecalho {
     display: flex;
     align-items: center;
@@ -79,7 +77,6 @@ textarea:focus {
     transform: rotate(-90deg);
 }
 
-/* Card mais baixo quando a categoria está fechada */
 .painel.colapsado {
     padding: 14px 20px;
 }
@@ -90,8 +87,6 @@ textarea:focus {
     border-bottom: none;
 }
 
-/* ── Cards de categoria: visual mais rico (ícone, faixa de cor, resumo) ── */
-
 .painel-orcamento-categoria {
     position: relative;
     overflow: hidden;
@@ -99,7 +94,6 @@ textarea:focus {
     transition: box-shadow 0.15s ease;
 }
 
-/* Mesmo padding em todos os lados aberto ou fechado — nada se move quando expande/recolhe */
 .painel-orcamento-categoria.colapsado {
     padding: 20px 20px 20px 24px;
 }
@@ -196,8 +190,6 @@ textarea:focus {
     color: var(--ink);
     font-weight: 700;
 }
-
-/* ── Correção: coluna Fornecedor menor + Valor sempre inteiro ── */
 
 .tabela-gastos {
     table-layout: fixed;

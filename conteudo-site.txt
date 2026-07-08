@@ -196,6 +196,18 @@ main {
   color: #f87171;
 }
 
+/* ── Ajuste exclusivo do menu recolhido: só a margem do hover/marcador,
+     o ícone continua com position absolute/left/transform intocados ── */
+
+.sidebar.colapsada .sidebar-nav a {
+  padding-left: 17px;
+  padding-right: 17px;
+}
+
+.sidebar.colapsada .sidebar-nav a.ativo::before {
+  display: none;
+}
+
 
 ==================================================
 ARQUIVO: src/app/app.component.html
@@ -292,6 +304,15 @@ ARQUIVO: src/app/app.component.html
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
           </svg>
           <span class="nav-label">Linha do tempo</span>
+        </a>
+
+        <a routerLink="/historico" routerLinkActive="ativo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <polyline points="12 7 12 12 15.5 14"></polyline>
+          </svg>
+          <span class="nav-label">Histórico</span>
         </a>
 
         <div class="sidebar-divisor"></div>
@@ -431,7 +452,7 @@ import { LoginComponent } from './login/login.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'pendencias', component: PendenciasComponent, canActivate: [authGuard] },
   { path: 'calendario', component: CalendarioComponent, canActivate: [authGuard] },
@@ -440,7 +461,9 @@ export const routes: Routes = [
   { path: 'lista-compras', component: ListaComprasComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'financeiro', component: FinanceiroComponent, canActivate: [authGuard] },
-  { path: 'timeline', component: TimelineComponent, canActivate: [authGuard] }
+  { path: 'timeline', component: TimelineComponent, canActivate: [authGuard] },
+  { path: 'historico', loadComponent: () => import('./historico/historico.component').then((m) => m.HistoricoComponent),
+}
 ];
 
 
@@ -695,7 +718,8 @@ ARQUIVO: src/app/core/auth.service.ts
 ==================================================
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, catchError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { API_BASE } from './api-base';
 
 const CHAVE_TOKEN = 'obra-da-casa:token';
@@ -710,16 +734,19 @@ export interface LoginResponse {
 }
 
 /**
- * Serviço de autenticação. Por padrão espera um endpoint `${API_BASE}/auth/login`
- * que recebe { email, senha } e devolve { token }. Ajuste a URL e o formato de
- * resposta conforme o backend real do projeto.
+ * Serviço de autenticação.
  *
- * MODO SEM BACKEND: enquanto MODO_MOCK estiver true, se a chamada ao backend
- * falhar (ele ainda não existe/não está rodando), o login é aceito localmente
- * com um token fake, só pra você conseguir testar a navegação do sistema.
- * Quando o backend estiver pronto, troque MODO_MOCK para false.
+ * MODO SEM BACKEND: enquanto MODO_MOCK estiver true, o login é validado
+ * localmente aceitando SOMENTE as credenciais abaixo (admin@gmail.com / 12345678).
+ * Qualquer outra combinação retorna erro, simulando uma resposta 401 do backend.
+ *
+ * Quando o backend estiver pronto, troque MODO_MOCK para false para usar
+ * a chamada real via HttpClient.
  */
 const MODO_MOCK = true;
+
+const EMAIL_MOCK = 'admin@gmail.com';
+const SENHA_MOCK = '12345678';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -727,17 +754,22 @@ export class AuthService {
   private url = `${API_BASE}/auth/login`;
 
   login(payload: LoginPayload): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(this.url, payload).pipe(
-      tap(resposta => this.salvarToken(resposta.token)),
-      catchError(erro => {
-        if (MODO_MOCK && payload.email && payload.senha) {
-          const respostaFake: LoginResponse = { token: 'token-mock-desenvolvimento' };
-          this.salvarToken(respostaFake.token);
-          return of(respostaFake);
-        }
-        throw erro;
-      })
-    );
+    if (MODO_MOCK) {
+      const credenciaisValidas =
+        payload.email === EMAIL_MOCK && payload.senha === SENHA_MOCK;
+
+      if (credenciaisValidas) {
+        const respostaFake: LoginResponse = { token: 'token-mock-desenvolvimento' };
+        this.salvarToken(respostaFake.token);
+        // delay simula latência de rede
+        return of(respostaFake).pipe(delay(400));
+      }
+
+      return throwError(() => new Error('Credenciais inválidas')).pipe(delay(400));
+    }
+
+    // Fluxo real (quando MODO_MOCK = false)
+    return this.http.post<LoginResponse>(this.url, payload);
   }
 
   logout(): void {
@@ -3051,6 +3083,7 @@ ARQUIVO: src/app/gastos/gastos.component.css
   justify-content: center;
   width: 40px;
   height: 40px;
+  padding: 0;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.12);
@@ -3059,8 +3092,152 @@ ARQUIVO: src/app/gastos/gastos.component.css
   transition: background 0.12s ease;
 }
 
+.lightbox-fechar svg {
+  display: block;
+  flex-shrink: 0;
+}
+
 .lightbox-fechar:hover {
   background: rgba(255, 255, 255, 0.22);
+}
+
+/* Botão "Anexar arquivo" do comprovante — outline, ícone + texto, sem preenchimento */
+.campo .botao-anexar-arquivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid #191C22;
+  border-radius: 0;
+  color: #191C22;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.campo .botao-anexar-arquivo:hover {
+  background: rgba(25, 28, 34, 0.06);
+}
+
+.campo .botao-anexar-arquivo svg {
+  width: 14px;
+  height: 14px;
+  stroke: #191C22;
+  flex-shrink: 0;
+}
+
+.input-arquivo-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Botão "ver parcelas" — abre um popover flutuante (ver .popover-parcelas
+   abaixo) em vez do antigo <details>, que empurrava a linha da tabela
+   inteira pra baixo e deixava espaço vazio sobrando nas outras células. */
+.botao-ver-parcelas {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+
+.botao-ver-parcelas:hover,
+.botao-ver-parcelas.aberto {
+  color: #191C22;
+}
+
+.botao-ver-parcelas .seta-parcelas {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.botao-ver-parcelas.aberto .seta-parcelas {
+  transform: rotate(180deg);
+}
+
+/* Camada transparente que fecha o popover ao clicar fora dele. */
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+.popover-parcelas {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.14);
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.popover-parcelas-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #191C22;
+}
+
+.popover-parcelas-cabecalho button.icone {
+  padding: 3px;
+  color: var(--muted);
+}
+
+.popover-parcelas-cabecalho button.icone svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.popover-parcelas .parcelas-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popover-parcelas .parcelas-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: #374151;
+  white-space: nowrap;
 }
 
 
@@ -3221,16 +3398,16 @@ ARQUIVO: src/app/gastos/gastos.component.html
     <tr *ngFor="let gasto of gastosPaginados">
       <td class="col-descricao">
         <div style="font-weight:600;">{{ gasto.descricao }}</div>
-        <details>
-          <summary>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas</summary>
-          <ul class="parcelas-lista">
-            <li *ngFor="let parcela of gasto.parcelas">
-              <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2':'pt-BR' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
-              <span *ngIf="parcela.pago" class="tag pago">pago</span>
-              <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
-            </li>
-          </ul>
-        </details>
+        <button
+          type="button"
+          class="botao-ver-parcelas"
+          [class.aberto]="parcelasAbertoId === gasto.id"
+          (click)="toggleParcelas(gasto, $event)">
+          {{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas
+          <svg class="seta-parcelas" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
       </td>
       <td>
         <div class="celula-categoria">
@@ -3438,8 +3615,14 @@ ARQUIVO: src/app/gastos/gastos.component.html
     </div>
 
     <div class="campo largo" style="margin-top: 14px;">
-      <label for="arquivo-comprovante">{{ comprovanteDoGasto(anexoGastoId) ? 'Substituir por outro arquivo' : 'Selecionar arquivo (nota, foto ou recibo)' }}</label>
-      <input type="file" id="arquivo-comprovante" name="arquivo" accept="image/*,application/pdf" (change)="onArquivoSelecionado($event)">
+      <label>{{ comprovanteDoGasto(anexoGastoId) ? 'Substituir por outro arquivo' : 'Selecionar arquivo (nota, foto ou recibo)' }}</label>
+      <label class="botao-anexar-arquivo" for="arquivo-comprovante">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path>
+        </svg>
+        Anexar arquivo
+      </label>
+      <input type="file" id="arquivo-comprovante" name="arquivo" class="input-arquivo-oculto" accept="image/*,application/pdf" (change)="onArquivoSelecionado($event)">
     </div>
 
     <p class="erro" *ngIf="anexoErro">{{ anexoErro }}</p>
@@ -3468,6 +3651,34 @@ ARQUIVO: src/app/gastos/gastos.component.html
   [grupos]="gruposDetalhesGasto"
   (fechar)="fecharDetalhes()">
 </app-detalhe-modal>
+
+<div class="popover-backdrop" *ngIf="parcelasAbertoId !== null" (click)="fecharParcelas()"></div>
+
+<div
+  class="popover-parcelas"
+  *ngIf="gastoParcelasAberto as gasto"
+  [style.top.px]="parcelasPosicao.top"
+  [style.left.px]="parcelasPosicao.left"
+  [style.min-width.px]="parcelasPosicao.width"
+  [style.max-height.px]="parcelasPosicao.maxHeight"
+  (click)="$event.stopPropagation()">
+  <div class="popover-parcelas-cabecalho">
+    <span>{{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'À vista' }}</span>
+    <button type="button" class="icone" title="Fechar" aria-label="Fechar" (click)="fecharParcelas()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <ul class="parcelas-lista">
+    <li *ngFor="let parcela of gasto.parcelas">
+      <span>#{{ parcela.numero }} - R$ {{ parcela.valor | number:'1.2-2':'pt-BR' }} - vence {{ parcela.vencimento + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+      <span *ngIf="parcela.pago" class="tag pago">pago</span>
+      <button *ngIf="!parcela.pago" type="button" class="secundario" (click)="pagar(gasto.id, parcela.id)">Marcar como paga</button>
+    </li>
+  </ul>
+</div>
 
 
 ==================================================
@@ -3916,6 +4127,15 @@ export class GastosComponent implements OnInit {
   // --- Detalhes ---
   detalhesId: number | null = null;
 
+  // --- Popover de parcelas (substitui o antigo <details>, que empurrava
+  // a linha da tabela inteira pra baixo). Mesma estratégia de
+  // posicionamento do app-dropdown-select acima: mede o botão clicado
+  // com getBoundingClientRect() e posiciona um elemento fixed por cima. ---
+  parcelasAbertoId: number | null = null;
+  parcelasPosicao: { top: number; left: number; width: number; maxHeight: number } =
+    { top: 0, left: 0, width: 260, maxHeight: 280 };
+  private parcelasBotaoRef: HTMLElement | null = null;
+
   ngOnInit(): void {
     this.carregar();
   }
@@ -3929,6 +4149,7 @@ export class GastosComponent implements OnInit {
     });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
     this.carregarComprovantes();
+    this.fecharParcelas();
   }
 
   carregarComprovantes(): void {
@@ -4003,6 +4224,7 @@ export class GastosComponent implements OnInit {
   irParaPaginaGastos(pagina: number | string): void {
     if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasGastos) { return; }
     this.paginaAtualGastos = pagina;
+    this.fecharParcelas();
   }
 
   private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
@@ -4022,6 +4244,7 @@ export class GastosComponent implements OnInit {
   setFiltro(filtro: string): void {
     this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualGastos = 1;
+    this.fecharParcelas();
   }
 
   exportarPdf(): void {
@@ -4139,6 +4362,7 @@ export class GastosComponent implements OnInit {
     if (!gastoId) { return; }
     this.anexoGastoId = gastoId;
     this.anexoErro = '';
+    this.fecharParcelas();
   }
 
   fecharAnexo(): void {
@@ -4206,6 +4430,7 @@ export class GastosComponent implements OnInit {
 
   abrirDetalhes(gasto: Gasto): void {
     this.detalhesId = gasto.id ?? null;
+    this.fecharParcelas();
   }
 
   fecharDetalhes(): void {
@@ -4289,6 +4514,1119 @@ export class GastosComponent implements OnInit {
       responsavelRecebimento: ''
     };
   }
+
+  // --- Popover de parcelas ---
+
+  get gastoParcelasAberto(): Gasto | null {
+    if (this.parcelasAbertoId === null) { return null; }
+    return this.gastos.find(g => g.id === this.parcelasAbertoId) ?? null;
+  }
+
+  toggleParcelas(gasto: Gasto, event: MouseEvent): void {
+    if (!gasto.id) { return; }
+
+    if (this.parcelasAbertoId === gasto.id) {
+      this.fecharParcelas();
+      return;
+    }
+
+    this.parcelasBotaoRef = event.currentTarget as HTMLElement;
+    this.parcelasAbertoId = gasto.id;
+    this.atualizarPosicaoParcelas();
+  }
+
+  fecharParcelas(): void {
+    this.parcelasAbertoId = null;
+    this.parcelasBotaoRef = null;
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScrollAtualizaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.atualizarPosicaoParcelas();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResizeAtualizaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.atualizarPosicaoParcelas();
+    }
+  }
+
+  @HostListener('keydown.escape')
+  onEscapeFechaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.fecharParcelas();
+    }
+  }
+
+  private atualizarPosicaoParcelas(): void {
+    if (!this.parcelasBotaoRef) { return; }
+
+    const rect = this.parcelasBotaoRef.getBoundingClientRect();
+    const margem = 6;
+    const larguraPopover = 260;
+    const alturaMaximaPadrao = 280;
+    const alturaMinima = 140;
+
+    const espacoAbaixo = Math.max(0, window.innerHeight - rect.bottom - margem);
+    const espacoAcima = Math.max(0, rect.top - margem);
+    const abrirParaCima = espacoAbaixo < alturaMinima && espacoAcima > espacoAbaixo;
+
+    const maxHeight = abrirParaCima
+      ? Math.min(alturaMaximaPadrao, espacoAcima)
+      : Math.min(alturaMaximaPadrao, Math.max(espacoAbaixo, alturaMinima));
+
+    this.parcelasPosicao = {
+      top: abrirParaCima ? Math.max(margem, rect.top - maxHeight - margem) : rect.bottom + margem,
+      left: Math.min(rect.left, Math.max(margem, window.innerWidth - larguraPopover - margem)),
+      width: larguraPopover,
+      maxHeight
+    };
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/historico/auditoria.model.ts
+==================================================
+// auditoria.model.ts
+// Tipos usados pela tela de Histórico de Auditoria.
+// O back-end deve devolver os eventos nesse formato (ver contrato no final do arquivo).
+
+export type AcaoAuditoria = 'CRIACAO' | 'EDICAO' | 'EXCLUSAO';
+
+export interface AuditoriaEvento {
+  id: string;
+  usuarioId: string;
+  usuarioNome: string;
+
+  entidade: string;          // ex: 'gasto' | 'item_compra' | 'orcamento'
+  entidadeId: string;
+  entidadeDescricao?: string; // rótulo amigável, ex: "Cimento", "Rejunte cinza"
+
+  acao: AcaoAuditoria;
+  descricao: string;          // texto pronto vindo do backend, ex: "Alterou o status para Comprado"
+
+  dadosAnteriores?: Record<string, unknown> | null;
+  dadosNovos?: Record<string, unknown> | null;
+
+  criadoEm: string;           // ISO 8601
+}
+
+export interface FiltroAuditoria {
+  usuarioId?: string;
+  entidade?: string;
+  acao?: AcaoAuditoria;
+  dataInicio?: string; // yyyy-MM-dd
+  dataFim?: string;    // yyyy-MM-dd
+  busca?: string;
+  pagina: number;
+  tamanhoPagina: number;
+}
+
+export interface RespostaPaginada<T> {
+  itens: T[];
+  total: number;
+  pagina: number;
+  tamanhoPagina: number;
+}
+
+export interface UsuarioResumo {
+  id: string;
+  nome: string;
+}
+
+export interface EntidadeResumo {
+  chave: string;   // 'gasto', 'item_compra', ...
+  rotulo: string;  // 'Gastos', 'Lista de compras', ...
+}
+
+/*
+ * CONTRATO ESPERADO DO BACK-END
+ * ------------------------------
+ * GET /api/auditoria
+ *   Query params: usuarioId?, entidade?, acao?, dataInicio?, dataFim?, busca?, pagina, tamanhoPagina
+ *   200 -> RespostaPaginada<AuditoriaEvento>
+ *
+ * GET /api/auditoria/usuarios
+ *   200 -> UsuarioResumo[]   (para popular o filtro de usuário)
+ *
+ * GET /api/auditoria/entidades
+ *   200 -> EntidadeResumo[]  (para popular o filtro de módulo/entidade)
+ *
+ * GET /api/auditoria/:entidade/:entidadeId
+ *   200 -> AuditoriaEvento[] (histórico de um registro específico, usado no modal de detalhes)
+ */
+
+
+==================================================
+ARQUIVO: src/app/historico/auditoria.service.ts
+==================================================
+// auditoria.service.ts
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import {
+  AuditoriaEvento,
+  EntidadeResumo,
+  FiltroAuditoria,
+  RespostaPaginada,
+  UsuarioResumo,
+} from './auditoria.model';
+
+@Injectable({ providedIn: 'root' })
+export class AuditoriaService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/api/auditoria'; // ajuste para a URL real da API
+
+  listar(filtro: FiltroAuditoria): Observable<RespostaPaginada<AuditoriaEvento>> {
+    let params = new HttpParams()
+      .set('pagina', filtro.pagina)
+      .set('tamanhoPagina', filtro.tamanhoPagina);
+
+    if (filtro.usuarioId) params = params.set('usuarioId', filtro.usuarioId);
+    if (filtro.entidade) params = params.set('entidade', filtro.entidade);
+    if (filtro.acao) params = params.set('acao', filtro.acao);
+    if (filtro.dataInicio) params = params.set('dataInicio', filtro.dataInicio);
+    if (filtro.dataFim) params = params.set('dataFim', filtro.dataFim);
+    if (filtro.busca) params = params.set('busca', filtro.busca);
+
+    return this.http.get<RespostaPaginada<AuditoriaEvento>>(this.baseUrl, { params });
+  }
+
+  listarUsuarios(): Observable<UsuarioResumo[]> {
+    return this.http.get<UsuarioResumo[]>(`${this.baseUrl}/usuarios`);
+  }
+
+  listarEntidades(): Observable<EntidadeResumo[]> {
+    return this.http.get<EntidadeResumo[]>(`${this.baseUrl}/entidades`);
+  }
+
+  historicoDoRegistro(entidade: string, entidadeId: string): Observable<AuditoriaEvento[]> {
+    return this.http.get<AuditoriaEvento[]>(`${this.baseUrl}/${entidade}/${entidadeId}`);
+  }
+}
+
+
+==================================================
+ARQUIVO: src/app/historico/historico.component.css
+==================================================
+/* historico.component.css
+   Só o que não existe ainda no styles.css global do projeto.
+   Tudo que já tem padrão no site (.painel, .tag, .paginador,
+   input/select, button.secundario, details/summary, app-dropdown-select)
+   é reaproveitado direto no template, sem redefinir aqui. */
+
+/* ---------- filtros ---------- */
+.filtros-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.filtros-linha .campo {
+  grid-column: unset;
+  min-width: 160px;
+  flex: 1 1 160px;
+}
+
+.filtros-linha .campo.largo {
+  flex: 1 1 220px;
+}
+
+/* Campos de data: largura fixa, não crescem pra preencher a linha
+   quando sobram sozinhos no fim de uma quebra do flex-wrap. */
+.filtros-linha .campo.data {
+  flex: 0 0 160px;
+  min-width: 160px;
+}
+
+.campo-acao-limpar {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* ---------- container de altura mínima fixa (cabe 6 registros fechados
+   sem sobrar espaço), mas que CRESCE se algum "Ver o que mudou" abrir e
+   o conteúdo não couber — sem cortar nada. Ao fechar, volta ao tamanho
+   normal sozinho, já que é só o fluxo normal do documento (min-height,
+   sem overflow escondendo nada). Paginador sempre logo depois do
+   conteúdo, nunca "solto" longe dele. ---------- */
+.historico-wrap {
+  padding: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-height: 630px;
+}
+
+.historico-wrap .historico-scroll {
+  flex: 1;
+  overflow: visible;
+  padding: 24px 26px;
+}
+
+.historico-wrap .paginador {
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+}
+
+.historico-estado {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 40px 0;
+}
+
+/* ---------- badges de ação (mesma linguagem visual das .tag existentes) ---------- */
+.tag.acao-criacao { background: #d1fae5; color: #047857; }
+.tag.acao-edicao  { background: #fef3c7; color: #b45309; }
+.tag.acao-exclusao { background: #fee2e2; color: #991b1b; }
+
+/* ---------- linha do tempo ---------- */
+.grupo-dia {
+  margin-bottom: 24px;
+}
+
+.grupo-dia:last-child {
+  margin-bottom: 0;
+}
+
+.grupo-dia__rotulo {
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.eventos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.evento {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 0 0 18px 0;
+}
+
+.evento::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 15px;
+  width: 2px;
+  background: var(--border);
+}
+
+.evento:last-child::before {
+  display: none;
+}
+
+.evento__marcador {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  font-size: 0.9rem;
+}
+
+.evento--criacao .evento__marcador { border-color: var(--success); color: var(--success); }
+.evento--edicao .evento__marcador { border-color: var(--warning); color: var(--warning); }
+.evento--exclusao .evento__marcador { border-color: var(--danger); color: var(--danger); }
+
+.evento__conteudo {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #eef0f3;
+}
+
+.evento:last-child .evento__conteudo {
+  border-bottom: none;
+}
+
+.evento__linha-principal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.evento__usuario {
+  font-weight: 700;
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+
+.evento__alvo {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.evento__hora {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.evento__descricao {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.evento__detalhes {
+  margin-top: 8px;
+}
+
+.evento__detalhes summary {
+  list-style: none;
+}
+
+.evento__detalhes summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ---------- diff campo-a-campo (reaproveita o padrão da .parcelas-lista) ---------- */
+.diff {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diff li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #eef0f3;
+  font-size: 0.78rem;
+  gap: 12px;
+}
+
+.diff li:last-child {
+  border-bottom: none;
+}
+
+.diff__campo {
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  flex: none;
+  width: 110px;
+}
+
+.diff__valores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.diff__de {
+  color: var(--danger);
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.diff__para {
+  color: var(--success);
+  font-weight: 700;
+}
+
+
+==================================================
+ARQUIVO: src/app/historico/historico.component.html
+==================================================
+<div class="cabecalho">
+  <div>
+    <h1>Histórico de alterações</h1>
+    <p>Todo registro criado, editado ou excluído no sistema aparece aqui, com autor e horário.</p>
+  </div>
+</div>
+
+<div class="painel">
+  <div class="filtros-linha">
+    <div class="campo largo">
+      <label for="filtro-busca">Buscar</label>
+      <input
+        id="filtro-busca"
+        type="text"
+        placeholder="Descrição, item ou valor..."
+        [ngModel]="busca"
+        (ngModelChange)="aoDigitarBusca($event)"
+      />
+    </div>
+
+    <div class="campo">
+      <label for="filtro-usuario">Quem alterou</label>
+      <app-dropdown-select
+        id="filtro-usuario"
+        name="filtro-usuario"
+        [ngModel]="usuarioId"
+        (ngModelChange)="selecionarUsuario($event)"
+        [options]="usuarioOptions()"
+        placeholder="Todos os usuários">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo">
+      <label for="filtro-modulo">Onde aconteceu</label>
+      <app-dropdown-select
+        id="filtro-modulo"
+        name="filtro-modulo"
+        [ngModel]="entidade"
+        (ngModelChange)="selecionarEntidade($event)"
+        [options]="entidadeOptions()"
+        placeholder="Todos os módulos">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo">
+      <label for="filtro-acao">O que aconteceu</label>
+      <app-dropdown-select
+        id="filtro-acao"
+        name="filtro-acao"
+        [ngModel]="acao"
+        (ngModelChange)="selecionarAcao($event)"
+        [options]="acaoOptions"
+        placeholder="Todas as ações">
+      </app-dropdown-select>
+    </div>
+
+    <div class="campo data">
+      <label for="filtro-data-inicio">A partir de</label>
+      <input id="filtro-data-inicio" type="date" [(ngModel)]="dataInicio" (ngModelChange)="aplicarFiltros()" />
+    </div>
+
+    <div class="campo data">
+      <label for="filtro-data-fim">Até</label>
+      <input id="filtro-data-fim" type="date" [(ngModel)]="dataFim" (ngModelChange)="aplicarFiltros()" />
+    </div>
+
+    @if (temFiltroAtivo()) {
+      <div class="campo campo-acao-limpar">
+        <label>&nbsp;</label>
+        <button type="button" class="secundario" (click)="limparFiltros()">
+          Limpar filtros
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="painel historico-wrap">
+  <div class="historico-scroll">
+    @if (carregando()) {
+      <div class="historico-estado">Carregando histórico...</div>
+    } @else if (erro()) {
+      <div class="historico-estado">
+        <span class="erro">{{ erro() }}</span>
+      </div>
+    } @else if (eventos().length === 0) {
+      <div class="historico-estado">Nenhum evento encontrado para os filtros selecionados.</div>
+    } @else {
+      @for (grupo of grupos(); track grupo.rotulo) {
+        <div class="grupo-dia">
+          <div class="grupo-dia__rotulo">{{ grupo.rotulo }}</div>
+
+          <ol class="eventos">
+            @for (evento of grupo.eventos; track evento.id) {
+              <li
+                class="evento"
+                [class.evento--criacao]="evento.acao === 'CRIACAO'"
+                [class.evento--edicao]="evento.acao === 'EDICAO'"
+                [class.evento--exclusao]="evento.acao === 'EXCLUSAO'"
+              >
+                <div class="evento__marcador">
+                  @switch (evento.acao) {
+                    @case ('CRIACAO') {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                    }
+                    @case ('EDICAO') {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    }
+                    @case ('EXCLUSAO') {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                      </svg>
+                    }
+                  }
+                </div>
+
+                <div class="evento__conteudo">
+                  <div class="evento__linha-principal">
+                    <span class="evento__usuario">{{ evento.usuarioNome }}</span>
+                    <span class="tag" [ngClass]="'acao-' + (evento.acao | lowercase)">
+                      {{ rotulosAcao[evento.acao] }}
+                    </span>
+                    @if (evento.entidadeDescricao) {
+                      <span class="evento__alvo">"{{ evento.entidadeDescricao }}"</span>
+                    }
+                    <time class="evento__hora" [dateTime]="evento.criadoEm">
+                      {{ evento.criadoEm | date: 'HH:mm' }}
+                    </time>
+                  </div>
+
+                  <p class="evento__descricao">{{ evento.descricao }}</p>
+
+                  @if (evento.acao === 'EDICAO' && (evento.dadosAnteriores || evento.dadosNovos)) {
+                    <details class="evento__detalhes">
+                      <summary>Ver o que mudou</summary>
+                      <ul class="diff">
+                        @for (mudanca of camposAlterados(evento); track mudanca.campo) {
+                          <li>
+                            <span class="diff__campo">{{ mudanca.campo }}</span>
+                            <span class="diff__valores">
+                              <span class="diff__de">{{ mudanca.de ?? '—' }}</span>
+                              <span>→</span>
+                              <span class="diff__para">{{ mudanca.para ?? '—' }}</span>
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    </details>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="paginador">
+    <span class="paginador-info">Página {{ pagina() }} de {{ totalPaginas() }} · {{ total() }} registro(s)</span>
+    <button type="button" class="paginador-seta" [disabled]="pagina() === 1" (click)="irParaPagina(pagina() - 1)" aria-label="Página anterior">
+      ‹
+    </button>
+    @for (p of paginasVisiveis(); track $index) {
+      @if (p === '...') {
+        <span class="paginador-reticencias">…</span>
+      } @else {
+        <button
+          type="button"
+          class="paginador-numero"
+          [class.ativo]="p === pagina()"
+          [disabled]="totalPaginas() <= 1"
+          (click)="irParaPagina($any(p))">
+          {{ p }}
+        </button>
+      }
+    }
+    <button type="button" class="paginador-seta" [disabled]="pagina() === totalPaginas()" (click)="irParaPagina(pagina() + 1)" aria-label="Próxima página">
+      ›
+    </button>
+  </div>
+</div>
+
+
+==================================================
+ARQUIVO: src/app/historico/historico.component.ts
+==================================================
+// historico.component.ts
+import { CommonModule, DatePipe } from '@angular/common';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+
+import { DropdownOpcao, DropdownSelectComponent } from '../gastos/gastos.component';
+import {
+  AcaoAuditoria,
+  AuditoriaEvento,
+  EntidadeResumo,
+  FiltroAuditoria,
+  UsuarioResumo,
+} from './auditoria.model';
+import { AuditoriaService } from './auditoria.service';
+
+interface GrupoDeDia {
+  rotulo: string;
+  eventos: AuditoriaEvento[];
+}
+
+// ---------------------------------------------------------------------------
+// DADOS FICTÍCIOS — só para visualizar a tela enquanto o back-end de
+// auditoria não está pronto. Quando os endpoints reais existirem, apague
+// esta constante e as duas linhas marcadas com "MOCK" lá embaixo.
+// ---------------------------------------------------------------------------
+const EVENTOS_FICTICIOS: AuditoriaEvento[] = [
+  {
+    id: 'f1',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'gasto',
+    entidadeId: '101',
+    entidadeDescricao: 'Cimento CP-II 50kg',
+    acao: 'CRIACAO',
+    descricao: 'Criou o gasto "Cimento CP-II 50kg" no valor de R$ 320,00',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
+  },
+  {
+    id: 'f2',
+    usuarioId: '2',
+    usuarioNome: 'Maria',
+    entidade: 'item_compra',
+    entidadeId: '55',
+    entidadeDescricao: 'Rejunte cinza',
+    acao: 'EDICAO',
+    descricao: 'Marcou "Rejunte cinza" como comprado',
+    dadosAnteriores: { status: 'Pendente' },
+    dadosNovos: { status: 'Comprado' },
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+  },
+  {
+    id: 'f3',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'orcamento',
+    entidadeId: '12',
+    entidadeDescricao: 'Reforma do banheiro',
+    acao: 'EDICAO',
+    descricao: 'Atualizou o orçamento "Reforma do banheiro"',
+    dadosAnteriores: { valorTotal: 8500, prazoDias: 30 },
+    dadosNovos: { valorTotal: 9200, prazoDias: 35 },
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+  },
+  {
+    id: 'f4',
+    usuarioId: '2',
+    usuarioNome: 'Maria',
+    entidade: 'item_compra',
+    entidadeId: '58',
+    entidadeDescricao: 'Fio elétrico 10 Amarelo',
+    acao: 'CRIACAO',
+    descricao: 'Adicionou o item "Fio elétrico 10 Amarelo" à lista de compras',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+  },
+  {
+    id: 'f5',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'gasto',
+    entidadeId: '98',
+    entidadeDescricao: 'Frete de material',
+    acao: 'EXCLUSAO',
+    descricao: 'Excluiu o gasto "Frete de material" lançado por engano',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
+  },
+  {
+    id: 'f6',
+    usuarioId: '2',
+    usuarioNome: 'Maria',
+    entidade: 'gasto',
+    entidadeId: '99',
+    entidadeDescricao: 'Pedreiro - diária',
+    acao: 'CRIACAO',
+    descricao: 'Criou o gasto "Pedreiro - diária" no valor de R$ 180,00',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 50).toISOString(),
+  },
+  {
+    id: 'f7',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'item_compra',
+    entidadeId: '60',
+    entidadeDescricao: 'Tinta branca 18L',
+    acao: 'CRIACAO',
+    descricao: 'Adicionou o item "Tinta branca 18L" à lista de compras',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 55).toISOString(),
+  },
+  {
+    id: 'f8',
+    usuarioId: '2',
+    usuarioNome: 'Maria',
+    entidade: 'orcamento',
+    entidadeId: '13',
+    entidadeDescricao: 'Pintura externa',
+    acao: 'EDICAO',
+    descricao: 'Atualizou o orçamento "Pintura externa"',
+    dadosAnteriores: { valorTotal: 4200 },
+    dadosNovos: { valorTotal: 4600 },
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 60).toISOString(),
+  },
+  {
+    id: 'f9',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'gasto',
+    entidadeId: '102',
+    entidadeDescricao: 'Areia média m³',
+    acao: 'CRIACAO',
+    descricao: 'Criou o gasto "Areia média m³" no valor de R$ 210,00',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 70).toISOString(),
+  },
+  {
+    id: 'f10',
+    usuarioId: '2',
+    usuarioNome: 'Maria',
+    entidade: 'item_compra',
+    entidadeId: '61',
+    entidadeDescricao: 'Torneira monocomando',
+    acao: 'EXCLUSAO',
+    descricao: 'Excluiu o item "Torneira monocomando" da lista, comprado por engano em duplicidade',
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 78).toISOString(),
+  },
+  {
+    id: 'f11',
+    usuarioId: '1',
+    usuarioNome: 'Henrique',
+    entidade: 'orcamento',
+    entidadeId: '14',
+    entidadeDescricao: 'Elétrica geral',
+    acao: 'EDICAO',
+    descricao: 'Atualizou o orçamento "Elétrica geral"',
+    dadosAnteriores: { prazoDias: 20 },
+    dadosNovos: { prazoDias: 25 },
+    criadoEm: new Date(Date.now() - 1000 * 60 * 60 * 90).toISOString(),
+  },
+];
+
+const USUARIOS_FICTICIOS: UsuarioResumo[] = [
+  { id: '1', nome: 'Henrique' },
+  { id: '2', nome: 'Maria' },
+];
+
+const ENTIDADES_FICTICIAS: EntidadeResumo[] = [
+  { chave: 'gasto', rotulo: 'Gastos' },
+  { chave: 'item_compra', rotulo: 'Lista de compras' },
+  { chave: 'orcamento', rotulo: 'Orçamentos' },
+];
+
+const ROTULOS_ACAO: Record<AcaoAuditoria, string> = {
+  CRIACAO: 'Criação',
+  EDICAO: 'Edição',
+  EXCLUSAO: 'Exclusão',
+};
+
+// Opções fixas do dropdown de ação — mesmo formato DropdownOpcao usado
+// em todos os outros filtros do sistema (app-dropdown-select).
+const ACAO_OPTIONS: DropdownOpcao[] = [
+  { value: '', label: 'Todas as ações' },
+  { value: 'CRIACAO', label: 'Só criações' },
+  { value: 'EDICAO', label: 'Só edições' },
+  { value: 'EXCLUSAO', label: 'Só exclusões' },
+];
+
+@Component({
+  selector: 'app-historico',
+  standalone: true,
+  imports: [CommonModule, FormsModule, DatePipe, DropdownSelectComponent],
+  templateUrl: './historico.component.html',
+  styleUrl: './historico.component.css',
+})
+export class HistoricoComponent implements OnInit {
+  private readonly auditoriaService = inject(AuditoriaService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly rotulosAcao = ROTULOS_ACAO;
+  readonly acaoOptions = ACAO_OPTIONS;
+
+  readonly tamanhoPagina = 6;
+
+  // ---- estado ----
+  readonly carregando = signal(true);
+  readonly erro = signal<string | null>(null);
+  readonly eventos = signal<AuditoriaEvento[]>([]);
+  readonly total = signal(0);
+  readonly pagina = signal(1);
+
+  readonly usuarios = signal<UsuarioResumo[]>([]);
+  readonly entidades = signal<EntidadeResumo[]>([]);
+
+  // ---- opções dos dropdowns (mesmo componente app-dropdown-select
+  // usado em Lista de compras / Orçamentos / Gastos) ----
+  readonly usuarioOptions = computed<DropdownOpcao[]>(() => [
+    { value: '', label: 'Todos os usuários' },
+    ...this.usuarios().map((usuario) => ({ value: usuario.id, label: usuario.nome })),
+  ]);
+
+  readonly entidadeOptions = computed<DropdownOpcao[]>(() => [
+    { value: '', label: 'Todos os módulos' },
+    ...this.entidades().map((item) => ({ value: item.chave, label: item.rotulo })),
+  ]);
+
+  // ---- filtros ----
+  usuarioId = '';
+  entidade = '';
+  acao: AcaoAuditoria | '' = '';
+  dataInicio = '';
+  dataFim = '';
+  busca = '';
+
+  private readonly buscaSubject = new Subject<string>();
+
+  readonly totalPaginas = computed(() =>
+    Math.max(1, Math.ceil(this.total() / this.tamanhoPagina))
+  );
+
+  readonly grupos = computed<GrupoDeDia[]>(() => this.agruparPorDia(this.eventos()));
+
+  readonly paginasVisiveis = computed<(number | string)[]>(() =>
+    this.calcularPaginasVisiveis(this.pagina(), this.totalPaginas())
+  );
+
+  readonly temFiltroAtivo = computed(
+    () =>
+      !!this.usuarioId ||
+      !!this.entidade ||
+      !!this.acao ||
+      !!this.dataInicio ||
+      !!this.dataFim ||
+      !!this.busca
+  );
+
+  ngOnInit(): void {
+    this.carregarOpcoesDeFiltro();
+    this.carregar();
+
+    this.buscaSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.aplicarFiltros());
+  }
+
+  aoDigitarBusca(valor: string): void {
+    this.busca = valor;
+    this.buscaSubject.next(valor);
+  }
+
+  selecionarUsuario(valor: string): void {
+    this.usuarioId = valor;
+    this.aplicarFiltros();
+  }
+
+  selecionarEntidade(valor: string): void {
+    this.entidade = valor;
+    this.aplicarFiltros();
+  }
+
+  selecionarAcao(valor: string): void {
+    this.acao = (valor as AcaoAuditoria) || '';
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros(): void {
+    this.pagina.set(1);
+    this.carregar();
+  }
+
+  limparFiltros(): void {
+    this.usuarioId = '';
+    this.entidade = '';
+    this.acao = '';
+    this.dataInicio = '';
+    this.dataFim = '';
+    this.busca = '';
+    this.aplicarFiltros();
+  }
+
+  irParaPagina(numero: number): void {
+    if (numero < 1 || numero > this.totalPaginas()) return;
+    this.pagina.set(numero);
+    this.carregar();
+  }
+
+  camposAlterados(evento: AuditoriaEvento): { campo: string; de: unknown; para: unknown }[] {
+    const antes = evento.dadosAnteriores ?? {};
+    const depois = evento.dadosNovos ?? {};
+    const chaves = new Set([...Object.keys(antes), ...Object.keys(depois)]);
+
+    const resultado: { campo: string; de: unknown; para: unknown }[] = [];
+    chaves.forEach((chave) => {
+      const de = (antes as Record<string, unknown>)[chave];
+      const para = (depois as Record<string, unknown>)[chave];
+      if (JSON.stringify(de) !== JSON.stringify(para)) {
+        resultado.push({ campo: this.rotuloCampo(chave), de, para });
+      }
+    });
+    return resultado;
+  }
+
+  // Converte "valorTotal" / "prazo_dias" em "Valor total" / "Prazo dias" —
+  // sem isso o CSS (text-transform: uppercase) grudava tudo: "VALORTOTAL".
+  private rotuloCampo(campo: string): string {
+    const comEspacos = campo
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/_/g, ' ')
+      .toLowerCase();
+    return comEspacos.charAt(0).toUpperCase() + comEspacos.slice(1);
+  }
+
+  private carregar(): void {
+    this.carregando.set(true);
+    this.erro.set(null);
+
+    const filtro: FiltroAuditoria = {
+      usuarioId: this.usuarioId || undefined,
+      entidade: this.entidade || undefined,
+      acao: (this.acao as AcaoAuditoria) || undefined,
+      dataInicio: this.dataInicio || undefined,
+      dataFim: this.dataFim || undefined,
+      busca: this.busca || undefined,
+      pagina: this.pagina(),
+      tamanhoPagina: this.tamanhoPagina,
+    };
+
+    this.auditoriaService
+      .listar(filtro)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resposta) => {
+          this.eventos.set(resposta.itens);
+          this.total.set(resposta.total);
+          this.carregando.set(false);
+        },
+        error: () => {
+          // MOCK: o back-end ainda não está pronto — aplica os filtros
+          // localmente sobre os dados fictícios (em vez de sempre devolver
+          // a lista inteira). Remover este bloco quando a API existir de
+          // verdade, já que o filtro passará a ser feito no servidor.
+          const filtrados = this.filtrarEventosFicticios(filtro);
+          const inicio = (this.pagina() - 1) * this.tamanhoPagina;
+          this.eventos.set(filtrados.slice(inicio, inicio + this.tamanhoPagina));
+          this.total.set(filtrados.length);
+          this.erro.set(null);
+          this.carregando.set(false);
+        },
+      });
+  }
+
+  // MOCK: simula o filtro que o back-end real vai fazer. Remover junto
+  // com EVENTOS_FICTICIOS quando o endpoint de auditoria existir de verdade.
+  private filtrarEventosFicticios(filtro: FiltroAuditoria): AuditoriaEvento[] {
+    const termoBusca = filtro.busca?.trim().toLowerCase();
+    const inicio = filtro.dataInicio ? new Date(`${filtro.dataInicio}T00:00:00`) : null;
+    const fim = filtro.dataFim ? new Date(`${filtro.dataFim}T23:59:59`) : null;
+
+    return EVENTOS_FICTICIOS.filter((evento) => {
+      if (filtro.usuarioId && evento.usuarioId !== filtro.usuarioId) return false;
+      if (filtro.entidade && evento.entidade !== filtro.entidade) return false;
+      if (filtro.acao && evento.acao !== filtro.acao) return false;
+
+      const dataEvento = new Date(evento.criadoEm);
+      if (inicio && dataEvento < inicio) return false;
+      if (fim && dataEvento > fim) return false;
+
+      if (termoBusca) {
+        const alvo = `${evento.descricao} ${evento.entidadeDescricao ?? ''}`.toLowerCase();
+        if (!alvo.includes(termoBusca)) return false;
+      }
+
+      return true;
+    }).sort((a, b) => new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime());
+  }
+
+  private carregarOpcoesDeFiltro(): void {
+    this.auditoriaService
+      .listarUsuarios()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (usuarios) => this.usuarios.set(usuarios),
+        // MOCK: remover quando o endpoint /auditoria/usuarios existir de verdade.
+        error: () => this.usuarios.set(USUARIOS_FICTICIOS),
+      });
+
+    this.auditoriaService
+      .listarEntidades()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (entidades) => this.entidades.set(entidades),
+        // MOCK: remover quando o endpoint /auditoria/entidades existir de verdade.
+        error: () => this.entidades.set(ENTIDADES_FICTICIAS),
+      });
+  }
+
+  private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const paginas: (number | string)[] = [1];
+    if (atual > 3) { paginas.push('...'); }
+    const inicio = Math.max(2, atual - 1);
+    const fim = Math.min(total - 1, atual + 1);
+    for (let i = inicio; i <= fim; i++) { paginas.push(i); }
+    if (atual < total - 2) { paginas.push('...'); }
+    paginas.push(total);
+    return paginas;
+  }
+
+  private agruparPorDia(eventos: AuditoriaEvento[]): GrupoDeDia[] {
+    const hoje = new Date();
+    const ontem = new Date();
+    ontem.setDate(hoje.getDate() - 1);
+
+    const chave = (data: Date) => data.toDateString();
+    const mapa = new Map<string, AuditoriaEvento[]>();
+
+    for (const evento of eventos) {
+      const data = new Date(evento.criadoEm);
+      const k = chave(data);
+      if (!mapa.has(k)) mapa.set(k, []);
+      mapa.get(k)!.push(evento);
+    }
+
+    const grupos: GrupoDeDia[] = [];
+    mapa.forEach((lista, k) => {
+      let rotulo: string;
+      if (k === chave(hoje)) rotulo = 'Hoje';
+      else if (k === chave(ontem)) rotulo = 'Ontem';
+      else {
+        const data = new Date(lista[0].criadoEm);
+        rotulo = data.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        });
+      }
+      grupos.push({ rotulo, eventos: lista });
+    });
+
+    return grupos;
+  }
 }
 
 
@@ -4309,6 +5647,15 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.css
 
 .tabela-gastos td.col-acoes button.icone {
   padding: 6px;
+}
+
+.tabela-gastos td.col-observacao {
+  vertical-align: middle;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  padding-left: 10px;
+  color: var(--muted);
 }
 
 
@@ -4367,7 +5714,7 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
 
     <div class="campo">
       <label for="quantidadeDesejada">Quantidade desejada</label>
-      <input type="number" min="0" step="0.01" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
+      <input type="number" min="1" step="1" id="quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="form.quantidadeDesejada">
     </div>
 
     <div class="campo">
@@ -4434,7 +5781,7 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
       <td>
         <span class="tag" [ngClass]="prioridadeClasse(item.prioridade)">{{ prioridadeLabel(item.prioridade) }}</span>
       </td>
-      <td style="color:var(--muted); white-space:normal; text-align:left; padding-left:10px;">{{ item.observacao || '—' }}</td>
+      <td class="col-observacao">{{ item.observacao || '—' }}</td>
       <td>
         <button
           type="button"
@@ -4512,7 +5859,7 @@ ARQUIVO: src/app/lista-compras/lista-compras.component.html
 
       <div class="campo">
         <label for="edit-quantidadeDesejada">Quantidade desejada</label>
-        <input type="number" min="0" step="0.01" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
+        <input type="number" min="1" step="1" id="edit-quantidadeDesejada" name="quantidadeDesejada" [(ngModel)]="editForm.quantidadeDesejada">
       </div>
 
       <div class="campo">
@@ -4803,13 +6150,11 @@ ARQUIVO: src/app/login/login.component.css
   min-height: 100vh;
   width: 100%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
   background: linear-gradient(160deg, var(--cor-inicio) 0%, var(--cor-fim) 100%);
   font-family: 'Plus Jakarta Sans', -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-.login-visual {
+.login-visual-wrapper {
   --vetor-largura: 100vw;
   --vetor-altura: 90vh;
   --vetor-baixo: 0px;
@@ -4822,6 +6167,15 @@ ARQUIVO: src/app/login/login.component.css
   height: var(--vetor-altura);
   z-index: 1;
   pointer-events: none;
+
+  filter: drop-shadow(0 -10px 16px rgba(0, 0, 0, 0.082));
+}
+
+.login-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background-color: #ffffff;
 
   -webkit-mask-image: url('/Vector.png');
@@ -4835,17 +6189,27 @@ ARQUIVO: src/app/login/login.component.css
 }
 
 .login-form-area {
-  position: relative;
+  position: absolute;
+  bottom: var(--vetor-baixo, 0px);
+  right: var(--vetor-direita, 0px);
+  width: var(--vetor-largura, 100vw);
+  height: var(--vetor-altura, 90vh);
   z-index: 2;
-  width: 48%;
-  display: flex;
-  justify-content: center;
-  padding: 0 40px;
+}
+
+.login-centro {
+  position: absolute;
+  left: 25%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-width: calc(100vw - 48px);
 }
 
 .login-card {
   width: 100%;
-  max-width: 440px;
+  padding: 0 40px;
+  box-sizing: border-box;
 }
 
 .login-brand {
@@ -4853,19 +6217,23 @@ ARQUIVO: src/app/login/login.component.css
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 4px;
 }
 
 .login-logo {
-  width: 290px;
-  height: 290px;
-  margin-bottom: -20px;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 45px;
+  flex-shrink: 0;
 }
 
 .login-logo-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .login-titulo {
@@ -4875,11 +6243,13 @@ ARQUIVO: src/app/login/login.component.css
   color: #d46007;
   letter-spacing: -0.02em;
   margin-top: -30px;
+  text-align: center;
+  width: 100%;
 }
 
 .login-badge {
   align-self: center;
-  margin-top: 8px;
+  margin: 8px auto 0;
   padding: 4px 14px;
   border-radius: 999px;
   background: var(--cor-fim, #e8a33d);
@@ -4895,12 +6265,14 @@ ARQUIVO: src/app/login/login.component.css
   flex-direction: column;
   gap: 12px;
   margin-top: 20px;
+  width: 100%;
 }
 
 .campo-login {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
 }
 
 .campo-login label {
@@ -4932,6 +6304,7 @@ ARQUIVO: src/app/login/login.component.css
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .senha-wrapper input {
@@ -4949,21 +6322,24 @@ ARQUIVO: src/app/login/login.component.css
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
+  color: #191c22;
   cursor: pointer;
   border-radius: 6px;
+  transition: color 0.15s;
 }
 
 .botao-olho:hover {
-  color: #6b7280;
+  color: #4d4d4d;
   background: none;
 }
 
 .login-erro {
   margin: 0;
-  font-size: 0.78rem;
+  margin-top: 10px;
+  font-size: 0.9rem;
   color: #dc2626;
   font-weight: 500;
+  text-align: left;
 }
 
 .botao-acessar {
@@ -4985,6 +6361,9 @@ ARQUIVO: src/app/login/login.component.css
   transition: background 0.15s;
 }
 
+.login-erro + .botao-acessar {
+  margin-top: 0px;
+}
 .botao-acessar:hover:not(:disabled) {
   background: #2e2e2e;
   color: #ffffff;
@@ -4996,10 +6375,31 @@ ARQUIVO: src/app/login/login.component.css
 }
 
 @media (max-width: 900px) {
-  .login-form-area {
-    padding: 0 24px;
-    justify-content: center;
+  .login-centro {
+    left: 50%;
+    width: 100%;
+    max-width: 480px;
   }
+  .login-card {
+    padding: 0 24px;
+  }
+}
+.campo-login input:-webkit-autofill,
+.campo-login input:-webkit-autofill:hover,
+.campo-login input:-webkit-autofill:focus,
+.campo-login input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: #111827;
+  caret-color: #111827;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.campo-login input.invalido {
+  border-color: #dc2626;
+}
+
+.campo-login input.invalido:focus {
+  border-color: #dc2626;
 }
 
 
@@ -5007,64 +6407,72 @@ ARQUIVO: src/app/login/login.component.css
 ARQUIVO: src/app/login/login.component.html
 ==================================================
 <div class="login-page">
-  <div class="login-visual" aria-hidden="true"></div>
+  <div class="login-visual-wrapper">
+    <div class="login-visual" aria-hidden="true"></div>
+  </div>
 
   <div class="login-form-area">
-    <div class="login-card">
-      <div class="login-brand">
-        <div class="login-logo">
-          <img src="/logo1.png" alt="Obra da Casa" class="login-logo-img">
-        </div>
-        <div class="login-titulo">Obra da Casa</div>
-      </div>
-
-      <form class="login-formulario" (ngSubmit)="onSubmit()">
-        <div class="campo-login">
-          <label for="email">E-mail</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="email"
-            placeholder="Digite o e-mail"
-            autocomplete="email"
-            required>
-        </div>
-
-        <div class="campo-login">
-          <label for="senha">Senha</label>
-          <div class="senha-wrapper">
-            <input
-              [type]="mostrarSenha ? 'text' : 'password'"
-              id="senha"
-              name="senha"
-              [(ngModel)]="senha"
-              placeholder="Digite a senha"
-              autocomplete="current-password"
-              required>
-            <button
-              type="button"
-              class="botao-olho"
-              (click)="mostrarSenha = !mostrarSenha"
-              [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
-              <svg *ngIf="!mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg *ngIf="mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a18.44 18.44 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-            </button>
+    <div class="login-centro">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-logo">
+            <img src="/logo1.png" alt="Obra da Casa" class="login-logo-img">
           </div>
+          <div class="login-titulo">Obra da Casa</div>
         </div>
 
-        <p class="login-erro" *ngIf="erro">{{ erro }}</p>
+        <form class="login-formulario" (ngSubmit)="onSubmit()">
+          <div class="campo-login">
+            <label for="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="email"
+              (input)="onInput()"
+              [class.invalido]="campoInvalido"
+              placeholder="Digite o e-mail"
+              autocomplete="email"
+              required>
+          </div>
 
-        <button type="submit" class="botao-acessar" [disabled]="carregando">
-          {{ carregando ? 'Entrando...' : 'Acessar' }}
-        </button>
-      </form>
+          <div class="campo-login">
+            <label for="senha">Senha</label>
+            <div class="senha-wrapper">
+              <input
+                [type]="mostrarSenha ? 'text' : 'password'"
+                id="senha"
+                name="senha"
+                [(ngModel)]="senha"
+                (input)="onInput()"
+                [class.invalido]="campoInvalido"
+                placeholder="Digite a senha"
+                autocomplete="current-password"
+                required>
+              <button
+                type="button"
+                class="botao-olho"
+                (click)="mostrarSenha = !mostrarSenha"
+                [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
+                <svg *ngIf="!mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg *ngIf="mostrarSenha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a18.44 18.44 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <p class="login-erro" *ngIf="erro">{{ erro }}</p>
+
+          <button type="submit" class="botao-acessar" [disabled]="carregando">
+            {{ carregando ? 'Entrando...' : 'Acessar' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -5096,11 +6504,17 @@ export class LoginComponent {
 
   carregando = false;
   erro = '';
+  campoInvalido = false;
 
   onSubmit(): void {
-    if (!this.email || !this.senha) { return; }
+    if (!this.email || !this.senha) {
+      this.erro = 'Preencha e-mail e senha para continuar';
+      this.campoInvalido = true;
+      return;
+    }
 
     this.erro = '';
+    this.campoInvalido = false;
     this.carregando = true;
 
     this.auth.login({ email: this.email, senha: this.senha }).subscribe({
@@ -5110,9 +6524,17 @@ export class LoginComponent {
       },
       error: () => {
         this.carregando = false;
-        this.erro = 'E-mail ou senha inválidos.';
+        this.erro = 'E-mail ou senha incorreta';
+        this.campoInvalido = true;
       }
     });
+  }
+
+  onInput(): void {
+    if (this.campoInvalido) {
+      this.campoInvalido = false;
+      this.erro = '';
+    }
   }
 }
 
@@ -7871,15 +9293,16 @@ main {
 
 h1 {
     font-family: 'CabourgOT', 'Metropolis', -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.9rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: #181A20;
 }
 
 h1 + p {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     color: var(--muted);
-    margin-top: 3px;
+    margin-top: -10px;
     font-weight: 500;
 }
 
@@ -8147,7 +9570,7 @@ form.form-gasto {
     letter-spacing: 0.04em;
 }
 
-input, select {
+input, select, textarea {
     padding: 9px 12px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -8159,7 +9582,7 @@ input, select {
     width: 100%;
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
     background: #fff;
@@ -8168,6 +9591,12 @@ input:focus, select:focus {
 
 input[type="checkbox"] {
     accent-color: var(--accent);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    zoom: 0.75;
+    margin-right: 4px;
 }
 
 .campo-checkbox {

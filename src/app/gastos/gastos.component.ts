@@ -6,6 +6,10 @@ import { ComprovanteService } from '../core/comprovante.service';
 import { Categoria, Comprovante, Gasto, ResumoGastos, StatusMaterial } from '../core/models';
 import { PdfRelatorioService, formatarDataPdf, formatarMoedaPdf } from '../core/pdf/pdf-relatorio.service';
 import { DetalheModalComponent, GrupoDetalhe } from '../shared/detalhe-modal/detalhe-modal.component';
+import { ModalSucessoComponent } from '../shared/modais/modal-sucesso/modal-sucesso.component';
+import { ModalErroComponent } from '../shared/modais/modal-erro/modal-erro.component';
+import { ModalSairComponent } from '../shared/modais/modal-sair/modal-sair.component';
+import { ModalConfirmacaoComponent } from '../shared/modais/modal-confirmacao/modal-confirmacao.component';
 
 export interface DropdownOpcao {
   value: string;
@@ -404,7 +408,16 @@ const FILTRO_STATUS_ORDEM: FiltroStatus[] = ['todos', 'pago', 'pendente'];
 @Component({
   selector: 'app-gastos',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownSelectComponent, DetalheModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DropdownSelectComponent,
+    DetalheModalComponent,
+    ModalSucessoComponent,
+    ModalErroComponent,
+    ModalSairComponent,
+    ModalConfirmacaoComponent
+  ],
   templateUrl: './gastos.component.html',
   styleUrl: './gastos.component.css'
 })
@@ -428,18 +441,40 @@ export class GastosComponent implements OnInit {
 
   mostrarForm = false;
   form: Gasto = this.formVazio();
+  private snapshotNovo = '';
+
+  mostrarConfirmacaoSairNovo = false;
+  mostrarConfirmacaoSalvarNovo = false;
+  mostrarSucessoNovo = false;
+  mostrarErroNovo = false;
+  mensagemErroNovo = '';
 
   editandoId: number | null = null;
   editForm: Gasto = this.formVazio();
+
+  mostrarConfirmacaoSair = false;
+  mostrarConfirmacaoSalvar = false;
+  mostrarSucessoEdicao = false;
+  mostrarErroEdicao = false;
+  mensagemErroEdicao = '';
+  private snapshotEdicao = '';
+
+  mostrarConfirmacaoExcluir = false;
+  mostrarSucessoExclusao = false;
+  mostrarErroExclusao = false;
+  mensagemErroExclusao = '';
+  private idParaExcluir: number | null = null;
 
   comprovantesPorGasto: Record<number, Comprovante> = {};
   anexoGastoId: number | null = null;
   anexoErro = '';
   anexoCarregando = false;
   imagemExpandida: string | null = null;
-
-  // --- Detalhes ---
   detalhesId: number | null = null;
+  parcelasAbertoId: number | null = null;
+  parcelasPosicao: { top: number; left: number; width: number; maxHeight: number } =
+    { top: 0, left: 0, width: 260, maxHeight: 280 };
+  private parcelasBotaoRef: HTMLElement | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -454,6 +489,7 @@ export class GastosComponent implements OnInit {
     });
     this.service.resumo().subscribe(resumo => this.resumo = resumo);
     this.carregarComprovantes();
+    this.fecharParcelas();
   }
 
   carregarComprovantes(): void {
@@ -466,10 +502,44 @@ export class GastosComponent implements OnInit {
   }
 
   toggleForm(): void {
-    this.mostrarForm = !this.mostrarForm;
-    if (!this.mostrarForm) {
-      this.form = this.formVazio();
+    if (this.mostrarForm) {
+      this.tentarFecharFormNovo();
+    } else {
+      this.abrirFormNovo();
     }
+  }
+
+  private abrirFormNovo(): void {
+    this.mostrarForm = true;
+    this.form = this.formVazio();
+    this.snapshotNovo = JSON.stringify(this.form);
+  }
+
+  private houveAlteracoesNoNovo(): boolean {
+    return JSON.stringify(this.form) !== this.snapshotNovo;
+  }
+
+  tentarFecharFormNovo(): void {
+    if (this.houveAlteracoesNoNovo()) {
+      this.mostrarConfirmacaoSairNovo = true;
+    } else {
+      this.fecharFormNovo();
+    }
+  }
+
+  confirmarSairSemSalvarNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+    this.fecharFormNovo();
+  }
+
+  cancelarSairNovo(): void {
+    this.mostrarConfirmacaoSairNovo = false;
+  }
+
+  private fecharFormNovo(): void {
+    this.mostrarForm = false;
+    this.form = this.formVazio();
+    this.snapshotNovo = '';
   }
 
   categoriaLabel(categoria: Categoria): string {
@@ -528,6 +598,7 @@ export class GastosComponent implements OnInit {
   irParaPaginaGastos(pagina: number | string): void {
     if (typeof pagina !== 'number' || pagina < 1 || pagina > this.totalPaginasGastos) { return; }
     this.paginaAtualGastos = pagina;
+    this.fecharParcelas();
   }
 
   private calcularPaginasVisiveis(atual: number, total: number): (number | string)[] {
@@ -547,6 +618,7 @@ export class GastosComponent implements OnInit {
   setFiltro(filtro: string): void {
     this.filtroStatus = filtro as FiltroStatus;
     this.paginaAtualGastos = 1;
+    this.fecharParcelas();
   }
 
   exportarPdf(): void {
@@ -602,15 +674,31 @@ export class GastosComponent implements OnInit {
   }
 
   salvar(): void {
+    this.mostrarConfirmacaoSalvarNovo = true;
+  }
+
+  confirmarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
+
     if (!this.form.parcelado) {
       this.form.numeroParcelas = 1;
     }
 
-    this.service.criar(this.form).subscribe(() => {
-      this.mostrarForm = false;
-      this.form = this.formVazio();
-      this.carregar();
+    this.service.criar(this.form).subscribe({
+      next: () => {
+        this.fecharFormNovo();
+        this.carregar();
+        this.mostrarSucessoNovo = true;
+      },
+      error: () => {
+        this.mensagemErroNovo = 'Não foi possível salvar este gasto. Tente novamente.';
+        this.mostrarErroNovo = true;
+      }
     });
+  }
+
+  cancelarSalvarNovo(): void {
+    this.mostrarConfirmacaoSalvarNovo = false;
   }
 
   editar(gasto: Gasto): void {
@@ -620,36 +708,101 @@ export class GastosComponent implements OnInit {
       diaVencimento: gasto.diaVencimento ?? 12,
       statusMaterial: gasto.statusMaterial ?? 'RETIRADO'
     };
+    this.snapshotEdicao = JSON.stringify(this.editForm);
+  }
+
+  private houveAlteracoesNaEdicao(): boolean {
+    return JSON.stringify(this.editForm) !== this.snapshotEdicao;
+  }
+
+  tentarFecharModal(): void {
+    if (this.houveAlteracoesNaEdicao()) {
+      this.mostrarConfirmacaoSair = true;
+    } else {
+      this.fecharModal();
+    }
+  }
+
+  confirmarSairSemSalvar(): void {
+    this.mostrarConfirmacaoSair = false;
+    this.fecharModal();
+  }
+
+  cancelarSair(): void {
+    this.mostrarConfirmacaoSair = false;
   }
 
   salvarEdicao(): void {
     if (!this.editandoId) { return; }
+    this.mostrarConfirmacaoSalvar = true;
+  }
+
+  confirmarSalvarEdicao(): void {
+    if (!this.editandoId) { return; }
+    this.mostrarConfirmacaoSalvar = false;
+
     if (!this.editForm.parcelado) {
       this.editForm.numeroParcelas = 1;
     }
 
-    this.service.atualizar(this.editandoId, this.editForm).subscribe(() => {
-      this.fecharModal();
-      this.carregar();
+    this.service.atualizar(this.editandoId, this.editForm).subscribe({
+      next: () => {
+        this.fecharModal();
+        this.carregar();
+        this.mostrarSucessoEdicao = true;
+      },
+      error: () => {
+        this.mensagemErroEdicao = 'Não foi possível salvar as alterações deste gasto. Tente novamente.';
+        this.mostrarErroEdicao = true;
+      }
     });
+  }
+
+  cancelarSalvarEdicao(): void {
+    this.mostrarConfirmacaoSalvar = false;
   }
 
   fecharModal(): void {
     this.editandoId = null;
     this.editForm = this.formVazio();
+    this.snapshotEdicao = '';
+  }
+
+  abrirConfirmacaoExclusao(id: number | undefined): void {
+    if (!id) { return; }
+    this.idParaExcluir = id;
+    this.mostrarConfirmacaoExcluir = true;
+  }
+
+  confirmarExclusao(): void {
+    if (!this.idParaExcluir) { return; }
+    const id = this.idParaExcluir;
+    this.mostrarConfirmacaoExcluir = false;
+
+    this.service.excluir(id).subscribe({
+      next: () => {
+        this.idParaExcluir = null;
+        this.carregar();
+        this.mostrarSucessoExclusao = true;
+      },
+      error: () => {
+        this.idParaExcluir = null;
+        this.mensagemErroExclusao = 'Não foi possível excluir este gasto. Tente novamente.';
+        this.mostrarErroExclusao = true;
+      }
+    });
+  }
+
+  // Usuário decidiu não excluir (voltou do modal de confirmação).
+  cancelarExclusao(): void {
+    this.mostrarConfirmacaoExcluir = false;
+    this.idParaExcluir = null;
   }
 
   pagar(gastoId: number | undefined, parcelaId: number): void {
     if (!gastoId) { return; }
     this.service.pagarParcela(gastoId, parcelaId).subscribe(() => this.carregar());
   }
-
-  excluir(id: number | undefined): void {
-    if (!id) { return; }
-    this.service.excluir(id).subscribe(() => this.carregar());
-  }
-
-  // --- Comprovantes ---
 
   temComprovante(gastoId: number | undefined): boolean {
     return !!gastoId && !!this.comprovantesPorGasto[gastoId];
@@ -664,6 +817,7 @@ export class GastosComponent implements OnInit {
     if (!gastoId) { return; }
     this.anexoGastoId = gastoId;
     this.anexoErro = '';
+    this.fecharParcelas();
   }
 
   fecharAnexo(): void {
@@ -727,10 +881,9 @@ export class GastosComponent implements OnInit {
     this.imagemExpandida = null;
   }
 
-  // --- Detalhes (modal reutilizável) ---
-
   abrirDetalhes(gasto: Gasto): void {
     this.detalhesId = gasto.id ?? null;
+    this.fecharParcelas();
   }
 
   fecharDetalhes(): void {
@@ -812,6 +965,75 @@ export class GastosComponent implements OnInit {
       fornecedor: '',
       statusMaterial: 'RETIRADO',
       responsavelRecebimento: ''
+    };
+  }
+
+  get gastoParcelasAberto(): Gasto | null {
+    if (this.parcelasAbertoId === null) { return null; }
+    return this.gastos.find(g => g.id === this.parcelasAbertoId) ?? null;
+  }
+
+  toggleParcelas(gasto: Gasto, event: MouseEvent): void {
+    if (!gasto.id) { return; }
+
+    if (this.parcelasAbertoId === gasto.id) {
+      this.fecharParcelas();
+      return;
+    }
+
+    this.parcelasBotaoRef = event.currentTarget as HTMLElement;
+    this.parcelasAbertoId = gasto.id;
+    this.atualizarPosicaoParcelas();
+  }
+
+  fecharParcelas(): void {
+    this.parcelasAbertoId = null;
+    this.parcelasBotaoRef = null;
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScrollAtualizaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.atualizarPosicaoParcelas();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResizeAtualizaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.atualizarPosicaoParcelas();
+    }
+  }
+
+  @HostListener('keydown.escape')
+  onEscapeFechaParcelas(): void {
+    if (this.parcelasAbertoId !== null) {
+      this.fecharParcelas();
+    }
+  }
+
+  private atualizarPosicaoParcelas(): void {
+    if (!this.parcelasBotaoRef) { return; }
+
+    const rect = this.parcelasBotaoRef.getBoundingClientRect();
+    const margem = 6;
+    const larguraPopover = 260;
+    const alturaMaximaPadrao = 280;
+    const alturaMinima = 140;
+
+    const espacoAbaixo = Math.max(0, window.innerHeight - rect.bottom - margem);
+    const espacoAcima = Math.max(0, rect.top - margem);
+    const abrirParaCima = espacoAbaixo < alturaMinima && espacoAcima > espacoAbaixo;
+
+    const maxHeight = abrirParaCima
+      ? Math.min(alturaMaximaPadrao, espacoAcima)
+      : Math.min(alturaMaximaPadrao, Math.max(espacoAbaixo, alturaMinima));
+
+    this.parcelasPosicao = {
+      top: abrirParaCima ? Math.max(margem, rect.top - maxHeight - margem) : rect.bottom + margem,
+      left: Math.min(rect.left, Math.max(margem, window.innerWidth - larguraPopover - margem)),
+      width: larguraPopover,
+      maxHeight
     };
   }
 }
