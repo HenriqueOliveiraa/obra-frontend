@@ -37,3 +37,20 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+@media (max-width: 768px) {
+  .form-dia .campo input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .form-dia .campo {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
