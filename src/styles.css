@@ -518,6 +518,12 @@ input[type="checkbox"] {
     accent-color: var(--accent);
 }
 
+input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     zoom: 0.75;
@@ -951,6 +957,10 @@ details summary:hover {
 
 @media (max-width: 768px) {
     main {
+        /* 68px já dava espaço pro botão do menu no Safari normal.
+           Somamos env(safe-area-inset-top) pra empurrar todo o conteúdo
+           (títulos inclusive) pra baixo quando o app roda em tela cheia
+           (PWA no iOS), sem mexer na posição do próprio botão. */
         padding: calc(68px + env(safe-area-inset-top, 0px)) 16px 32px;
     }
 
@@ -988,6 +998,13 @@ details summary:hover {
     form.form-dia .campo-checkbox,
     form.form-dia > button {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    form.form-dia input {
+        width: 100%;
+        max-width: 100%;
     }
 
     form.form-gasto .campo,
@@ -1026,7 +1043,7 @@ details summary:hover {
 
 @media (max-width: 480px) {
     main {
-        padding: 64px 12px 24px;
+        padding: calc(64px + env(safe-area-inset-top, 0px)) 12px 24px;
     }
 
     .cards {
