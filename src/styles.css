@@ -951,7 +951,7 @@ details summary:hover {
 
 @media (max-width: 768px) {
     main {
-        padding: 68px 16px 32px;
+        padding: calc(68px + env(safe-area-inset-top, 0px)) 16px 32px;
     }
 
     .cards {
