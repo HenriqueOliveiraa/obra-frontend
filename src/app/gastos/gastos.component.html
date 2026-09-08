@@ -129,11 +129,11 @@
 
 <div class="painel tabela-wrap">
   <div class="tabela-scroll">
-  <table class="tabela-gastos" style="min-width:760px;">
+  <table class="tabela-gastos" style="min-width:1070px;">
     <colgroup>
-      <col style="width:17%;"><col style="width:16%;"><col style="width:5%;">
-      <col style="width:10%;"><col style="width:10%;"><col style="width:8%;">
-      <col style="width:8%;"><col style="width:8%;"><col style="width:18%;">
+      <col style="width:210px;"><col style="width:140px;"><col style="width:55px;">
+      <col style="width:110px;"><col style="width:95px;"><col style="width:130px;">
+      <col style="width:100px;"><col style="width:80px;"><col style="width:150px;">
     </colgroup>
     <thead>
     <tr>
@@ -151,17 +151,19 @@
     <tbody>
     <tr *ngFor="let gasto of gastosPaginados">
       <td class="col-descricao">
-        <div style="font-weight:600;">{{ gasto.descricao }}</div>
-        <button
-          type="button"
-          class="botao-ver-parcelas"
-          [class.aberto]="parcelasAbertoId === gasto.id"
-          (click)="toggleParcelas(gasto, $event)">
-          {{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas
-          <svg class="seta-parcelas" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
+        <div class="celula-descricao-gasto">
+          <div class="titulo-gasto">{{ gasto.descricao }}</div>
+          <button
+            type="button"
+            class="botao-ver-parcelas"
+            [class.aberto]="parcelasAbertoId === gasto.id"
+            (click)="toggleParcelas(gasto, $event)">
+            {{ gasto.parcelado ? gasto.numeroParcelas + 'x' : 'à vista' }} - ver parcelas
+            <svg class="seta-parcelas" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
       </td>
       <td>
         <div class="celula-categoria">
