@@ -201,8 +201,12 @@ main {
     align-items: center;
     justify-content: center;
     position: fixed;
-    top: 14px;
-    left: 14px;
+    /* No Safari normal, env(safe-area-inset-top) é 0 e o botão fica a 14px
+       do topo como antes. No PWA (tela cheia, sem barra do Safari), essa
+       variável vale a altura da status bar do iPhone, então o botão desce
+       automaticamente e não fica embaixo do relógio/bateria. */
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: calc(14px + env(safe-area-inset-left, 0px));
     width: 40px;
     height: 40px;
     border-radius: 10px;
@@ -241,7 +245,7 @@ main {
      logo/texto pra baixo o suficiente pra nunca ficar sob o botão, em vez
      de competir por z-index. */
   .sidebar.aberta-mobile .sidebar-brand {
-    padding-top: 62px;
+    padding-top: calc(62px + env(safe-area-inset-top, 0px));
   }
 
   .sidebar.colapsada .sidebar-brand-texto,
