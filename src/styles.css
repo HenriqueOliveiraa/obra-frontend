@@ -977,6 +977,17 @@ details summary:hover {
         grid-template-columns: 1fr !important;
     }
 
+    form.form-dia {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    form.form-dia .campo,
+    form.form-dia .campo-checkbox,
+    form.form-dia > button {
+        width: 100%;
+    }
+
     form.form-gasto .campo,
     form.form-gasto .campo.largo,
     form.form-gasto .campo.estreito,
