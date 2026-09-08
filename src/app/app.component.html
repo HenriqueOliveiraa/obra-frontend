@@ -1,7 +1,19 @@
 <ng-container *ngIf="!emTelaDeLogin(); else somenteConteudo">
   <div class="app-shell">
-    <aside class="sidebar" [class.colapsada]="sidebarCollapsed()" (mouseenter)="expandirSidebar()"
-      (mouseleave)="recolherSidebar()">
+    <button type="button" class="botao-hamburguer" (click)="alternarMenuMobile()"
+      [attr.aria-label]="menuMobileAberto() ? 'Fechar menu' : 'Abrir menu'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="sidebar-overlay-mobile" *ngIf="menuMobileAberto()" (click)="fecharMenuMobile()"></div>
+
+    <aside class="sidebar" [class.colapsada]="sidebarCollapsed()" [class.aberta-mobile]="menuMobileAberto()"
+      (mouseenter)="expandirSidebar()" (mouseleave)="recolherSidebar()">
       <div class="sidebar-brand">
         <div class="logo">
           <img src="/logo.png" alt="Obra da Casa" class="logo-img">
@@ -12,7 +24,7 @@
         </div>
       </div>
 
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" (click)="fecharMenuMobile()">
         <a routerLink="/dashboard" routerLinkActive="ativo">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">

@@ -105,7 +105,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 11px 17px 11px 47px;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  width: 100%;
+  padding: 11px 17px 11px 47px !important;
   border-radius: 10px;
   color: var(--text-secondary);
   text-decoration: none;
@@ -116,10 +119,10 @@
 }
 
 .sidebar-nav a svg {
-  position: absolute;
-  left: 17px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: absolute !important;
+  left: 17px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
   flex-shrink: 0;
 }
 
@@ -170,10 +173,92 @@
   }
 }
 
+.botao-hamburguer {
+  display: none;
+  padding: 0;
+  line-height: 0;
+  font-family: inherit;
+}
+
+.sidebar-overlay-mobile {
+  display: none;
+}
+
 main {
   margin-left: var(--sidebar-width-collapsed);
   min-height: 100vh;
   overflow: auto;
+}
+
+/* No mobile/tablet a sidebar fica escondida fora da tela por padrão.
+   Some o hover-expand (não funciona em toque) e usamos um botão hambúrguer
+   que desliza o menu completo (com os textos) para dentro da tela. */
+@media (max-width: 768px) {
+  .botao-hamburguer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sidebar-bg-top);
+    color: var(--text-primary);
+    border: 1px solid var(--sidebar-border);
+    z-index: 6000;
+    cursor: pointer;
+  }
+
+  .sidebar-overlay-mobile {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 4999;
+  }
+
+  .sidebar,
+  .sidebar.colapsada {
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .sidebar.aberta-mobile {
+    transform: translateX(0);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.28);
+  }
+
+  /* O botão hambúrguer é fixed no canto superior esquerdo da tela (top:14px;
+     left:14px, 40px de altura, ou seja vai até y=54px) e fica por cima de
+     tudo (z-index maior que a sidebar). Quando o menu abre, a logo nasce
+     nesse mesmo canto e acaba embaixo do botão. Empurramos a linha da
+     logo/texto pra baixo o suficiente pra nunca ficar sob o botão, em vez
+     de competir por z-index. */
+  .sidebar.aberta-mobile .sidebar-brand {
+    padding-top: 62px;
+  }
+
+  .sidebar.colapsada .sidebar-brand-texto,
+  .sidebar.colapsada .nav-label {
+    opacity: 1;
+    max-width: 200px;
+  }
+
+  .sidebar.colapsada .sidebar-nav a {
+    padding: 11px 17px 11px 47px;
+  }
+
+  .sidebar.colapsada .sidebar-nav a.ativo::before {
+    display: block;
+  }
+
+  main {
+    margin-left: 0;
+  }
 }
 .sidebar-divisor {
   border-top: 1px solid var(--sidebar-border);

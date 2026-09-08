@@ -939,14 +939,17 @@ details summary:hover {
     text-align: center;
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        z-index: 60;
-    }
+/* Container de scroll horizontal para tabelas que ainda não tinham um wrapper próprio.
+   Não altera a aparência da tabela em telas largas (só ativa o scroll quando necessário). */
+.tabela-responsiva {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 
+@media (max-width: 768px) {
     main {
-        padding: 20px 16px 88px;
+        padding: 68px 16px 32px;
     }
 
     .cards {
@@ -957,8 +960,43 @@ details summary:hover {
         grid-template-columns: 1fr;
     }
 
+    .painel {
+        padding: 18px 16px;
+    }
+
     .tabela-wrap {
         height: auto;
+    }
+
+    .cabecalho {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    form.form-gasto {
+        grid-template-columns: 1fr !important;
+    }
+
+    form.form-gasto .campo,
+    form.form-gasto .campo.largo,
+    form.form-gasto .campo.estreito,
+    form.form-gasto .campo-checkbox {
+        grid-column: span 1 !important;
+    }
+
+    form.form-gasto > button[type="submit"] {
+        grid-column: span 1 !important;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .filtro-status {
+        flex-wrap: wrap;
+    }
+
+    .modal {
+        padding: 20px 18px;
+        max-width: calc(100vw - 32px);
     }
 
     .paginador {
@@ -970,5 +1008,36 @@ details summary:hover {
         width: 100%;
         text-align: center;
         margin-bottom: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding: 64px 12px 24px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 14px 16px;
+    }
+
+    .painel {
+        padding: 14px 12px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .legenda {
+        gap: 12px;
+    }
+
+    .modal {
+        padding: 16px 14px;
+        border-radius: 10px;
     }
 }

@@ -42,6 +42,7 @@
 
 <div class="painel" *ngIf="!carregando && secoesComPendencia.length > 0">
   <h2>Pendências para resolver</h2>
+  <div class="tabela-responsiva">
   <table class="tabela-gastos tabela-pendencias">
     <colgroup>
       <col style="width:30%;"><col style="width:42%;"><col style="width:12%;"><col style="width:16%;">
@@ -71,6 +72,7 @@
     </tr>
     </tbody>
   </table>
+  </div>
 </div>
 
 <div class="painel-duplo" *ngIf="!carregando">

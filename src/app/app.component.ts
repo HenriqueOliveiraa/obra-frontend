@@ -15,6 +15,7 @@ export class AppComponent {
   title = 'Obra da Casa';
   sidebarCollapsed = signal(true);
   emTelaDeLogin = signal(false);
+  menuMobileAberto = signal(false);
 
   constructor(private router: Router, private auth: AuthService) {
     this.emTelaDeLogin.set(this.router.url.startsWith('/login'));
@@ -23,6 +24,7 @@ export class AppComponent {
       .pipe(filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd))
       .subscribe(evento => {
         this.emTelaDeLogin.set(evento.urlAfterRedirects.startsWith('/login'));
+        this.menuMobileAberto.set(false);
       });
   }
 
@@ -32,6 +34,18 @@ export class AppComponent {
 
   recolherSidebar(): void {
     this.sidebarCollapsed.set(true);
+  }
+
+  abrirMenuMobile(): void {
+    this.menuMobileAberto.set(true);
+  }
+
+  fecharMenuMobile(): void {
+    this.menuMobileAberto.set(false);
+  }
+
+  alternarMenuMobile(): void {
+    this.menuMobileAberto.update(valor => !valor);
   }
 
   sair(): void {

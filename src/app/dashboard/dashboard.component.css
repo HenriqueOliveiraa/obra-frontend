@@ -73,3 +73,20 @@
     color: var(--muted);
     margin-top: 3px;
 }
+
+@media (max-width: 900px) {
+    .painel-duplo {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .gasto-categoria-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .materiais-lista {
+        min-height: 0;
+    }
+}
